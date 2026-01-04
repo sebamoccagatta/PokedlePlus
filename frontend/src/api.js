@@ -1,49 +1,78 @@
-function localDayKey() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+// frontend/src/api.js
+import { searchCache } from './cache/searchCache.js';
+
+async function jsonOrText(res, errorCode) {
+  const text = await res.text();
+
+  if (!res.ok) {
+    throw new Error(`${errorCode}: ${text}`);
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
 }
 
-async function jsonOrThrow(res, label) {
-  const text = await res.text();
-  let data = null;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {}
-  if (!res.ok) {
-    const msg =
-      data?.message || data?.error || text || label || "request_failed";
-    throw new Error(msg);
+export async function apiMeta(mode) {
+  const res = await fetch(
+    `/api/meta?mode=${encodeURIComponent(mode || "classic")}`
+  );
+  return jsonOrText(res, "meta_failed");
+}
+
+export async function apiSearch(q, offset = 0, mode = "classic", opts = {}) {
+  const query = String(q || "").trim();
+  
+  if (offset === 0 && query) {
+    const cached = searchCache.get(query, mode);
+    if (cached) {
+      return cached;
+    }
   }
+
+  const res = await fetch(
+    `/api/search?q=${encodeURIComponent(query)}&offset=${offset}&mode=${encodeURIComponent(mode)}`,
+    { signal: opts.signal }
+  );
+  
+  const data = await jsonOrText(res, "search_failed");
+
+  if (offset === 0 && data.items && data.items.length > 0) {
+    searchCache.set(query, mode, data);
+  }
+
   return data;
 }
 
-export async function apiMeta() {
-  const dayKey = localDayKey();
-  const res = await fetch(`/api/meta?dayKey=${encodeURIComponent(dayKey)}`);
-  return jsonOrThrow(res, "meta_failed");
-}
-
-export async function apiSearch(q, offset = 0) {
-  const res = await fetch(
-    `/api/search?q=${encodeURIComponent(q)}&offset=${offset}`
-  );
-  return jsonOrThrow(res, "search_failed");
-}
-
-// ✅ soporta /api/pokemon?id= y también /api/pokemon/ID
 export async function apiPokemon(id) {
   const res = await fetch(`/api/pokemon/${id}`);
-  return jsonOrThrow(res, "pokemon_failed");
+  const data = await jsonOrText(res, "pokemon_failed");
+
+  return {
+    ...data,
+    types: Array.isArray(data.types)
+      ? data.types
+      : typeof data.types === "string"
+      ? data.types.split(",").map((t) => t.trim())
+      : [],
+    habitat: typeof data.habitat === "string" ? data.habitat : "unknown",
+    color: typeof data.color === "string" ? data.color : "unknown",
+  };
 }
 
-export async function apiGuess(guessId, dayKey) {
+export async function apiGuess(guessId, dayKey, mode = "classic") {
   const res = await fetch(`/api/guess`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ guessId, dayKey }),
+    body: JSON.stringify({ guessId, dayKey, mode }),
   });
-  return jsonOrThrow(res, "guess_failed");
+  return jsonOrText(res, "guess_failed");
+}
+
+export async function prefetchPokemon(id) {
+  try {
+    fetch(`/api/pokemon/${id}`);
+  } catch {}
 }

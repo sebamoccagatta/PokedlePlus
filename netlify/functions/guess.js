@@ -1,94 +1,118 @@
+// netlify/functions/guess.js
 const { sql } = require("./_lib/db");
+const { modeConfig } = require("./_lib/modes");
+const { compareGuess, fnv1a } = require("./_lib/utils");
+const { parseTypes } = require("./_lib/normalize");
 
-const { compareGuess, fnv1a, pickDailyTargetId } = require("./_lib/utils");
+function getSecret() {
+  return process.env.SECRET || "CHANGE_ME_SECRET";
+}
 
-const SECRET = process.env.SECRET || "CHANGE_ME_SECRET";
+function pickDailyTargetId(pool, seedKey) {
+  const h = fnv1a(`${getSecret()}:${seedKey}`);
+  const idx = h % pool.length;
+  return pool[idx].id;
+}
+
+function mapRow(row) {
+  // soporta: types_json (viejo) o types (nuevo)
+  const rawTypes = row.types_json != null ? row.types_json : row.types;
+
+  return {
+    id: row.id,
+    name: row.name,
+    gen: Number(row.gen || 1),
+    height_dm: Number(row.height_dm || 0),
+    weight_hg: Number(row.weight_hg || 0),
+    types: parseTypes(rawTypes),
+    habitat: row.habitat ?? "unknown",
+    color: row.color ?? "unknown",
+    evolution_stage: Number(row.evolution_stage || 1),
+  };
+}
 
 exports.handler = async (event) => {
   try {
     if (event.httpMethod !== "POST") {
-      return {
-        statusCode: 405,
-        body: JSON.stringify({ error: "METHOD_NOT_ALLOWED" }),
-      };
+      return { statusCode: 405, body: "Method Not Allowed" };
     }
 
     const body = JSON.parse(event.body || "{}");
-    const guessId = Number(body.guessId || 0);
-    const dayKey = String(body.dayKey || "");
+    const guessId = Number(body.guessId);
+    const dayKey = String(body.dayKey || "").trim();
+    const mode = String(body.mode || "classic");
 
     if (!guessId || !dayKey) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "INVALID_REQUEST" }),
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ error: "INVALID_INPUT" }),
       };
     }
 
+    const cfg = modeConfig(mode);
     const db = sql();
 
-    const countRows = await db`SELECT COUNT(*)::int AS c FROM pokemon`;
-    const count = countRows[0]?.c || 0;
-    if (!count)
-      return { statusCode: 400, body: JSON.stringify({ error: "DB_EMPTY" }) };
+    // pool filtrado por modo
+    let pool;
+    if (cfg.gens && cfg.gens.length) {
+      pool =
+        await db`SELECT id FROM pokemon WHERE gen = ANY(${cfg.gens}) ORDER BY id`;
+    } else {
+      pool = await db`SELECT id FROM pokemon ORDER BY id`;
+    }
 
-    const idx = pickDailyTargetId({ secret: SECRET, dayKey, count }); // 1..count
+    if (!pool.length) {
+      return {
+        statusCode: 400,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ error: "EMPTY_POOL" }),
+      };
+    }
 
-    const targetRows = await db`
-      SELECT * FROM pokemon
-      ORDER BY id
-      LIMIT 1 OFFSET ${idx - 1}
-    `;
-    const target = targetRows[0];
+    const seedKey = `${dayKey}|${cfg.id}`;
+    const targetId = pickDailyTargetId(pool, seedKey);
 
-    const guessRows =
-      await db`SELECT * FROM pokemon WHERE id = ${guessId} LIMIT 1`;
-    const guess = guessRows[0];
-    if (!guess)
+    const tRows =
+      await db`SELECT * FROM pokemon WHERE id = ${targetId} LIMIT 1`;
+    const gRows = await db`SELECT * FROM pokemon WHERE id = ${guessId} LIMIT 1`;
+
+    const tRow = tRows[0];
+    const gRow = gRows[0];
+
+    if (!gRow) {
       return {
         statusCode: 404,
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ error: "POKEMON_NOT_FOUND" }),
       };
+    }
 
-    // normalizar types
-    target.types = Array.isArray(target.types_json)
-      ? target.types_json
-      : JSON.parse(JSON.stringify(target.types_json));
-    guess.types = Array.isArray(guess.types_json)
-      ? guess.types_json
-      : JSON.parse(JSON.stringify(guess.types_json));
+    const target = mapRow(tRow);
+    const guess = mapRow(gRow);
 
-    const comparison = compareGuess({
-      target: {
-        id: target.id,
-        name: target.name,
-        gen: target.gen,
-        height_dm: target.height_dm,
-        weight_hg: target.weight_hg,
-        types: target.types,
-        habitat: target.habitat,
-        color: target.color,
-        evolution_stage: target.evolution_stage,
+    const comparison = compareGuess({ target, guess });
+
+    return {
+      statusCode: 200,
+      headers: {
+        "content-type": "application/json",
+        "cache-control": "no-store",
       },
-      guess: {
-        id: guess.id,
-        name: guess.name,
-        gen: guess.gen,
-        height_dm: guess.height_dm,
-        weight_hg: guess.weight_hg,
-        types: guess.types,
-        habitat: guess.habitat,
-        color: guess.color,
-        evolution_stage: guess.evolution_stage,
-      },
-    });
-
-    return { statusCode: 200, body: JSON.stringify({ dayKey, comparison }) };
+      body: JSON.stringify({
+        dayKey,
+        mode: cfg.id,
+        comparison,
+      }),
+    };
   } catch (e) {
+    console.error(e);
     return {
       statusCode: 500,
+      headers: { "content-type": "application/json" },
       body: JSON.stringify({
         error: "GUESS_FAILED",
-        message: String(e?.message || e),
+        message: String(e.message || e),
       }),
     };
   }
