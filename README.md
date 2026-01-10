@@ -139,8 +139,8 @@ pokedle-plus/
 ### 1) Clonar repo
 
 ```bash
-git clone https://github.com/TU_USUARIO/pokedle-plus.git
-cd pokedle-plus
+[git clone https://github.com/TU_USUARIO/pokedle-plus.git](https://github.com/sebamoccagatta/PokedlePlus.git)
+cd PokedlePlus
 ```
 
 ### 2) Instalar dependencias
