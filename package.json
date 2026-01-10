@@ -2,7 +2,7 @@
   "name": "pokedle-plus-netlify",
   "private": true,
   "scripts": {
-    "build": "cd frontend && npm ci && npm run build",
+    "build": "cd frontend && npm run build",
     "dev": "netlify dev",
     "db:schema": "node scripts/apply-schema.js",
     "db:seed": "node scripts/seed-postgres.js"
