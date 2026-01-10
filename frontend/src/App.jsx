@@ -1,5 +1,5 @@
 // frontend/src/App.jsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import {
   apiGuess,
   apiMeta,
@@ -7,6 +7,22 @@ import {
   apiSearch,
   prefetchPokemon,
 } from "./api.js";
+import {
+  Globe,
+  Leaf,
+  Gem,
+  Flame,
+  Mountain,
+  Building2,
+  Sparkles,
+  Sun,
+  Swords,
+  Map,
+  CheckCircle2,
+  CircleDashed,
+  ArrowRight,
+} from "lucide-react";
+
 import { badgeClass, arrow } from "./ui.js";
 import { useTheme } from "./hooks/useTheme.js";
 import { useSearchCache } from "./hooks/useSearchCache.js";
@@ -159,69 +175,250 @@ function formatWeight(hg) {
   return `${kg} kg`;
 }
 
-function Home({ onSelect }) {
-  const modes = [
-    {
-      id: "classic",
-      title: "Clásico",
-      desc: "Todas las generaciones",
-      color: "bg-emerald-500",
-    },
-    {
-      id: "gen1",
-      title: "Generación I",
-      desc: "Solo Kanto",
-      color: "bg-sky-500",
-    },
-    {
-      id: "gen2",
-      title: "Generación II",
-      desc: "Solo Johto",
-      color: "bg-indigo-500",
-    },
-    {
-      id: "gen3",
-      title: "Generación III",
-      desc: "Solo Hoenn",
-      color: "bg-violet-500",
-    },
-  ];
+function Home({ onSelect, dayKey }) {
+  const modes = useMemo(
+    () => [
+      {
+        id: "classic",
+        title: "Clásico",
+        desc: "Todas las generaciones",
+        color: "bg-emerald-500",
+        Icon: Globe,
+      },
+      {
+        id: "gen1",
+        title: "Generación I",
+        desc: "Solo Kanto",
+        color: "bg-sky-500",
+        Icon: Leaf,
+      },
+      {
+        id: "gen2",
+        title: "Generación II",
+        desc: "Solo Johto",
+        color: "bg-indigo-500",
+        Icon: Gem,
+      },
+      {
+        id: "gen3",
+        title: "Generación III",
+        desc: "Solo Hoenn",
+        color: "bg-violet-500",
+        Icon: Flame,
+      },
+      {
+        id: "gen4",
+        title: "Generación IV",
+        desc: "Solo Sinnoh",
+        color: "bg-purple-500",
+        Icon: Mountain,
+      },
+      {
+        id: "gen5",
+        title: "Generación V",
+        desc: "Solo Unova",
+        color: "bg-red-500",
+        Icon: Building2,
+      },
+      {
+        id: "gen6",
+        title: "Generación VI",
+        desc: "Solo Kalos",
+        color: "bg-pink-500",
+        Icon: Sparkles,
+      },
+      {
+        id: "gen7",
+        title: "Generación VII",
+        desc: "Solo Alola",
+        color: "bg-yellow-500",
+        Icon: Sun,
+      },
+      {
+        id: "gen8",
+        title: "Generación VIII",
+        desc: "Solo Galar",
+        color: "bg-orange-500",
+        Icon: Swords,
+      },
+      {
+        id: "gen9",
+        title: "Generación IX",
+        desc: "Solo Paldea",
+        color: "bg-rose-500",
+        Icon: Map,
+      },
+    ],
+    []
+  );
+
+  const [statusByMode, setStatusByMode] = useState(() => ({}));
+  const [lastMode, setLastMode] = useState(
+    () => localStorage.getItem("pokedleplus:lastMode") || "classic"
+  );
+
+  function safeParse(json) {
+    try {
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
+  }
+
+  function readModeState(dk, modeId) {
+    if (!dk) return null;
+
+    const keys = [
+      `pokedleplus:v1:${dk}:${modeId}`,
+      `pokedleplus:v1:${dk}`,
+      `pokedle_state_v1`,
+    ];
+
+    for (const k of keys) {
+      const raw = localStorage.getItem(k);
+      if (!raw) continue;
+      const parsed = safeParse(raw);
+      if (parsed && typeof parsed === "object") return parsed;
+    }
+    return null;
+  }
+
+  function computeStatuses() {
+    const map = {};
+    for (const m of modes) {
+      const st = readModeState(dayKey, m.id);
+      const attempts = Array.isArray(st?.attempts) ? st.attempts.length : 0;
+      const won =
+        st?.won === true ||
+        st?.status === "won" ||
+        st?.win === true ||
+        st?.isWon === true;
+
+      map[m.id] = { attempts, won, played: attempts > 0 || won };
+    }
+    return map;
+  }
+
+  useEffect(() => {
+    setStatusByMode(computeStatuses());
+    const onStorage = () => setStatusByMode(computeStatuses());
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dayKey, modes]);
+
+  function handleSelect(id) {
+    localStorage.setItem("pokedleplus:lastMode", id);
+    setLastMode(id);
+    onSelect(id);
+  }
 
   return (
-    <div className="min-h-screen bg-[#060708] dark:bg-[#060708] bg-gray-50 text-zinc-100 dark:text-zinc-100 text-gray-900 flex items-center justify-center">
-      <div className="w-full max-w-xl p-6">
-        <h1 className="text-3xl font-black text-center mb-2">Pokedle+</h1>
-        <p className="text-center text-zinc-400 dark:text-zinc-400 text-gray-500 mb-8">
+    <div className="min-h-screen bg-[#060708] text-zinc-100">
+      <div className="mx-auto w-full max-w-[1600px] px-6 md:px-10 2xl:px-16 py-14">
+        <h1 className="text-4xl font-black text-center mb-2">Pokedle+</h1>
+        <p className="text-center text-zinc-400 mb-6">
           Elegí cómo querés jugar hoy
         </p>
 
-        <div className="grid gap-4">
-          {modes.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => onSelect(m.id)}
-              className="group rounded-3xl border border-zinc-800 bg-zinc-950/50 p-5 text-left hover:bg-zinc-900/50 transition dark:border-zinc-800 dark:bg-zinc-950/50 dark:hover:bg-zinc-900/50 border-gray-200 bg-white hover:bg-gray-100"
-            >
-              <div className="flex items-center gap-4">
-                <div
-                  className={`h-12 w-12 rounded-2xl ${m.color} flex items-center justify-center text-black font-black`}
-                >
-                  ▶
-                </div>
-                <div>
-                  <div className="text-lg font-extrabold text-zinc-100 dark:text-zinc-100 text-gray-900">
-                    {m.title}
-                  </div>
-                  <div className="text-sm text-zinc-400 dark:text-zinc-400 text-gray-500">
-                    {m.desc}
-                  </div>
-                </div>
-              </div>
-            </button>
-          ))}
+        <div className="mb-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <span className="text-xs text-zinc-500">
+            Hoy:{" "}
+            <span className="font-semibold text-zinc-300">{dayKey || "…"}</span>
+          </span>
+
+          <button
+            onClick={() => handleSelect(lastMode)}
+            className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/60 px-4 py-2 text-xs font-semibold text-zinc-200 hover:bg-zinc-900/60 transition"
+            title="Volver al último modo jugado"
+          >
+            Continuar <span className="text-zinc-400">({lastMode})</span>
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
 
-        <div className="mt-8 text-center text-xs text-zinc-500">
+        {/* ✅ MENOS COLUMNAS = MÁS AIRE */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+          {modes.map((m) => {
+            const st = statusByMode[m.id] || {
+              attempts: 0,
+              won: false,
+              played: false,
+            };
+
+            return (
+              <button
+                key={m.id}
+                onClick={() => handleSelect(m.id)}
+                className={[
+                  "group relative rounded-[28px] border text-left transition",
+                  "p-7 2xl:p-8 min-h-[170px] 2xl:min-h-[185px]",
+                  "shadow-[0_20px_60px_rgba(0,0,0,0.45)]",
+                  st.won
+                    ? "border-emerald-900/60 bg-emerald-950/20 hover:bg-emerald-950/25"
+                    : st.played
+                    ? "border-zinc-700 bg-zinc-950/60 hover:bg-zinc-900/60"
+                    : "border-zinc-800 bg-zinc-950/50 hover:bg-zinc-900/50",
+                ].join(" ")}
+                title={m.title}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-5 min-w-0">
+                    <div
+                      className={[
+                        "h-16 w-16 rounded-3xl", // ✅ ícono más grande
+                        m.color,
+                        "flex items-center justify-center text-white shrink-0",
+                        "shadow-[0_12px_40px_rgba(0,0,0,0.35)]",
+                        "transition-transform duration-200 group-hover:scale-[1.05]",
+                      ].join(" ")}
+                    >
+                      <m.Icon className="h-8 w-8" />
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="text-xl font-extrabold truncate">
+                        {m.title}
+                      </div>
+                      <div className="text-sm text-zinc-400">{m.desc}</div>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0">
+                    {st.won ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-900/60 bg-emerald-950/30 px-2.5 py-1 text-[11px] font-bold text-emerald-200">
+                        <CheckCircle2 className="h-4 w-4" /> Ganado
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-zinc-800 bg-zinc-950/40 px-2.5 py-1 text-[11px] font-bold text-zinc-300">
+                        <CircleDashed className="h-4 w-4" /> Pendiente
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* ✅ footer separado = respira */}
+                <div className="mt-6 flex items-center justify-between text-sm">
+                  <div className="text-zinc-400">
+                    Intentos:{" "}
+                    <span className="font-semibold text-zinc-100">
+                      {st.attempts}
+                    </span>
+                  </div>
+
+                  <div className="text-zinc-500 group-hover:text-zinc-200 transition inline-flex items-center gap-2">
+                    Jugar{" "}
+                    <span className="translate-x-0 group-hover:translate-x-0.5 transition-transform">
+                      →
+                    </span>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-10 text-center text-xs text-zinc-500">
           Podés jugar todos los modos el mismo día
         </div>
       </div>
@@ -344,6 +541,21 @@ export default function App() {
     fetch(`/api/search?q=a&offset=0&mode=${encodeURIComponent(mode)}`).catch(
       () => {}
     );
+  }, [mode]);
+
+  // ✅ dayKey global para Home (aunque todavía no elijas modo)
+  useEffect(() => {
+    if (mode) return; // si ya hay modo, el otro effect se encarga
+
+    (async () => {
+      try {
+        const meta = await apiMeta("classic"); // usamos classic solo para obtener dayKey
+        setDayKey(meta.dayKey);
+      } catch (e) {
+        console.error(e);
+        // no rompemos UI
+      }
+    })();
   }, [mode]);
 
   async function doSearch(nextQ, nextOffset = 0, append = false) {
@@ -516,6 +728,7 @@ export default function App() {
           saveMode(m);
           setMode(m);
         }}
+        dayKey={dayKey}
       />
     );
   }
@@ -598,9 +811,9 @@ export default function App() {
 
           {error && (
             <div className="mb-4">
-              <Toast kind="error" title="Error" onClose={() => setError("")}>
+              <toasts kind="error" title="Error" onClose={() => setError("")}>
                 {error}
-              </Toast>
+              </toasts>
             </div>
           )}
 
