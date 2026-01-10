@@ -14,31 +14,21 @@ Juego estilo **Pokedle / Wordle** donde tenés que adivinar el **Pokémon del d�
 
 - **Sitio:** `https://pokedle-plus.netlify.app/`
 
-> Si todavía no lo publicaste o querés linkear tu dominio, reemplazá con tu URL real.
-
 ---
 
 ## 🖼️ Screenshots
 
-> Subí capturas en `./docs/screenshots/` y actualizá los links.
-
 - Home (selección de modo)
 
-  `docs/screenshots/home.png`
+  ![Home](docs/screenshots/home.png)
 
 - Juego (tabla de pistas)
 
-  `docs/screenshots/game.png`
+  ![Home](docs/screenshots/game.png)
 
 - Ganaste
 
-  `docs/screenshots/win.png`
-
-Ejemplo:
-
-```md
-![Home](docs/screenshots/home.png)
-```
+  ![Home](docs/screenshots/win.png)
 
 ---
 
