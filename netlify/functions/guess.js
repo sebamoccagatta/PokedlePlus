@@ -5,7 +5,11 @@ const { compareGuess, fnv1a } = require("./_lib/utils");
 const { parseTypes } = require("./_lib/normalize");
 
 function getSecret() {
-  return process.env.SECRET || "CHANGE_ME_SECRET";
+  const secret = process.env.SECRET;
+  if (!secret) {
+    throw new Error("MISSING_SECRET: process.env.SECRET is not set");
+  }
+  return secret;
 }
 
 function pickDailyTargetId(pool, seedKey) {
@@ -33,6 +37,19 @@ function mapRow(row) {
 
 exports.handler = async (event) => {
   try {
+    const secret = process.env.SECRET;
+    if (!secret) {
+      return {
+        statusCode: 500,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          error: "MISSING_SECRET",
+          message:
+            "process.env.SECRET is not set. Please set SECRET environment variable in Netlify.",
+        }),
+      };
+    }
+
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: "Method Not Allowed" };
     }

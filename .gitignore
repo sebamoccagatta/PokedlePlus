@@ -1,5 +1,13 @@
 # Local Netlify folder
 .netlify
+
+# Environment variables (never commit)
 .env
+.env.local
+.env.*.local
+
+# Build outputs
 dist
+
+# Dependencies
 node_modules
