@@ -175,20 +175,70 @@ Netlify va a crear variables automáticamente en el site:
 
 ## 🔑 Variables de entorno
 
-### `.env` local
+### Paso 1: Copiar plantilla de variables
 
-Creá un archivo `.env` en la raíz:
+El proyecto incluye una plantilla de variables de entorno en `.env.example`. Copiala a un archivo `.env` en la raíz:
+
+```bash
+cp .env.example .env
+```
+
+### Variables requeridas
+
+#### `.env` local
+
+Editá tu `.env` con los siguientes valores:
 
 ```env
 DATABASE_URL=postgresql://USER:PASSWORD@HOST/DB?sslmode=require
+SECRET=tu-valor-seguro-aleatorio-aqui
 ```
 
-> Podés copiar el `DATABASE_URL` desde el panel de Neon / Netlify DB.
+| Variable       | Descripción                                                         | Ejemplo                                            |
+| -------------- | ------------------------------------------------------------------- | -------------------------------------------------- |
+| `DATABASE_URL` | Cadena de conexión a PostgreSQL (Neon / Netlify DB)                 | `postgresql://user:pass@host/db?sslmode=require`   |
+| `SECRET`       | Semilla para generar el Pokémon del día (obligatorio en producción) | Generá una cadena aleatoria (mínimo 32 caracteres) |
 
-### Verificar que se está leyendo
+> **NOTA IMPORTANTE**: El archivo `.env` está en `.gitignore`. **NUCA** lo comitees o subas al repositorio.
+
+### Cómo obtener los valores
+
+#### 1. `DATABASE_URL`
+
+1. Ve al panel de **Neon** o al dashboard de **Netlify DB**
+2. Copia la cadena de conexión (Connection String)
+3. Pegala en tu `.env`
+
+#### 2. `SECRET`
+
+Generá una cadena aleatoria segura usando uno de estos métodos:
 
 ```bash
-node -e "require('dotenv').config(); console.log(process.env.DATABASE_URL?.slice(0,50)+'...')"
+# Usar openssl
+openssl rand -base64 32
+
+# O en PowerShell
+[Convert]::ToBase64String((1..32|%{[char](Get-Random -Minimum 65 -Maximum 90)}))-replace '/',''
+```
+
+### Variables en Netlify (producción)
+
+Para que el sitio funcione en Netlify, también debés configurar estas variables en el dashboard:
+
+1. Ve a tu sitio en Netlify → **Site configuration** → **Environment variables**
+2. Agrega:
+   - `DATABASE_URL` → (la misma que usas local)
+   - `SECRET` → (otra cadena aleatoria, diferente a la local)
+3. Guarda y redespliega
+
+### Verificar que se están leyendo
+
+```bash
+# Verificar DATABASE_URL
+node -e "require('dotenv').config(); console.log('DB:', process.env.DATABASE_URL?.slice(0,50)+'...')"
+
+# Verificar SECRET
+node -e "require('dotenv').config(); console.log('SECRET:', process.env.SECRET?.slice(0,10)+'...')"
 ```
 
 ---
