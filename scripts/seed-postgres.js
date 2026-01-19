@@ -91,7 +91,7 @@ async function main() {
   const url = process.env.DATABASE_URL;
   if (!url) {
     console.error(
-      "❌ Falta DATABASE_URL. Copiala desde Netlify DB/Neon y exportala en tu terminal."
+      "❌ Falta DATABASE_URL. Copiala desde Netlify DB/Neon y exportala en tu terminal.",
     );
     process.exit(1);
   }
@@ -102,13 +102,13 @@ async function main() {
   const existing = await sql`SELECT COUNT(*)::int AS c FROM pokemon`;
   if ((existing[0]?.c || 0) > 0) {
     console.log(
-      `ℹ️ Ya hay ${existing[0].c} pokémon en la DB. Si querés reseed, vaciá la tabla primero.`
+      `ℹ️ Ya hay ${existing[0].c} pokémon en la DB. Si querés reseed, vaciá la tabla primero.`,
     );
     return;
   }
 
   console.log(
-    `🌱 Seedeando ${DEX_MAX} Pokémon... (concurrency=${CONCURRENCY})`
+    `🌱 Seedeando ${DEX_MAX} Pokémon... (concurrency=${CONCURRENCY})`,
   );
 
   let nextId = 1;

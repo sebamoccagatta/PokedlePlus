@@ -249,12 +249,12 @@ function Home({ onSelect, dayKey }) {
         Icon: Map,
       },
     ],
-    []
+    [],
   );
 
   const [statusByMode, setStatusByMode] = useState(() => ({}));
   const [lastMode, setLastMode] = useState(
-    () => localStorage.getItem("pokedleplus:lastMode") || "classic"
+    () => localStorage.getItem("pokedleplus:lastMode") || "classic",
   );
 
   function safeParse(json) {
@@ -357,8 +357,8 @@ function Home({ onSelect, dayKey }) {
                   st.won
                     ? "border-emerald-900/60 bg-emerald-950/20 hover:bg-emerald-950/25"
                     : st.played
-                    ? "border-zinc-700 bg-zinc-950/60 hover:bg-zinc-900/60"
-                    : "border-zinc-800 bg-zinc-950/50 hover:bg-zinc-900/50",
+                      ? "border-zinc-700 bg-zinc-950/60 hover:bg-zinc-900/60"
+                      : "border-zinc-800 bg-zinc-950/50 hover:bg-zinc-900/50",
                 ].join(" ")}
                 title={m.title}
               >
@@ -539,7 +539,7 @@ export default function App() {
 
     // 🔥 warm-up de la function search (reduce cold start)
     fetch(`/api/search?q=a&offset=0&mode=${encodeURIComponent(mode)}`).catch(
-      () => {}
+      () => {},
     );
   }, [mode]);
 
@@ -646,8 +646,8 @@ export default function App() {
         types: Array.isArray(p.types)
           ? p.types
           : typeof p.types === "string"
-          ? p.types.split(",").map((t) => t.trim())
-          : [],
+            ? p.types.split(",").map((t) => t.trim())
+            : [],
         habitat: p.habitat ?? "unknown",
         color: p.color ?? "unknown",
         gen: Number(p.gen || 1),

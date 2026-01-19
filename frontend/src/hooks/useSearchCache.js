@@ -1,4 +1,4 @@
-import { searchCache } from '../cache/searchCache.js';
+import { searchCache } from "../cache/searchCache.js";
 
 export function useSearchCache() {
   const get = (query, mode) => searchCache.get(query, mode);
