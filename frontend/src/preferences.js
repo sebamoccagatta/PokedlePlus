@@ -1,4 +1,4 @@
-const PREFS_KEY = 'pokedleplus:prefs';
+const PREFS_KEY = "pokedleplus:prefs";
 
 export function loadPrefs() {
   try {

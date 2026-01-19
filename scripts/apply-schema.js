@@ -18,7 +18,7 @@ async function main() {
   const url = process.env.DATABASE_URL;
   if (!url) {
     console.error(
-      "❌ Falta DATABASE_URL. Seteala en tu terminal antes de correr esto."
+      "❌ Falta DATABASE_URL. Seteala en tu terminal antes de correr esto.",
     );
     process.exit(1);
   }

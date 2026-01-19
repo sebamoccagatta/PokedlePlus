@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 export function useToast() {
   const [toasts, setToasts] = useState([]);
@@ -7,12 +7,12 @@ export function useToast() {
     const id = Date.now() + Math.random();
     const newToast = {
       id,
-      kind: 'info',
+      kind: "info",
       duration: 5000,
       ...toast,
     };
 
-    setToasts(prev => [...prev, newToast]);
+    setToasts((prev) => [...prev, newToast]);
 
     if (newToast.duration > 0) {
       setTimeout(() => {
@@ -24,7 +24,7 @@ export function useToast() {
   }, []);
 
   const removeToast = useCallback((id) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const clearToasts = useCallback(() => {

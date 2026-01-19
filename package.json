@@ -13,7 +13,13 @@
     "postgres": "^3.4.7"
   },
   "devDependencies": {
-    "netlify-cli": "^20.0.0"
+    "@typescript-eslint/eslint-plugin": "^8.53.1",
+    "@typescript-eslint/parser": "^8.53.1",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "netlify-cli": "^20.0.0",
+    "prettier": "^3.8.0"
   },
   "version": "1.0.0",
   "main": "index.js",
