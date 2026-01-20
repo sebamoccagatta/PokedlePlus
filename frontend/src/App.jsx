@@ -39,6 +39,7 @@ import { Toast, ToastContainer } from "./components/Toast.jsx";
  */
 const STORAGE_PREFIX = "pokedleplus:v1:";
 const MODE_KEY = "pokedleplus:mode";
+const MAX_ATTEMPTS = 10;
 
 function loadMode() {
   try {
@@ -526,19 +527,28 @@ export default function App() {
       setDayKey(meta.dayKey);
 
       const loaded = loadState(meta.dayKey, mode);
-      setState(loaded);
+      const shouldFinish =
+        !loaded.won && loaded.attempts.length >= MAX_ATTEMPTS;
+      const normalized = shouldFinish
+        ? { ...loaded, finished: true, won: false }
+        : loaded;
 
-      if (loaded.won) {
+      setState(normalized);
+      if (normalized !== loaded) {
+        saveState(normalized, mode);
+      }
+
+      if (normalized.won) {
         addToast({
           kind: "success",
           title: t("game.win_title"),
           message: t("game.win_message"),
         });
-      } else if (loaded.finished) {
+      } else if (normalized.finished) {
         addToast({
-          kind: "info",
-          title: t("game.day_end_title"),
-          message: t("game.day_end_message"),
+          kind: "warning",
+          title: t("game.lost_title"),
+          message: t("game.lost_message"),
         });
       }
     })().catch((e) => {
@@ -627,9 +637,11 @@ export default function App() {
 
     if (state.finished) {
       addToast({
-        kind: "info",
-        title: t("game.already_played_title"),
-        message: t("game.day_end_message"),
+        kind: state.won ? "info" : "warning",
+        title: state.won ? t("game.already_played_title") : t("game.lost_title"),
+        message: state.won
+          ? t("game.day_end_message")
+          : t("game.lost_message"),
       });
       return;
     }
@@ -672,22 +684,32 @@ export default function App() {
         isCorrect: Boolean(g?.comparison?.isCorrect),
       };
 
+      const nextAttempts = [attempt, ...state.attempts];
+      const isWin = Boolean(attempt.isCorrect);
+      const isOutOfAttempts = !isWin && nextAttempts.length >= MAX_ATTEMPTS;
+
       const next = {
         dayKey,
-        attempts: [attempt, ...state.attempts],
-        finished: Boolean(attempt.isCorrect),
-        won: Boolean(attempt.isCorrect),
+        attempts: nextAttempts,
+        finished: isWin || isOutOfAttempts,
+        won: isWin,
       };
 
       setState(next);
       saveState(next, mode);
       scheduleReveal();
 
-      if (attempt.isCorrect) {
+      if (isWin) {
         addToast({
           kind: "success",
           title: t("game.win_title"),
           message: t("game.win_message"),
+        });
+      } else if (isOutOfAttempts) {
+        addToast({
+          kind: "warning",
+          title: t("game.lost_title"),
+          message: t("game.lost_message"),
         });
       }
     } catch (e) {
@@ -800,6 +822,9 @@ export default function App() {
 
             <div className="mt-2 text-xs text-muted">
               {t("game.tip")}
+            </div>
+            <div className="mt-1 text-xs text-muted">
+              {t("game.attempts_label")} {attempts.length}/{MAX_ATTEMPTS}
             </div>
 
             {results.length > 0 && (
@@ -920,14 +945,17 @@ export default function App() {
                       {showGenColumn && (
                         <div className="flex justify-center">
                           <Pill
-                            kind={r(2) ? a.columns.gen : ""}
+                            kind={
+                              r(2)
+                                ? a.columns.gen === "correct"
+                                  ? "correct"
+                                  : "absent"
+                                : ""
+                            }
                             pop={isTop && r(2)}
                             isDark={isDark}
                           >
                             <span>Gen {a.gen}</span>
-                            <span className="font-black">
-                              {r(2) ? arrow(a.columns.gen) : ""}
-                            </span>
                           </Pill>
                         </div>
                       )}
