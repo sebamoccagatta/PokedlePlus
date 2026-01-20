@@ -316,7 +316,7 @@ function Home({ onSelect, dayKey, i18n }) {
 
   return (
     <div className="min-h-screen bg-app text-app">
-      <div className="mx-auto w-full max-w-[1600px] px-6 md:px-10 2xl:px-16 py-14">
+      <div className="mx-auto w-full max-w-[1900px] px-6 md:px-10 2xl:px-16 py-14">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-4xl font-black">Pokedle+</h1>
           <div className="flex items-center gap-3">
@@ -352,7 +352,7 @@ function Home({ onSelect, dayKey, i18n }) {
         </div>
 
         {/* ✅ MENOS COLUMNAS = MÁS AIRE */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
           {modes.map((m) => {
             const st = statusByMode[m.id] || {
               attempts: 0,
@@ -391,7 +391,7 @@ function Home({ onSelect, dayKey, i18n }) {
                     </div>
 
                     <div className="min-w-0">
-                      <div className="text-xl font-extrabold truncate">
+                      <div className="text-xl font-extrabold leading-tight break-words">
                         {m.title}
                       </div>
                       <div className="text-sm text-muted">{m.desc}</div>
