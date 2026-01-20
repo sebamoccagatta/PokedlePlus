@@ -746,8 +746,10 @@ export default function App() {
             </div>
           </div>
 
+          {/* Language selector inserted */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            <LanguageSelector />
             <button
               onClick={() => {
                 clearMode();
