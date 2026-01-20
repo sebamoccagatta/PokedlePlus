@@ -318,7 +318,13 @@ function Home({ onSelect, dayKey }) {
   return (
     <div className="min-h-screen bg-[#060708] text-zinc-100">
       <div className="mx-auto w-full max-w-[1600px] px-6 md:px-10 2xl:px-16 py-14">
-        <h1 className="text-4xl font-black text-center mb-2">Pokedle+</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-4xl font-black">Pokedle+</h1>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <LanguageSelector />
+          </div>
+        </div>
         <p className="text-center text-zinc-400 mb-6">
           Elegí cómo querés jugar hoy
         </p>
