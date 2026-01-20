@@ -3,6 +3,7 @@ const { sql } = require("./_lib/db");
 const { modeConfig } = require("./_lib/modes");
 const { compareGuess, fnv1a } = require("./_lib/utils");
 const { parseTypes } = require("./_lib/normalize");
+const { getClientIp, getRateLimitInfo } = require("./_lib/rateLimit");
 
 function getSecret() {
   const secret = process.env.SECRET;
@@ -52,6 +53,29 @@ exports.handler = async (event) => {
 
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: "Method Not Allowed" };
+    }
+
+    const ip = getClientIp(event);
+    const rateInfo = getRateLimitInfo(ip);
+
+    if (rateInfo.exceeded) {
+      return {
+        statusCode: 429,
+        headers: {
+          "content-type": "application/json",
+          "retry-after": Math.ceil(
+            (rateInfo.reset - Date.now()) / 1000,
+          ).toString(),
+          "x-ratelimit-limit": rateInfo.limit.toString(),
+          "x-ratelimit-remaining": rateInfo.remaining.toString(),
+          "x-ratelimit-reset": new Date(rateInfo.reset).toISOString(),
+        },
+        body: JSON.stringify({
+          error: "RATE_LIMIT_EXCEEDED",
+          message: "Too many requests. Please try again later.",
+          retryAfter: Math.ceil((rateInfo.reset - Date.now()) / 1000),
+        }),
+      };
     }
 
     const body = JSON.parse(event.body || "{}");
@@ -115,6 +139,9 @@ exports.handler = async (event) => {
       headers: {
         "content-type": "application/json",
         "cache-control": "no-store",
+        "x-ratelimit-limit": rateInfo.limit.toString(),
+        "x-ratelimit-remaining": rateInfo.remaining.toString(),
+        "x-ratelimit-reset": new Date(rateInfo.reset).toISOString(),
       },
       body: JSON.stringify({
         dayKey,
