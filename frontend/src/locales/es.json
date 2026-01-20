@@ -95,6 +95,55 @@
       "evolution": "Evol.",
       "height": "Alt.",
       "weight": "Peso"
+    },
+    "hints": {
+      "types": {
+        "normal": "normal",
+        "fire": "fuego",
+        "water": "agua",
+        "electric": "electrico",
+        "grass": "planta",
+        "ice": "hielo",
+        "fighting": "lucha",
+        "poison": "veneno",
+        "ground": "tierra",
+        "flying": "volador",
+        "psychic": "psiquico",
+        "bug": "bicho",
+        "rock": "roca",
+        "ghost": "fantasma",
+        "dragon": "dragon",
+        "dark": "siniestro",
+        "steel": "acero",
+        "fairy": "hada",
+        "none": "ninguno",
+        "unknown": "desconocido"
+      },
+      "habitats": {
+        "cave": "caverna",
+        "forest": "bosque",
+        "grassland": "pradera",
+        "mountain": "montana",
+        "rare": "raro",
+        "rough-terrain": "terreno-accidentado",
+        "sea": "mar",
+        "urban": "urbano",
+        "waters-edge": "orilla-agua",
+        "unknown": "desconocido"
+      },
+      "colors": {
+        "black": "negro",
+        "blue": "azul",
+        "brown": "marron",
+        "gray": "gris",
+        "green": "verde",
+        "pink": "rosa",
+        "purple": "purpura",
+        "red": "rojo",
+        "white": "blanco",
+        "yellow": "amarillo",
+        "unknown": "desconocido"
+      }
     }
   }
 }
