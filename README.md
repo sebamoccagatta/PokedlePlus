@@ -221,7 +221,7 @@ function Header() {
 ### 1) Clonar repo
 
 ```bash
-(https://github.com/sebamoccagatta/PokedlePlus.git)
+git clone https://github.com/sebamoccagatta/PokedlePlus.git
 cd PokedlePlus
 ```
 
