@@ -3,9 +3,12 @@ import { useState, useEffect, useCallback } from "react";
 const DEFAULT_LOCALE = "es";
 const STORAGE_KEY = "pokedleplus:locale";
 
+import es from "./locales/es.json";
+import en from "./locales/en.json";
+
 const locales = {
-  es: require("./locales/es.json"),
-  en: require("./locales/en.json"),
+  es,
+  en,
 };
 
 function detectBrowserLanguage() {

@@ -29,6 +29,7 @@ import { useSearchCache } from "./hooks/useSearchCache.js";
 import { useToast } from "./hooks/useToast.js";
 import { ThemeToggle } from "./components/ThemeToggle.jsx";
 import { ToastContainer } from "./components/Toast.jsx";
+import { LanguageSelector } from "./components/LanguageSelector.jsx"
 
 /**
  * Storage
