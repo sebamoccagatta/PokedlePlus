@@ -1,5 +1,100 @@
-{"header": {
-  "title": "Pokedle+",
-  "mode": "Mode:"
-}
+{
+  "header": {
+    "title": "Pokedle+",
+    "mode": "Mode:"
+  },
+  "language": {
+    "select": "Select language"
+  },
+  "home": {
+    "tagline": "Choose how you want to play today",
+    "today": "Today:",
+    "continue_title": "Return to last played mode",
+    "continue": "Continue",
+    "status_won": "Won",
+    "status_pending": "Pending",
+    "attempts": "Attempts:",
+    "play": "Play",
+    "footer": "You can play all modes on the same day",
+    "modes": {
+      "classic": {
+        "title": "Classic",
+        "desc": "All generations"
+      },
+      "gen1": {
+        "title": "Generation I",
+        "desc": "Only Kanto"
+      },
+      "gen2": {
+        "title": "Generation II",
+        "desc": "Only Johto"
+      },
+      "gen3": {
+        "title": "Generation III",
+        "desc": "Only Hoenn"
+      },
+      "gen4": {
+        "title": "Generation IV",
+        "desc": "Only Sinnoh"
+      },
+      "gen5": {
+        "title": "Generation V",
+        "desc": "Only Unova"
+      },
+      "gen6": {
+        "title": "Generation VI",
+        "desc": "Only Kalos"
+      },
+      "gen7": {
+        "title": "Generation VII",
+        "desc": "Only Alola"
+      },
+      "gen8": {
+        "title": "Generation VIII",
+        "desc": "Only Galar"
+      },
+      "gen9": {
+        "title": "Generation IX",
+        "desc": "Only Paldea"
+      }
+    }
+  },
+  "game": {
+    "mode": "Mode:",
+    "change_mode": "Change mode",
+    "guess_title": "Guess the Pokemon",
+    "search_placeholder": "E.g. pikachu",
+    "try": "Try",
+    "tip": "Tip: scroll the list to see more results.",
+    "loading_more": "Loading more...",
+    "scroll_more": "Scroll to load more",
+    "meta_error": "Could not load game metadata.",
+    "search_error": "Search failed.",
+    "win_title": "You won!",
+    "win_message": "Come back tomorrow for a new Pokemon.",
+    "day_end_title": "End of day",
+    "day_end_message": "You already played today. Come back tomorrow for a new Pokemon.",
+    "already_played_title": "You already played today",
+    "already_tried_title": "You already tried that",
+    "already_tried_message": "Pick another Pokemon.",
+    "try_error": "Try failed:",
+    "try_failed_title": "Try failed",
+    "try_again": "Try again.",
+    "pick_title": "Pick a Pokemon",
+    "pick_message": "Select one from the list.",
+    "error_title": "Error",
+    "empty_state": "No attempts yet. Type a name and try.",
+    "footer": "Pokedle+ - original style - Tailwind + Netlify",
+    "columns": {
+      "pokemon": "Pokemon",
+      "type1": "Type 1",
+      "type2": "Type 2",
+      "gen": "Gen",
+      "habitat": "Habitat",
+      "color": "Color",
+      "evolution": "Evol.",
+      "height": "Height",
+      "weight": "Weight"
+    }
+  }
 }

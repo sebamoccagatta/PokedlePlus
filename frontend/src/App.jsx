@@ -117,6 +117,7 @@ function ComboList({
   onScrollBottom,
   loadingMore,
   hasMore,
+  t,
 }) {
   return (
     <div
@@ -161,7 +162,7 @@ function ComboList({
 
       {(loadingMore || hasMore) && (
         <div className="border-t border-zinc-800 px-3 py-2 text-center text-xs text-zinc-400 dark:border-zinc-800 dark:text-zinc-400 border-gray-200 text-gray-500">
-          {loadingMore ? "Cargando más..." : "Scroll para cargar más"}
+          {loadingMore ? t("game.loading_more") : t("game.scroll_more")}
         </div>
       )}
     </div>
@@ -177,81 +178,82 @@ function formatWeight(hg) {
   return `${kg} kg`;
 }
 
-function Home({ onSelect, dayKey }) {
+function Home({ onSelect, dayKey, i18n }) {
+  const { t, locale, changeLocale, availableLocales } = i18n;
   const modes = useMemo(
     () => [
       {
         id: "classic",
-        title: "Clásico",
-        desc: "Todas las generaciones",
+        title: t("home.modes.classic.title"),
+        desc: t("home.modes.classic.desc"),
         color: "bg-emerald-500",
         Icon: Globe,
       },
       {
         id: "gen1",
-        title: "Generación I",
-        desc: "Solo Kanto",
+        title: t("home.modes.gen1.title"),
+        desc: t("home.modes.gen1.desc"),
         color: "bg-sky-500",
         Icon: Leaf,
       },
       {
         id: "gen2",
-        title: "Generación II",
-        desc: "Solo Johto",
+        title: t("home.modes.gen2.title"),
+        desc: t("home.modes.gen2.desc"),
         color: "bg-indigo-500",
         Icon: Gem,
       },
       {
         id: "gen3",
-        title: "Generación III",
-        desc: "Solo Hoenn",
+        title: t("home.modes.gen3.title"),
+        desc: t("home.modes.gen3.desc"),
         color: "bg-violet-500",
         Icon: Flame,
       },
       {
         id: "gen4",
-        title: "Generación IV",
-        desc: "Solo Sinnoh",
+        title: t("home.modes.gen4.title"),
+        desc: t("home.modes.gen4.desc"),
         color: "bg-purple-500",
         Icon: Mountain,
       },
       {
         id: "gen5",
-        title: "Generación V",
-        desc: "Solo Unova",
+        title: t("home.modes.gen5.title"),
+        desc: t("home.modes.gen5.desc"),
         color: "bg-red-500",
         Icon: Building2,
       },
       {
         id: "gen6",
-        title: "Generación VI",
-        desc: "Solo Kalos",
+        title: t("home.modes.gen6.title"),
+        desc: t("home.modes.gen6.desc"),
         color: "bg-pink-500",
         Icon: Sparkles,
       },
       {
         id: "gen7",
-        title: "Generación VII",
-        desc: "Solo Alola",
+        title: t("home.modes.gen7.title"),
+        desc: t("home.modes.gen7.desc"),
         color: "bg-yellow-500",
         Icon: Sun,
       },
       {
         id: "gen8",
-        title: "Generación VIII",
-        desc: "Solo Galar",
+        title: t("home.modes.gen8.title"),
+        desc: t("home.modes.gen8.desc"),
         color: "bg-orange-500",
         Icon: Swords,
       },
       {
         id: "gen9",
-        title: "Generación IX",
-        desc: "Solo Paldea",
+        title: t("home.modes.gen9.title"),
+        desc: t("home.modes.gen9.desc"),
         color: "bg-rose-500",
         Icon: Map,
       },
     ],
-    [],
+    [t],
   );
 
   const [statusByMode, setStatusByMode] = useState(() => ({}));
@@ -322,25 +324,28 @@ function Home({ onSelect, dayKey }) {
           <h1 className="text-4xl font-black">Pokedle+</h1>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <LanguageSelector />
+            <LanguageSelector
+              t={t}
+              locale={locale}
+              changeLocale={changeLocale}
+              availableLocales={availableLocales}
+            />
           </div>
         </div>
-        <p className="text-center text-zinc-400 mb-6">
-          Elegí cómo querés jugar hoy
-        </p>
+        <p className="text-center text-zinc-400 mb-6">{t("home.tagline")}</p>
 
         <div className="mb-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <span className="text-xs text-zinc-500">
-            Hoy:{" "}
-            <span className="font-semibold text-zinc-300">{dayKey || "…"}</span>
+            {t("home.today")}{" "}
+            <span className="font-semibold text-zinc-300">{dayKey || "??"}</span>
           </span>
 
           <button
             onClick={() => handleSelect(lastMode)}
             className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/60 px-4 py-2 text-xs font-semibold text-zinc-200 hover:bg-zinc-900/60 transition"
-            title="Volver al último modo jugado"
+            title={t("home.continue_title")}
           >
-            Continuar <span className="text-zinc-400">({lastMode})</span>
+            {t("home.continue")} <span className="text-zinc-400">({lastMode})</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
@@ -395,11 +400,11 @@ function Home({ onSelect, dayKey }) {
                   <div className="shrink-0">
                     {st.won ? (
                       <span className="inline-flex items-center gap-1 rounded-full border border-emerald-900/60 bg-emerald-950/30 px-2.5 py-1 text-[11px] font-bold text-emerald-200">
-                        <CheckCircle2 className="h-4 w-4" /> Ganado
+                        <CheckCircle2 className="h-4 w-4" /> {t("home.status_won")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full border border-zinc-800 bg-zinc-950/40 px-2.5 py-1 text-[11px] font-bold text-zinc-300">
-                        <CircleDashed className="h-4 w-4" /> Pendiente
+                        <CircleDashed className="h-4 w-4" /> {t("home.status_pending")}
                       </span>
                     )}
                   </div>
@@ -408,14 +413,14 @@ function Home({ onSelect, dayKey }) {
                 {/* ✅ footer separado = respira */}
                 <div className="mt-6 flex items-center justify-between text-sm">
                   <div className="text-zinc-400">
-                    Intentos:{" "}
+                    {t("home.attempts")}{" "}
                     <span className="font-semibold text-zinc-100">
                       {st.attempts}
                     </span>
                   </div>
 
                   <div className="text-zinc-500 group-hover:text-zinc-200 transition inline-flex items-center gap-2">
-                    Jugar{" "}
+                    {t("home.play")}{" "}
                     <span className="translate-x-0 group-hover:translate-x-0.5 transition-transform">
                       →
                     </span>
@@ -426,15 +431,15 @@ function Home({ onSelect, dayKey }) {
           })}
         </div>
 
-        <div className="mt-10 text-center text-xs text-zinc-500">
-          Podés jugar todos los modos el mismo día
-        </div>
+        <div className="mt-10 text-center text-xs text-zinc-500">{t("home.footer")}</div>
       </div>
     </div>
   );
 }
 
 export default function App() {
+  const i18n = useI18n();
+  const { t } = i18n;
   const { isDark } = useTheme();
   const { get: getCache, set: setCache, clear: clearCache } = useSearchCache();
   const { toasts, addToast, removeToast, clearToasts } = useToast();
@@ -526,19 +531,19 @@ export default function App() {
       if (loaded.won) {
         addToast({
           kind: "success",
-          title: "¡Ganaste!",
-          message: "Volvé mañana para un nuevo Pokémon.",
+          title: t("game.win_title"),
+          message: t("game.win_message"),
         });
       } else if (loaded.finished) {
         addToast({
           kind: "info",
-          title: "Fin del día",
-          message: "Ya jugaste hoy. Volvé mañana para un nuevo Pokémon.",
+          title: t("game.day_end_title"),
+          message: t("game.day_end_message"),
         });
       }
     })().catch((e) => {
       console.error(e);
-      setError("No se pudo cargar meta del juego.");
+      setError(t("game.meta_error"));
     });
   }, [mode, addToast]);
 
@@ -599,7 +604,7 @@ export default function App() {
       setOffset(Number(res.nextOffset || 0));
     } catch (e) {
       console.error(e);
-      setError("Falló la búsqueda.");
+      setError(t("game.search_error"));
     } finally {
       if (append) setLoadingMore(false);
     }
@@ -623,8 +628,8 @@ export default function App() {
     if (state.finished) {
       addToast({
         kind: "info",
-        title: "Ya jugaste hoy",
-        message: "Volvé mañana para un nuevo Pokémon.",
+        title: t("game.already_played_title"),
+        message: t("game.day_end_message"),
       });
       return;
     }
@@ -632,8 +637,8 @@ export default function App() {
     if (state.attempts.some((a) => a.id === pick.id)) {
       addToast({
         kind: "info",
-        title: "Ya lo intentaste",
-        message: "Elegí otro Pokémon.",
+        title: t("game.already_tried_title"),
+        message: t("game.already_tried_message"),
       });
       return;
     }
@@ -681,17 +686,17 @@ export default function App() {
       if (attempt.isCorrect) {
         addToast({
           kind: "success",
-          title: "¡Ganaste!",
-          message: "Volvé mañana para un nuevo Pokémon.",
+          title: t("game.win_title"),
+          message: t("game.win_message"),
         });
       }
     } catch (e) {
       console.error(e);
-      setError(`Falló el intento: ${e.message}`);
+      setError(`${t("game.try_error")} ${e.message}`);
       addToast({
         kind: "error",
-        title: "Falló el intento",
-        message: String(e.message || "Probá de nuevo."),
+        title: t("game.try_failed_title"),
+        message: String(e.message || t("game.try_again")),
       });
     } finally {
       setBusy(false);
@@ -718,8 +723,8 @@ export default function App() {
     if (!selected) {
       addToast({
         kind: "info",
-        title: "Elegí un Pokémon",
-        message: "Seleccioná uno de la lista.",
+        title: t("game.pick_title"),
+        message: t("game.pick_message"),
       });
       return;
     }
@@ -737,6 +742,7 @@ export default function App() {
           setMode(m);
         }}
         dayKey={dayKey}
+        i18n={i18n}
       />
     );
   }
@@ -750,30 +756,24 @@ export default function App() {
           <div>
             <div className="text-2xl font-black tracking-tight">Pokedle+</div>
             <div className="text-sm text-zinc-400 dark:text-zinc-400 text-gray-500">
-              Modo: <span className="font-semibold">{mode}</span> • {dayKey}
+              {t("game.mode")} <span className="font-semibold">{mode}</span> • {dayKey}
             </div>
           </div>
-
-          {/* Language selector inserted */}
           <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <LanguageSelector />
             <button
               onClick={() => {
                 clearMode();
                 setMode(null);
               }}
               className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-2 text-xs font-extrabold hover:bg-zinc-900/70 transition-colors dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/70 border-gray-300 bg-gray-100 hover:bg-gray-200"
-            >
-              Cambiar modo
-            </button>
+            >{t("game.change_mode")}</button>
           </div>
         </header>
 
         <div className="rounded-3xl border border-zinc-800 bg-zinc-950/40 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.5)] dark:border-zinc-800 dark:bg-zinc-950/40 border-gray-200 bg-white">
           <div className="mb-4">
             <div className="text-sm font-bold text-zinc-200 dark:text-zinc-200 text-gray-700">
-              Adiviná el Pokémon
+              {t("game.guess_title")}
             </div>
             <div className="mt-2 flex gap-3">
               <input
@@ -782,7 +782,7 @@ export default function App() {
                   setQ(e.target.value);
                   setSelected(null);
                 }}
-                placeholder="Ej: pikachu"
+                placeholder={t("game.search_placeholder")}
                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600 dark:border-zinc-800 dark:bg-zinc-950/70 dark:placeholder:text-zinc-600 dark:focus:border-zinc-600 border-gray-300 bg-gray-50 placeholder:text-gray-400 focus:border-gray-400"
               />
               <button
@@ -795,13 +795,11 @@ export default function App() {
                   "dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/70",
                   "border-gray-300 bg-gray-100 hover:bg-gray-200",
                 ].join(" ")}
-              >
-                Probar
-              </button>
+              >{t("game.try")}</button>
             </div>
 
             <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-500 text-gray-500">
-              Tip: scrolleá la lista para ver más resultados.
+              {t("game.tip")}
             </div>
 
             {results.length > 0 && (
@@ -815,13 +813,14 @@ export default function App() {
                 }}
                 loadingMore={loadingMore}
                 hasMore={hasMore}
+                t={t}
               />
             )}
           </div>
 
           {error && (
             <div className="mb-4">
-              <toasts kind="error" title="Error" onClose={() => setError("")}>
+              <toasts kind="error" title={t("game.error_title")} onClose={() => setError("")}>
                 {error}
               </toasts>
             </div>
@@ -837,23 +836,23 @@ export default function App() {
                   : "grid-cols-[240px,120px,120px,140px,120px,80px,90px,110px]",
               ].join(" ")}
             >
-              <div className="text-left">Pokémon</div>
-              <div className="text-center">Tipo 1</div>
-              <div className="text-center">Tipo 2</div>
+              <div className="text-left">{t("game.columns.pokemon")}</div>
+              <div className="text-center">{t("game.columns.type1")}</div>
+              <div className="text-center">{t("game.columns.type2")}</div>
 
-              {showGenColumn && <div className="text-center">Gen</div>}
+              {showGenColumn && <div className="text-center">{t("game.columns.gen")}</div>}
 
-              <div className="text-center">Hábitat</div>
-              <div className="text-center">Color</div>
-              <div className="text-center">Evol.</div>
-              <div className="text-center">Alt.</div>
-              <div className="text-center">Peso</div>
+              <div className="text-center">{t("game.columns.habitat")}</div>
+              <div className="text-center">{t("game.columns.color")}</div>
+              <div className="text-center">{t("game.columns.evolution")}</div>
+              <div className="text-center">{t("game.columns.height")}</div>
+              <div className="text-center">{t("game.columns.weight")}</div>
             </div>
 
             <div className="divide-y divide-zinc-800 dark:divide-zinc-800 divide-gray-200">
               {attempts.length === 0 ? (
                 <div className="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-500 text-gray-500">
-                  Todavía no hay intentos. Escribí un nombre y probá.
+                  {t("game.empty_state")}
                 </div>
               ) : (
                 attempts.map((a, rowIndex) => {
@@ -997,7 +996,7 @@ export default function App() {
           </div>
 
           <div className="mt-5 text-center text-xs text-zinc-600 dark:text-zinc-600 text-gray-400">
-            Pokedle+ • estilo original • Tailwind + Netlify
+            {t("game.footer")}
           </div>
         </div>
       </div>
@@ -1006,3 +1005,25 @@ export default function App() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

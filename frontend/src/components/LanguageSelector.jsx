@@ -1,15 +1,17 @@
-import { useI18n } from "../hooks/useI18n";
-
-export function LanguageSelector() {
-  const { t, locale, changeLocale, availableLocales } = useI18n();
+export function LanguageSelector({
+  t,
+  locale,
+  changeLocale,
+  availableLocales,
+}) {
 
   const flagEmoji = {
     es: "🇪🇸",
-    en: "🇬🇧",
+    en: "🇺🇸",
   };
 
   const localeName = {
-    es: "Español",
+    es: "Espanol",
     en: "English",
   };
 
@@ -51,3 +53,5 @@ export function LanguageSelector() {
     </div>
   );
 }
+
+
