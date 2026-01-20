@@ -30,6 +30,7 @@ import { useToast } from "./hooks/useToast.js";
 import { ThemeToggle } from "./components/ThemeToggle.jsx";
 import { useI18n } from "./hooks/useI18n.js";
 import { LanguageSelector } from "./components/LanguageSelector.jsx";
+import { ToastContainer } from "./components/Toast.jsx";
 
 /**
  * Storage
