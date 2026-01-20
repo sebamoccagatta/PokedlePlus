@@ -39,7 +39,7 @@ export function Toast({ kind = "info", title, children, onClose, duration }) {
   );
 }
 
-export function ToastContainer({ toasts, onClose }) {
+export function ToastContainer({ toasts = [], onClose }) {
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
       {toasts.map((toast) => (

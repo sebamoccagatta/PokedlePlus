@@ -38,8 +38,9 @@ function kindNumber(guess, target) {
 // Tipo con “present” (amarillo) si existe en el set del target
 function kindType(pos, guessTypes, targetTypes) {
   const g = guessTypes?.[pos] ?? null;
-  if (!g) return "absent";
-  if ((targetTypes?.[pos] ?? null) === g) return "correct";
+  const t = targetTypes?.[pos] ?? null;
+  if (!g) return t ? "absent" : "correct";
+  if (t === g) return "correct";
   if (Array.isArray(targetTypes) && targetTypes.includes(g)) return "present";
   return "absent";
 }

@@ -2,6 +2,102 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-bg: #f8fafc;
+  --color-text: #0f172a;
+  --color-text-strong: #0f172a;
+  --color-muted: #64748b;
+  --color-muted-2: #94a3b8;
+  --color-border: #e2e8f0;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f8fafc;
+  --color-surface-hover: #f1f5f9;
+  --color-focus: #94a3b8;
+  --shadow-card: 0 20px 60px rgba(15, 23, 42, 0.08);
+}
+
+.dark {
+  --color-bg: #060708;
+  --color-text: #f4f4f5;
+  --color-text-strong: #f4f4f5;
+  --color-muted: #a1a1aa;
+  --color-muted-2: #71717a;
+  --color-border: #27272a;
+  --color-surface: rgba(9, 9, 11, 0.6);
+  --color-surface-soft: rgba(9, 9, 11, 0.4);
+  --color-surface-hover: rgba(24, 24, 27, 0.6);
+  --color-focus: #52525b;
+  --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.bg-app {
+  background-color: var(--color-bg);
+}
+
+.text-app {
+  color: var(--color-text);
+}
+
+.text-strong {
+  color: var(--color-text-strong);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-muted-2 {
+  color: var(--color-muted-2);
+}
+
+.border-app {
+  border-color: var(--color-border);
+}
+
+.divide-app > * + * {
+  border-top-color: var(--color-border);
+}
+
+.bg-surface {
+  background-color: var(--color-surface);
+}
+
+.bg-surface-soft {
+  background-color: var(--color-surface-soft);
+}
+
+.surface-hover:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+.btn-surface {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.btn-surface:hover {
+  background-color: var(--color-surface-hover);
+}
+
+.input-surface {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.input-surface::placeholder {
+  color: var(--color-muted-2);
+}
+
+.input-surface:focus {
+  border-color: var(--color-focus);
+}
+
 * {
   -webkit-tap-highlight-color: transparent;
   /* scroll horizontal prolijo */

@@ -20,7 +20,7 @@ export function LanguageSelector({
       <select
         value={locale}
         onChange={(e) => changeLocale(e.target.value)}
-        className="appearance-none rounded-lg border px-3 py-2 pr-8 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+        className="appearance-none rounded-lg border px-3 py-2 pr-8 transition-colors cursor-pointer input-surface focus:outline-none focus:ring-2 focus:ring-sky-500"
         aria-label={t("language.select")}
       >
         {availableLocales.map((loc) => (
@@ -29,7 +29,7 @@ export function LanguageSelector({
           </option>
         ))}
       </select>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400 dark:text-gray-400">
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted-2">
         <svg
           className="w-4 h-4"
           fill="none"
