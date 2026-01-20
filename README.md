@@ -74,6 +74,14 @@ Todo vía `localStorage`.
 - warm-up de endpoints para reducir cold starts
 - DB optimizada con índices
 
+### 🌍 Internacionalización (i18n)
+
+- Soporte para **inglés y español**
+- Selector de idioma en la UI
+- Detección automática del idioma del navegador
+- Persistencia de idioma seleccionado en localStorage
+- Archivos de traducción en `frontend/src/locales/`
+
 ---
 
 ## 🧱 Tech Stack
@@ -98,6 +106,10 @@ Todo vía `localStorage`.
 pokedle-plus/
 ├─ frontend/
 │  ├─ src/
+│  │  ├─ components/   # Componentes React (Toast, ThemeToggle, LanguageSelector, etc.)
+│  │  ├─ hooks/        # Custom hooks (useTheme, useToast, useI18n, etc.)
+│  │  ├─ locales/       # Archivos de traducción (es.json, en.json)
+│  │  └── utils/        # Utilidades (cn, etc.)
 │  ├─ index.html
 │  ├─ vite.config.js
 │  └─ package.json
@@ -107,6 +119,7 @@ pokedle-plus/
 │     ├─ _lib/
 │     │  ├─ db.js
 │     │  ├─ utils.js
+│     │  ├─ rateLimit.js
 │     │  └─ ...
 │     ├─ meta.js
 │     ├─ search.js
@@ -118,10 +131,79 @@ pokedle-plus/
 │  ├─ seed-postgres.js
 │  └─ db-indexes.js
 │
+├─ docs/
+│  └─ architecture.md
+│
 ├─ netlify.toml
 ├─ package.json
 ├─ README.md
+├─ CONTRIBUTING.md
 └─ .env (NO se commitea)
+```
+
+---
+
+## 🌍 Internacionalización (i18n)
+
+El proyecto soporta **inglés y español** con cambio dinámico de idioma.
+
+### Selector de idioma
+
+- Ubicado en el header de la aplicación
+- Cambia entre English/Español
+- Guarda preferencia en localStorage
+
+### Detección automática
+
+Al primer acceso, el sistema detecta el idioma del navegador:
+
+- Si `navigator.language` empieza con `es-` → Español
+- Cualquier otro idioma → Inglés
+
+### Archivos de traducción
+
+Los textos están en `frontend/src/locales/`:
+
+- `es.json` – Traducciones en español
+- `en.json` – Traducciones en inglés
+
+### Cómo agregar nuevas traducciones
+
+1. Abrí `frontend/src/locales/es.json` (o `en.json`)
+2. Agrega tu clave con la notación de puntos:
+   ```json
+   "section": {
+     "key": "Tu texto aquí"
+   }
+   ```
+3. En tu componente, usá el hook `useI18n`:
+
+   ```jsx
+   import { useI18n } from "../hooks/useI18n";
+
+   function MiComponente() {
+     const { t } = useI18n();
+     return <div>{t("section.key")}</div>;
+   }
+   ```
+
+### Ejemplo de uso
+
+```jsx
+import { LanguageSelector } from "./components/LanguageSelector";
+import { useI18n } from "../hooks/useI18n";
+
+function Header() {
+  const { t } = useI18n();
+
+  return (
+    <header>
+      <h1>{t("title")}</h1>
+      <LanguageSelector />
+      <nav>{t("modes.classic")}</nav>
+    </header>
+  );
+}
 ```
 
 ---
