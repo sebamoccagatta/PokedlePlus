@@ -28,6 +28,8 @@ import { useTheme } from "./hooks/useTheme.js";
 import { useSearchCache } from "./hooks/useSearchCache.js";
 import { useToast } from "./hooks/useToast.js";
 import { ThemeToggle } from "./components/ThemeToggle.jsx";
+import { useI18n } from "./hooks/useI18n.js";
+import { LanguageSelector } from "./components/LanguageSelector.jsx";
 import { ToastContainer } from "./components/Toast.jsx";
 
 /**
@@ -115,10 +117,11 @@ function ComboList({
   onScrollBottom,
   loadingMore,
   hasMore,
+  t,
 }) {
   return (
     <div
-      className="mt-3 rounded-2xl border border-zinc-800 bg-zinc-950/60 overflow-y-auto overscroll-contain dark:border-zinc-800 dark:bg-zinc-950/60 border-gray-200 bg-gray-50"
+      className="mt-3 rounded-2xl border border-slate-200 bg-white overflow-y-auto overscroll-contain dark:border-zinc-800 dark:bg-zinc-950/60"
       style={{ maxHeight: 320 }}
       onScroll={(e) => {
         const el = e.currentTarget;
@@ -139,17 +142,17 @@ function ComboList({
               "hover:bg-zinc-900/40 transition-colors",
               "disabled:opacity-60",
               "dark:border-zinc-800 dark:bg-zinc-950/60 dark:hover:bg-zinc-900/40",
-              "border-gray-200 bg-white hover:bg-gray-100",
+              "border-slate-200 bg-white hover:bg-slate-50",
             ].join(" ")}
           >
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-2 dark:border-zinc-800 dark:bg-zinc-900/50 border-gray-200 bg-gray-100">
               <img src={o.sprite} alt={o.name} className="h-6 w-6" />
             </div>
             <div className="min-w-0">
-              <div className="truncate text-sm font-extrabold capitalize text-zinc-100 dark:text-zinc-100 text-gray-900">
+              <div className="truncate text-sm font-extrabold capitalize text-slate-900 dark:text-zinc-100">
                 {o.name}
               </div>
-              <div className="text-xs text-zinc-400 dark:text-zinc-400 text-gray-500">
+              <div className="text-xs text-slate-500 dark:text-zinc-400">
                 #{o.id}
               </div>
             </div>
@@ -159,7 +162,7 @@ function ComboList({
 
       {(loadingMore || hasMore) && (
         <div className="border-t border-zinc-800 px-3 py-2 text-center text-xs text-zinc-400 dark:border-zinc-800 dark:text-zinc-400 border-gray-200 text-gray-500">
-          {loadingMore ? "Cargando más..." : "Scroll para cargar más"}
+          {loadingMore ? t("game.loading_more") : t("game.scroll_more")}
         </div>
       )}
     </div>
@@ -175,81 +178,82 @@ function formatWeight(hg) {
   return `${kg} kg`;
 }
 
-function Home({ onSelect, dayKey }) {
+function Home({ onSelect, dayKey, i18n }) {
+  const { t, locale, changeLocale, availableLocales } = i18n;
   const modes = useMemo(
     () => [
       {
         id: "classic",
-        title: "Clásico",
-        desc: "Todas las generaciones",
+        title: t("home.modes.classic.title"),
+        desc: t("home.modes.classic.desc"),
         color: "bg-emerald-500",
         Icon: Globe,
       },
       {
         id: "gen1",
-        title: "Generación I",
-        desc: "Solo Kanto",
+        title: t("home.modes.gen1.title"),
+        desc: t("home.modes.gen1.desc"),
         color: "bg-sky-500",
         Icon: Leaf,
       },
       {
         id: "gen2",
-        title: "Generación II",
-        desc: "Solo Johto",
+        title: t("home.modes.gen2.title"),
+        desc: t("home.modes.gen2.desc"),
         color: "bg-indigo-500",
         Icon: Gem,
       },
       {
         id: "gen3",
-        title: "Generación III",
-        desc: "Solo Hoenn",
+        title: t("home.modes.gen3.title"),
+        desc: t("home.modes.gen3.desc"),
         color: "bg-violet-500",
         Icon: Flame,
       },
       {
         id: "gen4",
-        title: "Generación IV",
-        desc: "Solo Sinnoh",
+        title: t("home.modes.gen4.title"),
+        desc: t("home.modes.gen4.desc"),
         color: "bg-purple-500",
         Icon: Mountain,
       },
       {
         id: "gen5",
-        title: "Generación V",
-        desc: "Solo Unova",
+        title: t("home.modes.gen5.title"),
+        desc: t("home.modes.gen5.desc"),
         color: "bg-red-500",
         Icon: Building2,
       },
       {
         id: "gen6",
-        title: "Generación VI",
-        desc: "Solo Kalos",
+        title: t("home.modes.gen6.title"),
+        desc: t("home.modes.gen6.desc"),
         color: "bg-pink-500",
         Icon: Sparkles,
       },
       {
         id: "gen7",
-        title: "Generación VII",
-        desc: "Solo Alola",
+        title: t("home.modes.gen7.title"),
+        desc: t("home.modes.gen7.desc"),
         color: "bg-yellow-500",
         Icon: Sun,
       },
       {
         id: "gen8",
-        title: "Generación VIII",
-        desc: "Solo Galar",
+        title: t("home.modes.gen8.title"),
+        desc: t("home.modes.gen8.desc"),
         color: "bg-orange-500",
         Icon: Swords,
       },
       {
         id: "gen9",
-        title: "Generación IX",
-        desc: "Solo Paldea",
+        title: t("home.modes.gen9.title"),
+        desc: t("home.modes.gen9.desc"),
         color: "bg-rose-500",
         Icon: Map,
       },
     ],
-    [],
+    [t],
   );
 
   const [statusByMode, setStatusByMode] = useState(() => ({}));
@@ -314,25 +318,38 @@ function Home({ onSelect, dayKey }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#060708] text-zinc-100">
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#060708] dark:text-zinc-100">
       <div className="mx-auto w-full max-w-[1600px] px-6 md:px-10 2xl:px-16 py-14">
-        <h1 className="text-4xl font-black text-center mb-2">Pokedle+</h1>
-        <p className="text-center text-zinc-400 mb-6">
-          Elegí cómo querés jugar hoy
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-4xl font-black">Pokedle+</h1>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <LanguageSelector
+              t={t}
+              locale={locale}
+              changeLocale={changeLocale}
+              availableLocales={availableLocales}
+            />
+          </div>
+        </div>
+        <p className="text-center mb-6 text-slate-600 dark:text-zinc-400">
+          {t("home.tagline")}
         </p>
 
         <div className="mb-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <span className="text-xs text-zinc-500">
-            Hoy:{" "}
-            <span className="font-semibold text-zinc-300">{dayKey || "…"}</span>
+          <span className="text-xs text-slate-500 dark:text-zinc-500">
+            {t("home.today")}{" "}
+            <span className="font-semibold text-slate-700 dark:text-zinc-300">
+              {dayKey || "??"}
+            </span>
           </span>
 
           <button
             onClick={() => handleSelect(lastMode)}
-            className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/60 px-4 py-2 text-xs font-semibold text-zinc-200 hover:bg-zinc-900/60 transition"
-            title="Volver al último modo jugado"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-zinc-800 dark:bg-zinc-950/60 dark:text-zinc-200 dark:hover:bg-zinc-900/60"
+            title={t("home.continue_title")}
           >
-            Continuar <span className="text-zinc-400">({lastMode})</span>
+            {t("home.continue")} <span className="text-slate-500 dark:text-zinc-400">({lastMode})</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
@@ -355,10 +372,10 @@ function Home({ onSelect, dayKey }) {
                   "p-7 2xl:p-8 min-h-[170px] 2xl:min-h-[185px]",
                   "shadow-[0_20px_60px_rgba(0,0,0,0.45)]",
                   st.won
-                    ? "border-emerald-900/60 bg-emerald-950/20 hover:bg-emerald-950/25"
+                    ? "border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100/70 dark:border-emerald-900/60 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/25"
                     : st.played
-                      ? "border-zinc-700 bg-zinc-950/60 hover:bg-zinc-900/60"
-                      : "border-zinc-800 bg-zinc-950/50 hover:bg-zinc-900/50",
+                      ? "border-slate-200 bg-white hover:bg-slate-50 dark:border-zinc-700 dark:bg-zinc-950/60 dark:hover:bg-zinc-900/60"
+                      : "border-slate-200 bg-white/70 hover:bg-slate-50 dark:border-zinc-800 dark:bg-zinc-950/50 dark:hover:bg-zinc-900/50",
                 ].join(" ")}
                 title={m.title}
               >
@@ -380,18 +397,18 @@ function Home({ onSelect, dayKey }) {
                       <div className="text-xl font-extrabold truncate">
                         {m.title}
                       </div>
-                      <div className="text-sm text-zinc-400">{m.desc}</div>
+                      <div className="text-sm text-slate-500 dark:text-zinc-400">{m.desc}</div>
                     </div>
                   </div>
 
                   <div className="shrink-0">
                     {st.won ? (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-900/60 bg-emerald-950/30 px-2.5 py-1 text-[11px] font-bold text-emerald-200">
-                        <CheckCircle2 className="h-4 w-4" /> Ganado
+                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200">
+                        <CheckCircle2 className="h-4 w-4" /> {t("home.status_won")}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-zinc-800 bg-zinc-950/40 px-2.5 py-1 text-[11px] font-bold text-zinc-300">
-                        <CircleDashed className="h-4 w-4" /> Pendiente
+                      <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-600 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-300">
+                        <CircleDashed className="h-4 w-4" /> {t("home.status_pending")}
                       </span>
                     )}
                   </div>
@@ -399,15 +416,15 @@ function Home({ onSelect, dayKey }) {
 
                 {/* ✅ footer separado = respira */}
                 <div className="mt-6 flex items-center justify-between text-sm">
-                  <div className="text-zinc-400">
-                    Intentos:{" "}
-                    <span className="font-semibold text-zinc-100">
+                  <div className="text-slate-600 dark:text-zinc-400">
+                    {t("home.attempts")}{" "}
+                    <span className="font-semibold text-slate-900 dark:text-zinc-100">
                       {st.attempts}
                     </span>
                   </div>
 
-                  <div className="text-zinc-500 group-hover:text-zinc-200 transition inline-flex items-center gap-2">
-                    Jugar{" "}
+                  <div className="inline-flex items-center gap-2 text-slate-500 transition group-hover:text-slate-900 dark:text-zinc-500 dark:group-hover:text-zinc-200">
+                    {t("home.play")}{" "}
                     <span className="translate-x-0 group-hover:translate-x-0.5 transition-transform">
                       →
                     </span>
@@ -418,15 +435,15 @@ function Home({ onSelect, dayKey }) {
           })}
         </div>
 
-        <div className="mt-10 text-center text-xs text-zinc-500">
-          Podés jugar todos los modos el mismo día
-        </div>
+        <div className="mt-10 text-center text-xs text-slate-500 dark:text-zinc-500">{t("home.footer")}</div>
       </div>
     </div>
   );
 }
 
 export default function App() {
+  const i18n = useI18n();
+  const { t } = i18n;
   const { isDark } = useTheme();
   const { get: getCache, set: setCache, clear: clearCache } = useSearchCache();
   const { toasts, addToast, removeToast, clearToasts } = useToast();
@@ -518,19 +535,19 @@ export default function App() {
       if (loaded.won) {
         addToast({
           kind: "success",
-          title: "¡Ganaste!",
-          message: "Volvé mañana para un nuevo Pokémon.",
+          title: t("game.win_title"),
+          message: t("game.win_message"),
         });
       } else if (loaded.finished) {
         addToast({
           kind: "info",
-          title: "Fin del día",
-          message: "Ya jugaste hoy. Volvé mañana para un nuevo Pokémon.",
+          title: t("game.day_end_title"),
+          message: t("game.day_end_message"),
         });
       }
     })().catch((e) => {
       console.error(e);
-      setError("No se pudo cargar meta del juego.");
+      setError(t("game.meta_error"));
     });
   }, [mode, addToast]);
 
@@ -591,7 +608,7 @@ export default function App() {
       setOffset(Number(res.nextOffset || 0));
     } catch (e) {
       console.error(e);
-      setError("Falló la búsqueda.");
+      setError(t("game.search_error"));
     } finally {
       if (append) setLoadingMore(false);
     }
@@ -615,8 +632,8 @@ export default function App() {
     if (state.finished) {
       addToast({
         kind: "info",
-        title: "Ya jugaste hoy",
-        message: "Volvé mañana para un nuevo Pokémon.",
+        title: t("game.already_played_title"),
+        message: t("game.day_end_message"),
       });
       return;
     }
@@ -624,8 +641,8 @@ export default function App() {
     if (state.attempts.some((a) => a.id === pick.id)) {
       addToast({
         kind: "info",
-        title: "Ya lo intentaste",
-        message: "Elegí otro Pokémon.",
+        title: t("game.already_tried_title"),
+        message: t("game.already_tried_message"),
       });
       return;
     }
@@ -673,17 +690,17 @@ export default function App() {
       if (attempt.isCorrect) {
         addToast({
           kind: "success",
-          title: "¡Ganaste!",
-          message: "Volvé mañana para un nuevo Pokémon.",
+          title: t("game.win_title"),
+          message: t("game.win_message"),
         });
       }
     } catch (e) {
       console.error(e);
-      setError(`Falló el intento: ${e.message}`);
+      setError(`${t("game.try_error")} ${e.message}`);
       addToast({
         kind: "error",
-        title: "Falló el intento",
-        message: String(e.message || "Probá de nuevo."),
+        title: t("game.try_failed_title"),
+        message: String(e.message || t("game.try_again")),
       });
     } finally {
       setBusy(false);
@@ -710,8 +727,8 @@ export default function App() {
     if (!selected) {
       addToast({
         kind: "info",
-        title: "Elegí un Pokémon",
-        message: "Seleccioná uno de la lista.",
+        title: t("game.pick_title"),
+        message: t("game.pick_message"),
       });
       return;
     }
@@ -719,7 +736,13 @@ export default function App() {
   }
 
   const attempts = state.attempts;
-
+  const translateHint = (category, value) => {
+    const raw = String(value ?? "").toLowerCase();
+    if (!raw) return value;
+    const key = `game.hints.${category}.${raw}`;
+    const translated = t(key);
+    return translated === key ? value : translated;
+  };
   // ✅ Render condicional SIN romper hooks
   if (!mode) {
     return (
@@ -729,6 +752,7 @@ export default function App() {
           setMode(m);
         }}
         dayKey={dayKey}
+        i18n={i18n}
       />
     );
   }
@@ -736,34 +760,30 @@ export default function App() {
   const showGenColumn = mode === "classic";
 
   return (
-    <div className="min-h-screen bg-[#060708] dark:bg-[#060708] bg-gray-50 text-zinc-100 dark:text-zinc-100 text-gray-900">
+    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#060708] dark:text-zinc-100">
       <div className="mx-auto max-w-7xl px-4 py-10">
         <header className="mb-8 flex items-center justify-between">
           <div>
             <div className="text-2xl font-black tracking-tight">Pokedle+</div>
-            <div className="text-sm text-zinc-400 dark:text-zinc-400 text-gray-500">
-              Modo: <span className="font-semibold">{mode}</span> • {dayKey}
+            <div className="text-sm text-slate-500 dark:text-zinc-400">
+              {t("game.mode")} <span className="font-semibold">{mode}</span> • {dayKey}
             </div>
           </div>
-
           <div className="flex items-center gap-3">
-            <ThemeToggle />
             <button
               onClick={() => {
                 clearMode();
                 setMode(null);
               }}
-              className="rounded-2xl border border-zinc-800 bg-zinc-900/40 px-4 py-2 text-xs font-extrabold hover:bg-zinc-900/70 transition-colors dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/70 border-gray-300 bg-gray-100 hover:bg-gray-200"
-            >
-              Cambiar modo
-            </button>
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-extrabold text-slate-700 transition-colors hover:bg-slate-100 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-100 dark:hover:bg-zinc-900/70"
+            >{t("game.change_mode")}</button>
           </div>
         </header>
 
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-950/40 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.5)] dark:border-zinc-800 dark:bg-zinc-950/40 border-gray-200 bg-white">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] dark:border-zinc-800 dark:bg-zinc-950/40">
           <div className="mb-4">
-            <div className="text-sm font-bold text-zinc-200 dark:text-zinc-200 text-gray-700">
-              Adiviná el Pokémon
+            <div className="text-sm font-bold text-slate-700 dark:text-zinc-200">
+              {t("game.guess_title")}
             </div>
             <div className="mt-2 flex gap-3">
               <input
@@ -772,8 +792,8 @@ export default function App() {
                   setQ(e.target.value);
                   setSelected(null);
                 }}
-                placeholder="Ej: pikachu"
-                className="w-full rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 text-sm outline-none placeholder:text-zinc-600 focus:border-zinc-600 dark:border-zinc-800 dark:bg-zinc-950/70 dark:placeholder:text-zinc-600 dark:focus:border-zinc-600 border-gray-300 bg-gray-50 placeholder:text-gray-400 focus:border-gray-400"
+                placeholder={t("game.search_placeholder")}
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-slate-400 dark:border-zinc-800 dark:bg-zinc-950/70 dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:focus:border-zinc-600"
               />
               <button
                 onClick={handleTry}
@@ -783,15 +803,13 @@ export default function App() {
                   "hover:bg-zinc-900/70 transition-colors",
                   "disabled:opacity-50 disabled:hover:bg-zinc-900/40",
                   "dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:bg-zinc-900/70",
-                  "border-gray-300 bg-gray-100 hover:bg-gray-200",
+                  "border-slate-200 bg-white hover:bg-slate-100 text-slate-700",
                 ].join(" ")}
-              >
-                Probar
-              </button>
+              >{t("game.try")}</button>
             </div>
 
-            <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-500 text-gray-500">
-              Tip: scrolleá la lista para ver más resultados.
+            <div className="mt-2 text-xs text-slate-500 dark:text-zinc-500">
+              {t("game.tip")}
             </div>
 
             {results.length > 0 && (
@@ -805,45 +823,46 @@ export default function App() {
                 }}
                 loadingMore={loadingMore}
                 hasMore={hasMore}
+                t={t}
               />
             )}
           </div>
 
           {error && (
             <div className="mb-4">
-              <toasts kind="error" title="Error" onClose={() => setError("")}>
+              <ToastContainer kind="error" title={t("game.error_title")} onClose={() => setError("")}>
                 {error}
-              </toasts>
+              </ToastContainer>
             </div>
           )}
 
-          <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950/40 dark:border-zinc-800 dark:bg-zinc-950/40 border-gray-200 bg-white">
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-950/40">
             <div
               className={[
-                "grid gap-2 px-4 py-3 text-[11px] font-black uppercase tracking-wider text-zinc-300",
-                "dark:text-zinc-300 text-gray-600",
+                "grid gap-2 px-4 py-3 text-[11px] font-black uppercase tracking-wider text-slate-600",
+                "dark:text-zinc-300 text-slate-600",
                 showGenColumn
                   ? "grid-cols-[240px,120px,120px,90px,140px,120px,80px,90px,110px]"
                   : "grid-cols-[240px,120px,120px,140px,120px,80px,90px,110px]",
               ].join(" ")}
             >
-              <div className="text-left">Pokémon</div>
-              <div className="text-center">Tipo 1</div>
-              <div className="text-center">Tipo 2</div>
+              <div className="text-left">{t("game.columns.pokemon")}</div>
+              <div className="text-center">{t("game.columns.type1")}</div>
+              <div className="text-center">{t("game.columns.type2")}</div>
 
-              {showGenColumn && <div className="text-center">Gen</div>}
+              {showGenColumn && <div className="text-center">{t("game.columns.gen")}</div>}
 
-              <div className="text-center">Hábitat</div>
-              <div className="text-center">Color</div>
-              <div className="text-center">Evol.</div>
-              <div className="text-center">Alt.</div>
-              <div className="text-center">Peso</div>
+              <div className="text-center">{t("game.columns.habitat")}</div>
+              <div className="text-center">{t("game.columns.color")}</div>
+              <div className="text-center">{t("game.columns.evolution")}</div>
+              <div className="text-center">{t("game.columns.height")}</div>
+              <div className="text-center">{t("game.columns.weight")}</div>
             </div>
 
-            <div className="divide-y divide-zinc-800 dark:divide-zinc-800 divide-gray-200">
+            <div className="divide-y divide-slate-200 dark:divide-zinc-800">
               {attempts.length === 0 ? (
-                <div className="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-500 text-gray-500">
-                  Todavía no hay intentos. Escribí un nombre y probá.
+                <div className="px-4 py-10 text-center text-sm text-slate-500 dark:text-zinc-500">
+                  {t("game.empty_state")}
                 </div>
               ) : (
                 attempts.map((a, rowIndex) => {
@@ -856,15 +875,15 @@ export default function App() {
                     <div
                       key={`${a.id}-${rowIndex}`}
                       className={[
-                        "grid gap-2 items-center px-4 py-3 hover:bg-zinc-900/30 transition-colors",
-                        "dark:hover:bg-zinc-900/30 hover:bg-gray-100",
+                        "grid gap-2 items-center px-4 py-3 transition-colors",
+                        "hover:bg-slate-50 dark:hover:bg-zinc-900/30",
                         showGenColumn
                           ? "grid-cols-[240px,120px,120px,90px,140px,120px,80px,90px,110px]"
                           : "grid-cols-[240px,120px,120px,140px,120px,80px,90px,110px]",
                       ].join(" ")}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="rounded-2xl bg-zinc-900/60 p-2 border border-zinc-800 dark:bg-zinc-900/60 dark:border-zinc-800 bg-gray-100 border-gray-200">
+                        <div className="rounded-2xl bg-slate-100 p-2 border border-slate-200 dark:bg-zinc-900/60 dark:border-zinc-800">
                           <img
                             src={a.sprite}
                             alt={a.name}
@@ -873,10 +892,10 @@ export default function App() {
                           />
                         </div>
                         <div className="min-w-0">
-                          <div className="truncate font-extrabold capitalize text-zinc-100 dark:text-zinc-100 text-gray-900">
+                          <div className="truncate font-extrabold capitalize text-slate-900 dark:text-zinc-100">
                             {a.name}
                           </div>
-                          <div className="text-xs text-zinc-400 dark:text-zinc-400 text-gray-500">
+                          <div className="text-xs text-slate-500 dark:text-zinc-400">
                             #{a.id}
                           </div>
                         </div>
@@ -889,7 +908,7 @@ export default function App() {
                           isDark={isDark}
                         >
                           <span className="capitalize">
-                            {a.types?.[0] ?? "none"}
+                            {translateHint("types", a.types?.[0] ?? "none")}
                           </span>
                         </Pill>
                       </div>
@@ -901,7 +920,7 @@ export default function App() {
                           isDark={isDark}
                         >
                           <span className="capitalize">
-                            {a.types?.[1] ?? "none"}
+                            {translateHint("types", a.types?.[1] ?? "none")}
                           </span>
                         </Pill>
                       </div>
@@ -927,7 +946,7 @@ export default function App() {
                           pop={isTop && r(3)}
                           isDark={isDark}
                         >
-                          <span className="capitalize">{a.habitat}</span>
+                          <span className="capitalize">{translateHint("habitats", a.habitat)}</span>
                         </Pill>
                       </div>
 
@@ -937,7 +956,7 @@ export default function App() {
                           pop={isTop && r(4)}
                           isDark={isDark}
                         >
-                          <span className="capitalize">{a.color}</span>
+                          <span className="capitalize">{translateHint("colors", a.color)}</span>
                         </Pill>
                       </div>
 
@@ -986,8 +1005,8 @@ export default function App() {
             </div>
           </div>
 
-          <div className="mt-5 text-center text-xs text-zinc-600 dark:text-zinc-600 text-gray-400">
-            Pokedle+ • estilo original • Tailwind + Netlify
+          <div className="mt-5 text-center text-xs text-slate-500 dark:text-zinc-600">
+            {t("game.footer")}
           </div>
         </div>
       </div>
@@ -996,3 +1015,9 @@ export default function App() {
     </div>
   );
 }
+
+
+
+
+
+

@@ -1,0 +1,149 @@
+{
+  "header": {
+    "title": "Pokedle+",
+    "mode": "Modo:"
+  },
+  "language": {
+    "select": "Seleccionar idioma"
+  },
+  "home": {
+    "tagline": "Elegi como queres jugar hoy",
+    "today": "Hoy:",
+    "continue_title": "Volver al ultimo modo jugado",
+    "continue": "Continuar",
+    "status_won": "Ganado",
+    "status_pending": "Pendiente",
+    "attempts": "Intentos:",
+    "play": "Jugar",
+    "footer": "Podes jugar todos los modos el mismo dia",
+    "modes": {
+      "classic": {
+        "title": "Clasico",
+        "desc": "Todas las generaciones"
+      },
+      "gen1": {
+        "title": "Generacion I",
+        "desc": "Solo Kanto"
+      },
+      "gen2": {
+        "title": "Generacion II",
+        "desc": "Solo Johto"
+      },
+      "gen3": {
+        "title": "Generacion III",
+        "desc": "Solo Hoenn"
+      },
+      "gen4": {
+        "title": "Generacion IV",
+        "desc": "Solo Sinnoh"
+      },
+      "gen5": {
+        "title": "Generacion V",
+        "desc": "Solo Unova"
+      },
+      "gen6": {
+        "title": "Generacion VI",
+        "desc": "Solo Kalos"
+      },
+      "gen7": {
+        "title": "Generacion VII",
+        "desc": "Solo Alola"
+      },
+      "gen8": {
+        "title": "Generacion VIII",
+        "desc": "Solo Galar"
+      },
+      "gen9": {
+        "title": "Generacion IX",
+        "desc": "Solo Paldea"
+      }
+    }
+  },
+  "game": {
+    "mode": "Modo:",
+    "change_mode": "Cambiar modo",
+    "guess_title": "Adivina el Pokemon",
+    "search_placeholder": "Ej: pikachu",
+    "try": "Probar",
+    "tip": "Tip: scrollea la lista para ver mas resultados.",
+    "loading_more": "Cargando mas...",
+    "scroll_more": "Scroll para cargar mas",
+    "meta_error": "No se pudo cargar la meta del juego.",
+    "search_error": "Fallo la busqueda.",
+    "win_title": "Ganaste!",
+    "win_message": "Volve manana para un nuevo Pokemon.",
+    "day_end_title": "Fin del dia",
+    "day_end_message": "Ya jugaste hoy. Volve manana para un nuevo Pokemon.",
+    "already_played_title": "Ya jugaste hoy",
+    "already_tried_title": "Ya lo intentaste",
+    "already_tried_message": "Elegi otro Pokemon.",
+    "try_error": "Fallo el intento:",
+    "try_failed_title": "Fallo el intento",
+    "try_again": "Proba de nuevo.",
+    "pick_title": "Elegi un Pokemon",
+    "pick_message": "Selecciona uno de la lista.",
+    "error_title": "Error",
+    "empty_state": "Todavia no hay intentos. Escribi un nombre y proba.",
+    "footer": "Pokedle+ - estilo original - Tailwind + Netlify",
+    "columns": {
+      "pokemon": "Pokemon",
+      "type1": "Tipo 1",
+      "type2": "Tipo 2",
+      "gen": "Gen",
+      "habitat": "Habitat",
+      "color": "Color",
+      "evolution": "Evol.",
+      "height": "Alt.",
+      "weight": "Peso"
+    },
+    "hints": {
+      "types": {
+        "normal": "normal",
+        "fire": "fuego",
+        "water": "agua",
+        "electric": "electrico",
+        "grass": "planta",
+        "ice": "hielo",
+        "fighting": "lucha",
+        "poison": "veneno",
+        "ground": "tierra",
+        "flying": "volador",
+        "psychic": "psiquico",
+        "bug": "bicho",
+        "rock": "roca",
+        "ghost": "fantasma",
+        "dragon": "dragon",
+        "dark": "siniestro",
+        "steel": "acero",
+        "fairy": "hada",
+        "none": "ninguno",
+        "unknown": "desconocido"
+      },
+      "habitats": {
+        "cave": "caverna",
+        "forest": "bosque",
+        "grassland": "pradera",
+        "mountain": "montana",
+        "rare": "raro",
+        "rough-terrain": "terreno-accidentado",
+        "sea": "mar",
+        "urban": "urbano",
+        "waters-edge": "orilla-agua",
+        "unknown": "desconocido"
+      },
+      "colors": {
+        "black": "negro",
+        "blue": "azul",
+        "brown": "marron",
+        "gray": "gris",
+        "green": "verde",
+        "pink": "rosa",
+        "purple": "purpura",
+        "red": "rojo",
+        "white": "blanco",
+        "yellow": "amarillo",
+        "unknown": "desconocido"
+      }
+    }
+  }
+}
