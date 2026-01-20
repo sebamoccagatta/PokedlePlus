@@ -5,6 +5,10 @@ Juego estilo **Pokedle / Wordle** donde tenés que adivinar el **Pokémon del d�
 ✅ Incluye **todas las generaciones (1–9)**  
 ✅ Incluye **modos por generación** (Gen 1, Gen 2, …)  
 ✅ Guarda intentos por día y por modo (no se pierde el progreso al recargar)  
+✅. Limite de 10 intentos por modo/dia con mensaje de derrota  
+✅. Indicador de intentos actuales / maximos dentro del modo de juego  
+✅. Pistas traducidas (tipos, habitat y color) segun idioma  
+✅. Columna Gen en modo clasico: solo correcto/incorrecto (sin flechas)  
 ✅ UI moderna + revelado progresivo de pistas (como el Pokedle original)  
 ✅ Backend serverless con Netlify Functions + PostgreSQL usando **Netlify DB (Neon)**
 
