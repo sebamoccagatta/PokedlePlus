@@ -16,7 +16,8 @@ function parseTypes(value) {
       .slice(1, -1)
       .split(",")
       .map((t) => t.replace(/^"|"$/g, "").trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter((t) => t.toLowerCase() !== "none");
   }
 
   // Caso: JSON string (viejo): ["bug","poison"] o "electric"
@@ -26,12 +27,17 @@ function parseTypes(value) {
   ) {
     try {
       const parsed = JSON.parse(s);
-      if (Array.isArray(parsed)) return parsed.map((t) => String(t).trim());
+      if (Array.isArray(parsed))
+        return parsed
+          .map((t) => String(t).trim())
+          .filter(Boolean)
+          .filter((t) => t.toLowerCase() !== "none");
       if (typeof parsed === "string")
         return parsed
           .split(",")
           .map((t) => t.trim())
-          .filter(Boolean);
+          .filter(Boolean)
+          .filter((t) => t.toLowerCase() !== "none");
     } catch {
       // cae al split común
     }
@@ -41,7 +47,8 @@ function parseTypes(value) {
   return s
     .split(",")
     .map((t) => t.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((t) => t.toLowerCase() !== "none");
 }
 
 module.exports = { parseTypes };
