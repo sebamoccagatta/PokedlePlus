@@ -199,7 +199,7 @@ SECRET=tu-valor-seguro-aleatorio-aqui
 | `DATABASE_URL` | Cadena de conexión a PostgreSQL (Neon / Netlify DB)                 | `postgresql://user:pass@host/db?sslmode=require`   |
 | `SECRET`       | Semilla para generar el Pokémon del día (obligatorio en producción) | Generá una cadena aleatoria (mínimo 32 caracteres) |
 
-> **NOTA IMPORTANTE**: El archivo `.env` está en `.gitignore`. **NUCA** lo comitees o subas al repositorio.
+> **NOTA IMPORTANTE**: El archivo `.env` está en `.gitignore`. **NUNCA** lo comitees o subas al repositorio.
 
 ### Cómo obtener los valores
 
@@ -391,6 +391,14 @@ Deploy producción:
 ```bash
 netlify deploy --prod
 ```
+
+### Deploy automático con GitHub
+
+> **NOTA**: Cuando tu Pull Request sea aceptada y mergeada a `main`/`master`, Netlify hace el deploy automático. No necesitas ejecutar `netlify deploy` manualmente.
+
+1. Linkea tu repositorio de GitHub con Netlify en el dashboard
+2. Cada push a `main`/`master` desencadena un nuevo deploy
+3. Los logs de deploy están disponibles en Netlify Dashboard
 
 ---
 
