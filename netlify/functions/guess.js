@@ -3,7 +3,7 @@ const { sql } = require("./_lib/db");
 const { modeConfig } = require("./_lib/modes");
 const { compareGuess, fnv1a } = require("./_lib/utils");
 const { parseTypes } = require("./_lib/normalize");
-const { getClientIp, getRateLimitInfo } = require("./_lib/rateLimit");
+const { getClientIp, getRateLimitInfo } = require("./_lib/rateLimitRedis");
 
 function getSecret() {
   const secret = process.env.SECRET;
@@ -56,7 +56,7 @@ exports.handler = async (event) => {
     }
 
     const ip = getClientIp(event);
-    const rateInfo = getRateLimitInfo(ip);
+    const rateInfo = await getRateLimitInfo(ip);
 
     if (rateInfo.exceeded) {
       return {

@@ -123,7 +123,7 @@ pokedle-plus/
 │     ├─ _lib/
 │     │  ├─ db.js
 │     │  ├─ utils.js
-│     │  ├─ rateLimit.js
+│     │  ├─ rateLimitRedis.js
 │     │  └─ ...
 │     ├─ meta.js
 │     ├─ search.js
