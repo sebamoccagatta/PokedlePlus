@@ -204,7 +204,7 @@ Browser          Netlify Functions        Neon DB
   - Parcial match (tipo, color) → amarillo
   - No match → rojo
 
-#### `_lib/rateLimit.js`
+#### `_lib/rateLimitRedis.js`
 
 - **Propósito**: Proteger endpoint de abuso
 - **Lógica**:
