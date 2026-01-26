@@ -13,12 +13,6 @@ function getSecret() {
   return secret;
 }
 
-function pickDailyTargetId(pool, seedKey) {
-  const h = fnv1a(`${getSecret()}:${seedKey}`);
-  const idx = h % pool.length;
-  return pool[idx].id;
-}
-
 function mapRow(row) {
   // soporta: types_json (viejo) o types (nuevo)
   const rawTypes = row.types_json != null ? row.types_json : row.types;
@@ -38,18 +32,7 @@ function mapRow(row) {
 
 exports.handler = async (event) => {
   try {
-    const secret = process.env.SECRET;
-    if (!secret) {
-      return {
-        statusCode: 500,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          error: "MISSING_SECRET",
-          message:
-            "process.env.SECRET is not set. Please set SECRET environment variable in Netlify.",
-        }),
-      };
-    }
+    const secret = getSecret();
 
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: "Method Not Allowed" };
@@ -94,16 +77,13 @@ exports.handler = async (event) => {
     const cfg = modeConfig(mode);
     const db = sql();
 
-    // pool filtrado por modo
-    let pool;
-    if (cfg.gens && cfg.gens.length) {
-      pool =
-        await db`SELECT id FROM pokemon WHERE gen = ANY(${cfg.gens}) ORDER BY id`;
-    } else {
-      pool = await db`SELECT id FROM pokemon ORDER BY id`;
-    }
+    const countRows =
+      cfg.gens && cfg.gens.length
+        ? await db`SELECT COUNT(*)::int AS c FROM pokemon WHERE gen = ANY(${cfg.gens})`
+        : await db`SELECT COUNT(*)::int AS c FROM pokemon`;
+    const total = Number(countRows[0]?.c || 0);
 
-    if (!pool.length) {
+    if (!total) {
       return {
         statusCode: 400,
         headers: { "content-type": "application/json" },
@@ -112,13 +92,26 @@ exports.handler = async (event) => {
     }
 
     const seedKey = `${dayKey}|${cfg.id}`;
-    const targetId = pickDailyTargetId(pool, seedKey);
+    const targetOffset = fnv1a(`${secret}:${seedKey}`) % total;
 
-    const tRows =
-      await db`SELECT * FROM pokemon WHERE id = ${targetId} LIMIT 1`;
+    const targetRows =
+      cfg.gens && cfg.gens.length
+        ? await db`
+        SELECT *
+        FROM pokemon
+        WHERE gen = ANY(${cfg.gens})
+        ORDER BY id
+        LIMIT 1 OFFSET ${targetOffset}
+      `
+        : await db`
+        SELECT *
+        FROM pokemon
+        ORDER BY id
+        LIMIT 1 OFFSET ${targetOffset}
+      `;
     const gRows = await db`SELECT * FROM pokemon WHERE id = ${guessId} LIMIT 1`;
 
-    const tRow = tRows[0];
+    const tRow = targetRows[0];
     const gRow = gRows[0];
 
     if (!gRow) {
