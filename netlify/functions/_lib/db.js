@@ -13,10 +13,18 @@ function getDatabaseUrl() {
   return url;
 }
 
+let cachedSql;
+
 function sql() {
-  return postgres(getDatabaseUrl(), {
+  if (cachedSql) {
+    return cachedSql;
+  }
+
+  cachedSql = postgres(getDatabaseUrl(), {
     ssl: "require",
   });
+
+  return cachedSql;
 }
 
 module.exports = {

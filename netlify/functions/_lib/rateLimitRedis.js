@@ -12,6 +12,28 @@ function getRedisKey(ip) {
   return `ratelimit:${ip}`;
 }
 
+let redisClient;
+
+function getRedisClient() {
+  if (redisClient) {
+    return redisClient;
+  }
+
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token) {
+    return null;
+  }
+
+  redisClient = new Redis({
+    url,
+    token,
+  });
+
+  return redisClient;
+}
+
 function getClientIp(event) {
   // Netlify proporciona client IP en varios headers
   return (
@@ -23,15 +45,10 @@ function getClientIp(event) {
 }
 
 async function getRateLimitInfo(ip) {
-  // Si no hay configuración de Redis, fallback a in-memory (para desarrollo)
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+  const redis = getRedisClient();
+  if (!redis) {
     return getFallbackRateLimitInfo(ip);
   }
-
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
 
   const now = Date.now();
   const key = getRedisKey(ip);
@@ -56,10 +73,14 @@ async function getRateLimitInfo(ip) {
       // Nuevo usuario o expiró
       count = 1;
       resetTime = now + RATE_LIMIT_WINDOW;
-      await redis.setex(key, Math.ceil(RATE_LIMIT_WINDOW / 1000), JSON.stringify({
-        count,
-        resetTime,
-      }));
+      await redis.setex(
+        key,
+        Math.ceil(RATE_LIMIT_WINDOW / 1000),
+        JSON.stringify({
+          count,
+          resetTime,
+        }),
+      );
     } else {
       const data = JSON.parse(currentValue);
 
@@ -67,18 +88,26 @@ async function getRateLimitInfo(ip) {
       if (currentTtl === -2 || now >= data.resetTime) {
         count = 1;
         resetTime = now + RATE_LIMIT_WINDOW;
-        await redis.setex(key, Math.ceil(RATE_LIMIT_WINDOW / 1000), JSON.stringify({
-          count,
-          resetTime,
-        }));
+        await redis.setex(
+          key,
+          Math.ceil(RATE_LIMIT_WINDOW / 1000),
+          JSON.stringify({
+            count,
+            resetTime,
+          }),
+        );
       } else {
         count = data.count + 1;
 
         if (count <= RATE_LIMIT_MAX_REQUESTS) {
-          await redis.setex(key, Math.ceil((data.resetTime - now) / 1000), JSON.stringify({
-            count,
-            resetTime: data.resetTime,
-          }));
+          await redis.setex(
+            key,
+            Math.ceil((data.resetTime - now) / 1000),
+            JSON.stringify({
+              count,
+              resetTime: data.resetTime,
+            }),
+          );
         }
 
         resetTime = data.resetTime;
@@ -95,6 +124,7 @@ async function getRateLimitInfo(ip) {
     };
   } catch (error) {
     console.error("Redis rate limit error, using fallback:", error.message);
+    redisClient = null;
     return getFallbackRateLimitInfo(ip);
   }
 }
@@ -150,17 +180,14 @@ function getFallbackRateLimitInfo(ip) {
 }
 
 async function resetRateLimit(ip) {
-  // Si hay Redis disponible, usarlo
-  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-    const redis = new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
-    });
+  const redis = getRedisClient();
 
+  if (redis) {
     try {
       await redis.del(getRedisKey(ip));
     } catch (error) {
       console.error("Error resetting rate limit in Redis:", error);
+      redisClient = null;
     }
   }
 
