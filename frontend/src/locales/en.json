@@ -88,6 +88,8 @@
     "error_title": "Error",
     "empty_state": "No attempts yet. Type a name and try.",
     "footer": "Pokedle+ - original style - Tailwind + Netlify",
+    "share": "Share Results",
+    "share_copied": "Copied to clipboard!",
     "columns": {
       "pokemon": "Pokemon",
       "type1": "Type 1",
@@ -148,5 +150,14 @@
         "unknown": "unknown"
       }
     }
+  },
+  "stats": {
+    "title": "Statistics",
+    "played": "Played",
+    "win_rate": "Win %",
+    "current_streak": "Current Streak",
+    "max_streak": "Max Streak",
+    "distribution": "Guess Distribution",
+    "close": "Close"
   }
 }

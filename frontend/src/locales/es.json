@@ -88,6 +88,8 @@
     "error_title": "Error",
     "empty_state": "Todavia no hay intentos. Escribi un nombre y proba.",
     "footer": "Pokedle+ - estilo original - Tailwind + Netlify",
+    "share": "Compartir Resultados",
+    "share_copied": "Copiado al portapapeles!",
     "columns": {
       "pokemon": "Pokemon",
       "type1": "Tipo 1",
@@ -148,5 +150,14 @@
         "unknown": "desconocido"
       }
     }
+  },
+  "stats": {
+    "title": "Estadisticas",
+    "played": "Jugadas",
+    "win_rate": "% Victorias",
+    "current_streak": "Racha Actual",
+    "max_streak": "Racha Maxima",
+    "distribution": "Distribucion de Intentos",
+    "close": "Cerrar"
   }
 }

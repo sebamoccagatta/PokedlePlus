@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { arrow } from "./ui.js";
 import { useTheme } from "./hooks/useTheme.js";
 import { useSearchCache } from "./hooks/useSearchCache.js";
@@ -6,12 +6,15 @@ import { useToast } from "./hooks/useToast.js";
 import { useI18n } from "./hooks/useI18n.js";
 import { useGameState } from "./hooks/useGameState.js";
 import { usePokemonSearch } from "./hooks/usePokemonSearch.js";
+import { useStats } from "./hooks/useStats.js";
+import { generateShareText, copyToClipboard } from "./utils/share.js";
 
 import GameHeader from "./components/GameHeader.jsx";
 import SearchPanel from "./components/SearchPanel.jsx";
 import AttemptsTable from "./components/AttemptsTable.jsx";
 import { ToastContainer } from "./components/Toast.jsx";
 import { Home } from "./components/Home.jsx";
+import StatsModal from "./components/StatsModal.jsx";
 
 function formatHeight(dm) {
   const m = (Number(dm || 0) / 10).toFixed(1);
@@ -28,6 +31,7 @@ export default function App() {
   const { isDark } = useTheme();
   const { clear: clearCache } = useSearchCache();
   const { toasts, addToast, removeToast, clearToasts } = useToast();
+  const [showStats, setShowStats] = useState(false);
 
   const {
     mode,
@@ -40,6 +44,14 @@ export default function App() {
     changeMode,
     handleTryWithItem,
   } = useGameState(t, addToast, clearToasts);
+
+  const { stats, recordGame } = useStats(mode);
+
+  useEffect(() => {
+    if (state.finished && dayKey) {
+      recordGame(dayKey, state.won, state.attempts.length);
+    }
+  }, [state.finished, state.won, state.attempts.length, dayKey, recordGame]);
 
   const {
     q,
@@ -74,6 +86,17 @@ export default function App() {
     return handleTryWithItem(selected);
   };
 
+  const onShare = async () => {
+    const text = generateShareText(mode, dayKey, state.attempts, state.won, stats.currentStreak, t);
+    await copyToClipboard(text);
+    addToast({
+      kind: "success",
+      title: t("game.share"),
+      message: t("game.share_copied"),
+      duration: 2000,
+    });
+  };
+
   const translateHint = (category, value) => {
     const raw = String(value ?? "").toLowerCase();
     if (!raw) return value;
@@ -101,6 +124,7 @@ export default function App() {
           mode={mode}
           dayKey={dayKey}
           onChangeMode={() => changeMode(null)}
+          onShowStats={() => setShowStats(true)}
           t={t}
         />
         <div className="flex flex-col gap-4">
@@ -115,6 +139,7 @@ export default function App() {
             attemptsCount={state.attempts.length}
             error={error}
             onErrorClose={() => setError("")}
+            onShare={onShare}
             t={t}
             handleQueryChange={(e) => handleQueryChange(e.target.value)}
             handlePick={onPickPokemon}
@@ -141,6 +166,13 @@ export default function App() {
         </div>
       </div>
       <ToastContainer toasts={toasts} onClose={removeToast} />
+      {showStats && (
+        <StatsModal
+          stats={stats}
+          onClose={() => setShowStats(false)}
+          t={t}
+        />
+      )}
     </div>
   );
 }
