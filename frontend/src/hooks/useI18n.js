@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
-const DEFAULT_LOCALE = "es";
 const STORAGE_KEY = "pokedleplus:locale";
 
 import es from "../locales/es.json";
@@ -25,12 +24,11 @@ export function useI18n() {
     return detectBrowserLanguage();
   });
 
-  const [translations, setTranslations] = useState(locales[locale]);
-
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, locale);
-    setTranslations(locales[locale]);
   }, [locale]);
+
+  const translations = useMemo(() => locales[locale], [locale]);
 
   const t = useCallback(
     (key) => {
