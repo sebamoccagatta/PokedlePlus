@@ -23,14 +23,47 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { badgeClass, arrow } from "./ui.js";
+import { arrow } from "./ui.js";
 import { useTheme } from "./hooks/useTheme.js";
 import { useSearchCache } from "./hooks/useSearchCache.js";
 import { useToast } from "./hooks/useToast.js";
 import { ThemeToggle } from "./components/ThemeToggle.jsx";
+import confetti from "canvas-confetti";
+
+function triggerWinConfetti() {
+  const duration = 5 * 1000;
+  const animationEnd = Date.now() + duration;
+  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 200 };
+
+  const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+  const interval = setInterval(() => {
+    const timeLeft = animationEnd - Date.now();
+
+    if (timeLeft <= 0) {
+      return clearInterval(interval);
+    }
+
+    const particleCount = 50 * (timeLeft / duration);
+    confetti({
+      ...defaults,
+      particleCount,
+      origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+    });
+    confetti({
+      ...defaults,
+      particleCount,
+      origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+    });
+  }, 250);
+}
+
 import { useI18n } from "./hooks/useI18n.js";
 import { LanguageSelector } from "./components/LanguageSelector.jsx";
-import { Toast, ToastContainer } from "./components/Toast.jsx";
+import GameHeader from "./components/GameHeader.jsx";
+import SearchPanel from "./components/SearchPanel.jsx";
+import AttemptsTable from "./components/AttemptsTable.jsx";
+import { ToastContainer } from "./components/Toast.jsx";
 
 /**
  * Storage
@@ -39,7 +72,7 @@ import { Toast, ToastContainer } from "./components/Toast.jsx";
  */
 const STORAGE_PREFIX = "pokedleplus:v1:";
 const MODE_KEY = "pokedleplus:mode";
-const MAX_ATTEMPTS = 10;
+const MAX_ATTEMPTS = 15;
 
 function loadMode() {
   try {
@@ -87,83 +120,6 @@ function saveState(state, mode) {
   } catch {
     // noop
   }
-}
-
-/**
- * UI components
- */
-function Pill({ children, kind, pop = false, isDark }) {
-  return (
-    <span
-      className={[
-        "inline-flex items-center justify-center gap-1.5",
-        "rounded-xl border px-3 py-1.5",
-        "text-[12px] font-semibold leading-none",
-        "min-h-8 min-w-[92px]",
-        "shadow-[0_1px_0_rgba(255,255,255,0.05)_inset]",
-        "transition-transform transition-opacity duration-200",
-        pop ? "scale-[1.03]" : "scale-100",
-        badgeClass(kind, isDark),
-      ].join(" ")}
-    >
-      {children}
-    </span>
-  );
-}
-
-function ComboList({
-  items,
-  onPick,
-  disabled,
-  onScrollBottom,
-  loadingMore,
-  hasMore,
-  t,
-}) {
-  return (
-    <div
-      className="mt-3 rounded-2xl border border-app bg-surface overflow-y-auto overscroll-contain"
-      style={{ maxHeight: 320 }}
-      onScroll={(e) => {
-        const el = e.currentTarget;
-        const nearBottom =
-          el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
-        if (nearBottom) onScrollBottom?.();
-      }}
-    >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-3">
-        {items.map((o) => (
-          <button
-            key={o.id}
-            onClick={() => onPick(o)}
-            disabled={disabled}
-            className={[
-              "flex items-center gap-3 rounded-2xl border border-app bg-surface px-3 py-2 text-left transition-colors surface-hover",
-              "disabled:opacity-60",
-            ].join(" ")}
-          >
-            <div className="rounded-xl border border-app bg-surface-soft p-2">
-              <img src={o.sprite} alt={o.name} className="h-6 w-6" />
-            </div>
-            <div className="min-w-0">
-              <div className="truncate text-sm font-extrabold capitalize text-strong">
-                {o.name}
-              </div>
-              <div className="text-xs text-muted">
-                #{o.id}
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-
-      {(loadingMore || hasMore) && (
-        <div className="border-t border-app px-3 py-2 text-center text-xs text-muted">
-          {loadingMore ? t("game.loading_more") : t("game.scroll_more")}
-        </div>
-      )}
-    </div>
-  );
 }
 
 function formatHeight(dm) {
@@ -329,16 +285,12 @@ function Home({ onSelect, dayKey, i18n }) {
             />
           </div>
         </div>
-        <p className="text-center mb-6 text-muted">
-          {t("home.tagline")}
-        </p>
+        <p className="text-center mb-6 text-muted">{t("home.tagline")}</p>
 
         <div className="mb-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <span className="text-xs text-muted">
             {t("home.today")}{" "}
-            <span className="font-semibold text-strong">
-              {dayKey || "??"}
-            </span>
+            <span className="font-semibold text-strong">{dayKey || "??"}</span>
           </span>
 
           <button
@@ -346,7 +298,8 @@ function Home({ onSelect, dayKey, i18n }) {
             className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold btn-surface transition"
             title={t("home.continue_title")}
           >
-            {t("home.continue")} <span className="text-muted">({lastMode})</span>
+            {t("home.continue")}{" "}
+            <span className="text-muted">({lastMode})</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
@@ -401,11 +354,13 @@ function Home({ onSelect, dayKey, i18n }) {
                   <div className="shrink-0">
                     {st.won ? (
                       <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200">
-                        <CheckCircle2 className="h-4 w-4" /> {t("home.status_won")}
+                        <CheckCircle2 className="h-4 w-4" />{" "}
+                        {t("home.status_won")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-600 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-300">
-                        <CircleDashed className="h-4 w-4" /> {t("home.status_pending")}
+                        <CircleDashed className="h-4 w-4" />{" "}
+                        {t("home.status_pending")}
                       </span>
                     )}
                   </div>
@@ -432,7 +387,9 @@ function Home({ onSelect, dayKey, i18n }) {
           })}
         </div>
 
-        <div className="mt-10 text-center text-xs text-muted">{t("home.footer")}</div>
+        <div className="mt-10 text-center text-xs text-muted">
+          {t("home.footer")}
+        </div>
       </div>
     </div>
   );
@@ -539,12 +496,15 @@ export default function App() {
       }
 
       if (normalized.won) {
+        clearToasts();
         addToast({
           kind: "success",
           title: t("game.win_title"),
           message: t("game.win_message"),
         });
+        triggerWinConfetti();
       } else if (normalized.finished) {
+        clearToasts();
         addToast({
           kind: "warning",
           title: t("game.lost_title"),
@@ -638,10 +598,10 @@ export default function App() {
     if (state.finished) {
       addToast({
         kind: state.won ? "info" : "warning",
-        title: state.won ? t("game.already_played_title") : t("game.lost_title"),
-        message: state.won
-          ? t("game.day_end_message")
-          : t("game.lost_message"),
+        title: state.won
+          ? t("game.already_played_title")
+          : t("game.lost_title"),
+        message: state.won ? t("game.day_end_message") : t("game.lost_message"),
       });
       return;
     }
@@ -705,6 +665,7 @@ export default function App() {
           title: t("game.win_title"),
           message: t("game.win_message"),
         });
+        triggerWinConfetti();
       } else if (isOutOfAttempts) {
         addToast({
           kind: "warning",
@@ -753,6 +714,16 @@ export default function App() {
     return handleTryWithItem(selected);
   }
 
+  function handleQueryChange(event) {
+    setQ(event.target.value);
+    setSelected(null);
+  }
+
+  function handleScrollBottom() {
+    if (!hasMore || loadingMore) return;
+    doSearch(q, offset, true);
+  }
+
   const attempts = state.attempts;
   const translateHint = (category, value) => {
     const raw = String(value ?? "").toLowerCase();
@@ -780,253 +751,49 @@ export default function App() {
   return (
     <div className="min-h-screen bg-app text-app">
       <div className="mx-auto max-w-7xl px-4 py-10">
-        <header className="mb-8 flex items-center justify-between">
-          <div>
-            <div className="text-2xl font-black tracking-tight">Pokedle+</div>
-            <div className="text-sm text-muted">
-              {t("game.mode")} <span className="font-semibold">{mode}</span> • {dayKey}
+        <GameHeader
+          mode={mode}
+          dayKey={dayKey}
+          onChangeMode={() => {
+            clearMode();
+            setMode(null);
+          }}
+          t={t}
+        />
+        <div className="flex flex-col gap-4">
+          <SearchPanel
+            q={q}
+            selected={selected}
+            results={results}
+            hasMore={hasMore}
+            loadingMore={loadingMore}
+            busy={busy}
+            finished={state.finished}
+            attemptsCount={attempts.length}
+            error={error}
+            onErrorClose={() => setError("")}
+            t={t}
+            handleQueryChange={handleQueryChange}
+            handlePick={handlePick}
+            handleTry={handleTry}
+            handleScrollBottom={handleScrollBottom}
+          />
+
+          <div className="flex flex-col gap-4">
+            <AttemptsTable
+              attempts={attempts}
+              showGenColumn={showGenColumn}
+              isDark={isDark}
+              translateHint={translateHint}
+              t={t}
+              canReveal={canReveal}
+              arrow={arrow}
+              formatHeight={formatHeight}
+              formatWeight={formatWeight}
+            />
+            <div className="text-center text-xs text-muted">
+              {t("game.footer")}
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                clearMode();
-                setMode(null);
-              }}
-              className="rounded-2xl border px-4 py-2 text-xs font-extrabold btn-surface transition-colors"
-            >{t("game.change_mode")}</button>
-          </div>
-        </header>
-
-        <div className="rounded-3xl border border-app bg-surface p-6 shadow-card">
-          <div className="mb-4">
-            <div className="text-sm font-bold text-strong">
-              {t("game.guess_title")}
-            </div>
-            <div className="mt-2 flex gap-3">
-              <input
-                value={q}
-                onChange={(e) => {
-                  setQ(e.target.value);
-                  setSelected(null);
-                }}
-                placeholder={t("game.search_placeholder")}
-                className="w-full rounded-2xl border input-surface px-4 py-3 text-sm outline-none"
-              />
-              <button
-                onClick={handleTry}
-                disabled={!selected || busy || state.finished}
-                className="rounded-2xl border px-5 py-3 text-sm font-extrabold btn-surface transition-colors disabled:opacity-50 disabled:pointer-events-none"
-              >{t("game.try")}</button>
-            </div>
-
-            <div className="mt-2 text-xs text-muted">
-              {t("game.tip")}
-            </div>
-            <div className="mt-1 text-xs text-muted">
-              {t("game.attempts_label")} {attempts.length}/{MAX_ATTEMPTS}
-            </div>
-
-            {results.length > 0 && (
-              <ComboList
-                items={results}
-                onPick={handlePick}
-                disabled={busy || state.finished}
-                onScrollBottom={() => {
-                  if (!hasMore || loadingMore) return;
-                  doSearch(q, offset, true);
-                }}
-                loadingMore={loadingMore}
-                hasMore={hasMore}
-                t={t}
-              />
-            )}
-          </div>
-
-          {error && (
-            <div className="mb-4">
-              <Toast
-                kind="error"
-                title={t("game.error_title")}
-                onClose={() => setError("")}
-              >
-                {error}
-              </Toast>
-            </div>
-          )}
-
-          <div className="overflow-hidden rounded-3xl border border-app bg-surface">
-            <div
-              className={[
-                "grid gap-2 px-4 py-3 text-[11px] font-black uppercase tracking-wider text-muted",
-                showGenColumn
-                  ? "grid-cols-[240px,120px,120px,90px,140px,120px,80px,90px,110px]"
-                  : "grid-cols-[240px,120px,120px,140px,120px,80px,90px,110px]",
-              ].join(" ")}
-            >
-              <div className="text-left">{t("game.columns.pokemon")}</div>
-              <div className="text-center">{t("game.columns.type1")}</div>
-              <div className="text-center">{t("game.columns.type2")}</div>
-
-              {showGenColumn && <div className="text-center">{t("game.columns.gen")}</div>}
-
-              <div className="text-center">{t("game.columns.habitat")}</div>
-              <div className="text-center">{t("game.columns.color")}</div>
-              <div className="text-center">{t("game.columns.evolution")}</div>
-              <div className="text-center">{t("game.columns.height")}</div>
-              <div className="text-center">{t("game.columns.weight")}</div>
-            </div>
-
-            <div className="divide-y divide-app">
-              {attempts.length === 0 ? (
-                <div className="px-4 py-10 text-center text-sm text-muted">
-                  {t("game.empty_state")}
-                </div>
-              ) : (
-                attempts.map((a, rowIndex) => {
-                  const isTop = rowIndex === 0;
-                  const gateTop = isTop && revealIndex >= 0;
-
-                  const r = (i) => (gateTop ? canReveal(i) : true);
-
-                  return (
-                    <div
-                      key={`${a.id}-${rowIndex}`}
-                      className={[
-                        "grid gap-2 items-center px-4 py-3 transition-colors surface-hover",
-                        showGenColumn
-                          ? "grid-cols-[240px,120px,120px,90px,140px,120px,80px,90px,110px]"
-                          : "grid-cols-[240px,120px,120px,140px,120px,80px,90px,110px]",
-                      ].join(" ")}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="rounded-2xl bg-surface-soft p-2 border border-app">
-                          <img
-                            src={a.sprite}
-                            alt={a.name}
-                            className="h-9 w-9"
-                            loading="lazy"
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="truncate font-extrabold capitalize text-strong">
-                            {a.name}
-                          </div>
-                          <div className="text-xs text-muted">
-                            #{a.id}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-center">
-                        <Pill
-                          kind={r(0) ? a.columns.type1 : ""}
-                          pop={isTop && r(0)}
-                          isDark={isDark}
-                        >
-                          <span className="capitalize">
-                            {translateHint("types", a.types?.[0] ?? "none")}
-                          </span>
-                        </Pill>
-                      </div>
-
-                      <div className="flex justify-center">
-                        <Pill
-                          kind={r(1) ? a.columns.type2 : ""}
-                          pop={isTop && r(1)}
-                          isDark={isDark}
-                        >
-                          <span className="capitalize">
-                            {translateHint("types", a.types?.[1] ?? "none")}
-                          </span>
-                        </Pill>
-                      </div>
-
-                      {showGenColumn && (
-                        <div className="flex justify-center">
-                          <Pill
-                            kind={
-                              r(2)
-                                ? a.columns.gen === "correct"
-                                  ? "correct"
-                                  : "absent"
-                                : ""
-                            }
-                            pop={isTop && r(2)}
-                            isDark={isDark}
-                          >
-                            <span>Gen {a.gen}</span>
-                          </Pill>
-                        </div>
-                      )}
-
-                      <div className="flex justify-center">
-                        <Pill
-                          kind={r(3) ? a.columns.habitat : ""}
-                          pop={isTop && r(3)}
-                          isDark={isDark}
-                        >
-                          <span className="capitalize">{translateHint("habitats", a.habitat)}</span>
-                        </Pill>
-                      </div>
-
-                      <div className="flex justify-center">
-                        <Pill
-                          kind={r(4) ? a.columns.color : ""}
-                          pop={isTop && r(4)}
-                          isDark={isDark}
-                        >
-                          <span className="capitalize">{translateHint("colors", a.color)}</span>
-                        </Pill>
-                      </div>
-
-                      <div className="flex justify-center">
-                        <Pill
-                          kind={r(5) ? a.columns.evolution : ""}
-                          pop={isTop && r(5)}
-                          isDark={isDark}
-                        >
-                          <span>{a.evolution_stage}</span>
-                          <span className="font-black">
-                            {r(5) ? arrow(a.columns.evolution) : ""}
-                          </span>
-                        </Pill>
-                      </div>
-
-                      <div className="flex justify-center">
-                        <Pill
-                          kind={r(6) ? a.columns.height : ""}
-                          pop={isTop && r(6)}
-                          isDark={isDark}
-                        >
-                          <span>{formatHeight(a.height_dm)}</span>
-                          <span className="font-black">
-                            {r(6) ? arrow(a.columns.height) : ""}
-                          </span>
-                        </Pill>
-                      </div>
-
-                      <div className="flex justify-center">
-                        <Pill
-                          kind={r(7) ? a.columns.weight : ""}
-                          pop={isTop && r(7)}
-                          isDark={isDark}
-                        >
-                          <span>{formatWeight(a.weight_hg)}</span>
-                          <span className="font-black">
-                            {r(7) ? arrow(a.columns.weight) : ""}
-                          </span>
-                        </Pill>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-
-          <div className="mt-5 text-center text-xs text-muted">
-            {t("game.footer")}
           </div>
         </div>
       </div>
@@ -1035,19 +802,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
