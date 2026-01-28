@@ -59,6 +59,7 @@ export default function App() {
     selected,
     hasMore,
     loadingMore,
+    searching,
     handleQueryChange,
     handlePick,
     handleScrollBottom,
@@ -134,6 +135,7 @@ export default function App() {
             results={results}
             hasMore={hasMore}
             loadingMore={loadingMore}
+            searching={searching}
             busy={busy}
             finished={state.finished}
             attemptsCount={state.attempts.length}
@@ -158,6 +160,7 @@ export default function App() {
               arrow={arrow}
               formatHeight={formatHeight}
               formatWeight={formatWeight}
+              busy={busy}
             />
             <div className="text-center text-xs text-muted">
               {t("game.footer")}

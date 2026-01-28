@@ -1,4 +1,5 @@
 import { badgeClass } from "../ui.js";
+import { Skeleton } from "./Skeleton.jsx";
 
 function Pill({ children, kind, pop = false, isDark }) {
   return (
@@ -181,16 +182,19 @@ export default function AttemptsTable({
   arrow,
   formatHeight,
   formatWeight,
+  busy,
 }) {
   const headerClass = showGenColumn
     ? "grid-cols-[240px,120px,120px,90px,140px,120px,80px,90px,110px]"
     : "grid-cols-[240px,120px,120px,140px,120px,80px,90px,110px]";
 
+  const colCount = showGenColumn ? 9 : 8;
+
   return (
     <div className="overflow-x-auto rounded-3xl border border-app bg-surface">
       <div
         className={[
-          "grid gap-2 px-4 py-3 text-[11px] font-black uppercase tracking-wider text-muted",
+          "grid gap-2 px-4 py-3 text-[11px] font-black uppercase tracking-wider text-muted whitespace-nowrap",
           headerClass,
         ].join(" ")}
       >
@@ -209,8 +213,24 @@ export default function AttemptsTable({
         <div className="text-center">{t("game.columns.weight")}</div>
       </div>
 
-      <div className="divide-y divide-app">
-        {attempts.length === 0 ? (
+      <div className="divide-y divide-app min-w-max">
+        {busy && (
+          <div className={`grid gap-2 items-center px-4 py-3 ${headerClass}`}>
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-12 w-12 rounded-2xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-12" />
+              </div>
+            </div>
+            {[...Array(colCount - 1)].map((_, i) => (
+              <div key={i} className="flex justify-center">
+                <Skeleton className="h-8 w-24 rounded-xl" />
+              </div>
+            ))}
+          </div>
+        )}
+        {attempts.length === 0 && !busy ? (
           <div className="px-4 py-10 text-center text-sm text-muted">
             {t("game.empty_state")}
           </div>

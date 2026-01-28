@@ -8,6 +8,7 @@ export function usePokemonSearch(mode, t, setError, clearCache) {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [searching, setSearching] = useState(false);
   const searchAbortRef = useRef(null);
 
   const doSearch = useCallback(async (nextQ, nextOffset = 0, append = false) => {
@@ -28,6 +29,7 @@ export function usePokemonSearch(mode, t, setError, clearCache) {
 
     try {
       if (append) setLoadingMore(true);
+      else setSearching(true);
 
       const res = await apiSearch(query, nextOffset, mode || "classic", {
         signal: searchAbortRef.current?.signal,
@@ -47,6 +49,7 @@ export function usePokemonSearch(mode, t, setError, clearCache) {
       setError(t("game.search_error"));
     } finally {
       if (append) setLoadingMore(false);
+      else setSearching(false);
     }
   }, [mode, setError, t]);
 
@@ -96,6 +99,7 @@ export function usePokemonSearch(mode, t, setError, clearCache) {
     selected,
     hasMore,
     loadingMore,
+    searching,
     handleQueryChange,
     handlePick,
     handleScrollBottom,
