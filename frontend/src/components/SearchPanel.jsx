@@ -25,23 +25,23 @@ export default function SearchPanel({
   handleScrollBottom,
 }) {
   return (
-    <div className="rounded-[32px] border border-app bg-surface p-8 shadow-card">
+    <div className="rounded-[32px] border border-app bg-surface p-6 md:p-8 shadow-card">
       <div>
         <div className="text-sm font-bold text-strong mb-4">
           {finished ? t("game.win_title") : t("game.guess_title")}
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <input
             value={q}
             onChange={handleQueryChange}
             disabled={finished}
             placeholder={finished ? t("game.win_message") : t("game.search_placeholder")}
-            className="flex-1 rounded-2xl border input-surface px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-zinc-500 disabled:opacity-50"
+            className="w-full sm:flex-1 rounded-2xl border input-surface px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-zinc-500 disabled:opacity-50"
           />
           {finished ? (
             <button
               onClick={onShare}
-              className="flex items-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-extrabold text-white hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-extrabold text-white hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20 w-full sm:w-auto"
             >
               <Share2 className="h-4 w-4" />
               {t("game.share")}
@@ -50,7 +50,7 @@ export default function SearchPanel({
             <button
               onClick={handleTry}
               disabled={!selected || busy || finished}
-              className="rounded-2xl border px-8 py-3 text-sm font-extrabold btn-surface transition-colors disabled:opacity-50 disabled:pointer-events-none"
+              className="rounded-2xl border px-8 py-3 text-sm font-extrabold btn-surface transition-colors disabled:opacity-50 disabled:pointer-events-none w-full sm:w-auto"
             >
               {t("game.try")}
             </button>

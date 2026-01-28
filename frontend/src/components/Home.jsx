@@ -160,9 +160,9 @@ export function Home({ onSelect, dayKey, i18n }) {
 
   return (
     <div className="min-h-screen bg-app text-app">
-      <div className="mx-auto w-full max-w-[1900px] px-6 md:px-10 2xl:px-16 py-14">
+      <div className="mx-auto w-full max-w-[1900px] px-4 md:px-10 2xl:px-16 py-10 md:py-14">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-4xl font-black">Pokedle+</h1>
+          <h1 className="text-3xl md:text-4xl font-black">Pokedle+</h1>
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <LanguageSelector
@@ -206,7 +206,7 @@ export function Home({ onSelect, dayKey, i18n }) {
                 onClick={() => handleSelect(m.id)}
                 className={[
                   "group relative rounded-[28px] border text-left transition",
-                  "p-7 2xl:p-8 min-h-[170px] 2xl:min-h-[185px]",
+                  "p-5 md:p-7 2xl:p-8 min-h-[160px] md:min-h-[170px] 2xl:min-h-[185px]",
                   "shadow-card",
                   st.won
                     ? "border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100/70 dark:border-emerald-900/60 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/25"
@@ -217,17 +217,17 @@ export function Home({ onSelect, dayKey, i18n }) {
                 title={m.title}
               >
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-5 min-w-0">
+                  <div className="flex items-center gap-3 md:gap-5 min-w-0">
                     <div
                       className={[
-                        "h-16 w-16 rounded-3xl",
+                        "h-14 w-14 md:h-16 md:w-16 rounded-3xl",
                         m.color,
                         "flex items-center justify-center text-white shrink-0",
                         "shadow-[0_12px_40px_rgba(0,0,0,0.35)]",
                         "transition-transform duration-200 group-hover:scale-[1.05]",
                       ].join(" ")}
                     >
-                      <m.Icon className="h-8 w-8" />
+                      <m.Icon className="h-7 w-7 md:h-8 md:w-8" />
                     </div>
 
                     <div className="min-w-0">
