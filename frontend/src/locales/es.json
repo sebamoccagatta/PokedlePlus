@@ -56,6 +56,10 @@
       "gen9": {
         "title": "Generacion IX",
         "desc": "Solo Paldea"
+      },
+      "infinite": {
+        "title": "Modo Infinito",
+        "desc": "Juga sin limites (aleatorio)"
       }
     }
   },
@@ -72,15 +76,20 @@
     "scroll_more": "Scroll para cargar mas",
     "meta_error": "No se pudo cargar la meta del juego.",
     "search_error": "Fallo la busqueda.",
-    "win_title": "Ganaste!",
-    "win_message": "Volve manana para un nuevo Pokemon.",
+    "win_title": "¡Ganaste!",
+    "win_message": "Volvé mañana para un nuevo Pokémon.",
+    "win_title_infinite": "¡Adivinado!",
+    "win_message_infinite": "¡Lo lograste! ¿Probamos con otro?",
     "day_end_title": "Fin del dia",
     "day_end_message": "Ya jugaste hoy. Volve manana para un nuevo Pokemon.",
     "already_played_title": "Ya jugaste hoy",
     "already_tried_title": "Ya lo intentaste",
     "already_tried_message": "Elegi otro Pokemon.",
     "lost_title": "Perdiste",
-    "lost_message": "Se acabaron los intentos. Volve manana para un nuevo Pokemon.",
+    "lost_message": "Se acabaron los intentos. Volvé mañana para un nuevo Pokémon.",
+    "lost_title_infinite": "¡Casi!",
+    "lost_message_infinite": "No te preocupes, ¡puedes intentarlo de nuevo!",
+    "new_game": "NUEVO JUEGO",
     "try_error": "Fallo el intento:",
     "try_failed_title": "Fallo el intento",
     "try_again": "Proba de nuevo.",

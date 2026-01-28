@@ -15,6 +15,7 @@ import {
   Nestball,
   Netball,
   Quickball,
+  InfiniteBall,
 } from "./Icons.jsx";
 import { ThemeToggle } from "./ThemeToggle.jsx";
 import { LanguageSelector } from "./LanguageSelector.jsx";
@@ -92,6 +93,13 @@ export function Home({ onSelect, dayKey, i18n }) {
         desc: t("home.modes.gen9.desc"),
         color: "bg-yellow-500",
         Icon: Quickball,
+      },
+      {
+        id: "infinite",
+        title: t("home.modes.infinite.title"),
+        desc: t("home.modes.infinite.desc"),
+        color: "bg-amber-600",
+        Icon: InfiniteBall,
       },
     ],
     [t]

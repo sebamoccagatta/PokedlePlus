@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { apiGuess, apiMeta, apiPokemon } from "../api.js";
+import pokemonData from "../data/pokemon.json";
+import { compareGuess, fnv1a } from "../utils/gameLogic.js";
 import confetti from "canvas-confetti";
 
 const STORAGE_PREFIX = "pokedleplus:v1:";
@@ -111,6 +113,16 @@ export function useGameState(t, addToast, clearToasts) {
 
   const canReveal = useCallback((i) => revealIndex >= i, [revealIndex]);
 
+  const [infiniteKey, setInfiniteKey] = useState(() => {
+    return localStorage.getItem("pokedleplus:infiniteKey") || "";
+  });
+
+  const nextInfinite = useCallback(() => {
+    const next = "inf-" + Math.random().toString(36).substring(2, 11);
+    localStorage.setItem("pokedleplus:infiniteKey", next);
+    setInfiniteKey(next);
+  }, []);
+
   useEffect(() => {
     for (const t of revealTimersRef.current) clearTimeout(t);
     revealTimersRef.current = [];
@@ -128,10 +140,24 @@ export function useGameState(t, addToast, clearToasts) {
     clearToasts();
 
     (async () => {
-      const meta = await apiMeta(mode);
-      setDayKey(meta.dayKey);
+      let activeDayKey = "";
+      if (mode === "infinite") {
+        if (!infiniteKey) {
+          const first = "inf-" + Math.random().toString(36).substring(2, 11);
+          localStorage.setItem("pokedleplus:infiniteKey", first);
+          setInfiniteKey(first);
+          activeDayKey = first;
+        } else {
+          activeDayKey = infiniteKey;
+        }
+      } else {
+        const meta = await apiMeta(mode);
+        activeDayKey = meta.dayKey;
+      }
+      
+      setDayKey(activeDayKey);
 
-      const loaded = loadState(meta.dayKey, mode);
+      const loaded = loadState(activeDayKey, mode);
       const shouldFinish = !loaded.won && loaded.attempts.length >= MAX_ATTEMPTS;
       const normalized = shouldFinish
         ? { ...loaded, finished: true, won: false }
@@ -146,23 +172,23 @@ export function useGameState(t, addToast, clearToasts) {
         clearToasts();
         addToast({
           kind: "success",
-          title: t("game.win_title"),
-          message: t("game.win_message"),
+          title: mode === "infinite" ? t("game.win_title_infinite") : t("game.win_title"),
+          message: mode === "infinite" ? t("game.win_message_infinite") : t("game.win_message"),
         });
         triggerWinConfetti();
       } else if (normalized.finished) {
         clearToasts();
         addToast({
           kind: "warning",
-          title: t("game.lost_title"),
-          message: t("game.lost_message"),
+          title: mode === "infinite" ? t("game.lost_title_infinite") : t("game.lost_title"),
+          message: mode === "infinite" ? t("game.lost_message_infinite") : t("game.lost_message"),
         });
       }
     })().catch((e) => {
       console.error(e);
       setError(t("game.meta_error"));
     });
-  }, [mode, addToast, clearToasts]);
+  }, [mode, infiniteKey, addToast, clearToasts]);
 
   // Global dayKey for Home
   useEffect(() => {
@@ -211,10 +237,30 @@ export function useGameState(t, addToast, clearToasts) {
     setError("");
 
     try {
-      const [p, g] = await Promise.all([
-        apiPokemon(pick.id),
-        apiGuess(pick.id, dayKey, mode || "classic"),
-      ]);
+      const activeMode = mode || "classic";
+      let p, g;
+
+      if (activeMode === "infinite") {
+        // En modo infinito, usamos la data local
+        const targetIdx = fnv1a(`secret-local:${dayKey}`) % pokemonData.length;
+        const target = pokemonData[targetIdx];
+        p = pokemonData.find(pk => pk.id === pick.id);
+        
+        if (!target || !p) {
+          throw new Error("Pokémon data not found locally");
+        }
+
+        const comparison = compareGuess({ target, guess: p });
+        g = { comparison };
+      } else {
+        // En otros modos, seguimos usando la API
+        const [pokeRes, guessRes] = await Promise.all([
+          apiPokemon(pick.id),
+          apiGuess(pick.id, dayKey, activeMode),
+        ]);
+        p = pokeRes;
+        g = guessRes;
+      }
 
       const attempt = {
         id: p.id,
@@ -247,21 +293,21 @@ export function useGameState(t, addToast, clearToasts) {
       };
 
       setState(next);
-      saveState(next, mode);
+      saveState(next, activeMode);
       scheduleReveal();
 
       if (isWin) {
         addToast({
           kind: "success",
-          title: t("game.win_title"),
-          message: t("game.win_message"),
+          title: mode === "infinite" ? t("game.win_title_infinite") : t("game.win_title"),
+          message: mode === "infinite" ? t("game.win_message_infinite") : t("game.win_message"),
         });
         triggerWinConfetti();
       } else if (isOutOfAttempts) {
         addToast({
           kind: "warning",
-          title: t("game.lost_title"),
-          message: t("game.lost_message"),
+          title: mode === "infinite" ? t("game.lost_title_infinite") : t("game.lost_title"),
+          message: mode === "infinite" ? t("game.lost_message_infinite") : t("game.lost_message"),
         });
       }
     } catch (e) {
@@ -287,5 +333,6 @@ export function useGameState(t, addToast, clearToasts) {
     canReveal,
     changeMode,
     handleTryWithItem,
+    nextInfinite,
   };
 }

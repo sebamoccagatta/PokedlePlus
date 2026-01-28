@@ -56,6 +56,10 @@
       "gen9": {
         "title": "Generation IX",
         "desc": "Only Paldea"
+      },
+      "infinite": {
+        "title": "Infinite Mode",
+        "desc": "Play without limits (random)"
       }
     }
   },
@@ -74,6 +78,8 @@
     "search_error": "Search failed.",
     "win_title": "You won!",
     "win_message": "Come back tomorrow for a new Pokemon.",
+    "win_title_infinite": "Guessed!",
+    "win_message_infinite": "You did it! Want to try another one?",
     "day_end_title": "End of day",
     "day_end_message": "You already played today. Come back tomorrow for a new Pokemon.",
     "already_played_title": "You already played today",
@@ -81,6 +87,9 @@
     "already_tried_message": "Pick another Pokemon.",
     "lost_title": "You lost",
     "lost_message": "No attempts left. Come back tomorrow for a new Pokemon.",
+    "lost_title_infinite": "Close!",
+    "lost_message_infinite": "Don't worry, you can try again!",
+    "new_game": "NEW GAME",
     "try_error": "Try failed:",
     "try_failed_title": "Try failed",
     "try_again": "Try again.",

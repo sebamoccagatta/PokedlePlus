@@ -23,6 +23,8 @@ export default function SearchPanel({
   handlePick,
   handleTry,
   handleScrollBottom,
+  onReset,
+  mode,
 }) {
   const inputRef = React.useRef(null);
 
@@ -59,7 +61,7 @@ export default function SearchPanel({
             placeholder={finished ? t("game.win_message") : t("game.search_placeholder")}
             className="w-full sm:flex-1 rounded-2xl border input-surface px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-zinc-500 disabled:opacity-50"
           />
-          {finished ? (
+          {finished && (
             <button
               onClick={onShare}
               className="flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-extrabold text-white hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20 w-full sm:w-auto"
@@ -67,10 +69,21 @@ export default function SearchPanel({
               <Share2 className="h-4 w-4" />
               {t("game.share")}
             </button>
-          ) : (
+          )}
+
+          {finished && mode === "infinite" && (
+            <button
+              onClick={onReset}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-extrabold text-white hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20 w-full sm:w-auto"
+            >
+              {t("game.new_game")}
+            </button>
+          )}
+
+          {!finished && (
             <button
               onClick={handleTry}
-              disabled={!selected || busy || finished}
+              disabled={!selected || busy}
               className="rounded-2xl border px-8 py-3 text-sm font-extrabold btn-surface transition-colors disabled:opacity-50 disabled:pointer-events-none w-full sm:w-auto"
             >
               {t("game.try")}
