@@ -2,7 +2,7 @@ export function generateShareText(mode, dayKey, attempts, won, currentStreak, t)
   const emojiMap = {
     correct: "🟩",
     present: "🟨",
-    absent: "🟥",
+    absent: "⬛",
     higher: "🟦",
     lower: "🟦",
   };
@@ -31,8 +31,8 @@ export function generateShareText(mode, dayKey, attempts, won, currentStreak, t)
       return keys
         .map((k) => {
           const val = cols[k];
-          if (k === "gen") return val === "correct" ? "🟩" : "🟥";
-          return emojiMap[val] || "⬜";
+          if (k === "gen") return val === "correct" ? "🟩" : "⬛";
+          return emojiMap[val] || "⬛";
         })
         .join("");
     })

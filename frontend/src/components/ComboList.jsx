@@ -11,6 +11,32 @@ export default function ComboList({
   hasMore,
   t,
 }) {
+  const [activeIndex, setActiveIndex] = React.useState(-1);
+
+  React.useEffect(() => {
+    setActiveIndex(-1);
+  }, [items]);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (disabled || items.length === 0) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActiveIndex((prev) => (prev < items.length - 1 ? prev + 1 : prev));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActiveIndex((prev) => (prev > 0 ? prev - 1 : 0));
+      } else if (e.key === "Enter" && activeIndex >= 0) {
+        e.preventDefault();
+        onPick?.(items[activeIndex]);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [items, activeIndex, onPick, disabled]);
+
   const handleScroll = (event) => {
     const el = event.currentTarget;
     const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
@@ -24,7 +50,7 @@ export default function ComboList({
       onScroll={handleScroll}
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-3">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <button
             key={item.id}
             onClick={() => onPick?.(item)}
@@ -32,6 +58,7 @@ export default function ComboList({
             className={[
               "flex items-center gap-3 rounded-2xl border border-app bg-surface px-4 py-3 text-left transition-all surface-hover hover:scale-[1.02] active:scale-[0.98]",
               "disabled:opacity-60 disabled:pointer-events-none",
+              index === activeIndex ? "border-indigo-500 ring-1 ring-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30" : "",
             ].join(" ")}
           >
             <div className="shrink-0">

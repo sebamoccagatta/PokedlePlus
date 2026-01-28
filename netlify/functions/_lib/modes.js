@@ -10,6 +10,7 @@ function modeConfig(mode) {
   if (m === "gen7") return { id: "gen7", gens: [7] };
   if (m === "gen8") return { id: "gen8", gens: [8] };
   if (m === "gen9") return { id: "gen9", gens: [9] };
+  if (m === "infinite") return { id: "infinite", gens: null };
 
   // classic = todas
   return { id: "classic", gens: null };

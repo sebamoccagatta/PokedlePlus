@@ -133,3 +133,15 @@ export const Quickball = (props) => (
     }
   />
 );
+export const InfiniteBall = (props) => (
+  <PokeballIcon 
+    {...props} 
+    colorTop="#f59e0b" 
+    colorBottom="#111827"
+    stripes={
+      <g>
+        <path d="M30 30 Q 40 20, 50 30 T 70 30 Q 80 40, 70 50 T 50 40 T 30 30" fill="none" stroke="white" strokeWidth="4" />
+      </g>
+    }
+  />
+);

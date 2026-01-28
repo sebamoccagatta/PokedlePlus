@@ -43,6 +43,7 @@ export default function App() {
     canReveal,
     changeMode,
     handleTryWithItem,
+    nextInfinite,
   } = useGameState(t, addToast, clearToasts);
 
   const { stats, recordGame } = useStats(mode);
@@ -116,7 +117,7 @@ export default function App() {
     );
   }
 
-  const showGenColumn = mode === "classic";
+  const showGenColumn = mode === "classic" || mode === "infinite";
 
   return (
     <div className="min-h-screen bg-app text-app">
@@ -129,25 +130,27 @@ export default function App() {
           t={t}
         />
         <div className="flex flex-col gap-4">
-          <SearchPanel
-            q={q}
-            selected={selected}
-            results={results}
-            hasMore={hasMore}
-            loadingMore={loadingMore}
-            searching={searching}
-            busy={busy}
-            finished={state.finished}
-            attemptsCount={state.attempts.length}
-            error={error}
-            onErrorClose={() => setError("")}
-            onShare={onShare}
-            t={t}
-            handleQueryChange={(e) => handleQueryChange(e.target.value)}
-            handlePick={onPickPokemon}
-            handleTry={onTrySelected}
-            handleScrollBottom={handleScrollBottom}
-          />
+            <SearchPanel
+              q={q}
+              selected={selected}
+              results={results}
+              hasMore={hasMore}
+              loadingMore={loadingMore}
+              searching={searching}
+              busy={busy}
+              finished={state.finished}
+              attemptsCount={state.attempts.length}
+              error={error}
+              onErrorClose={() => setError("")}
+              onShare={onShare}
+              onReset={nextInfinite}
+              mode={mode}
+              t={t}
+              handleQueryChange={(e) => handleQueryChange(e.target.value)}
+              handlePick={onPickPokemon}
+              handleTry={onTrySelected}
+              handleScrollBottom={handleScrollBottom}
+            />
 
           <div className="flex flex-col gap-4">
             <AttemptsTable
@@ -173,6 +176,7 @@ export default function App() {
         <StatsModal
           stats={stats}
           onClose={() => setShowStats(false)}
+          onShare={onShare}
           t={t}
         />
       )}

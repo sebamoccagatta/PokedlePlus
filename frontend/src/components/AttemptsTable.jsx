@@ -1,7 +1,7 @@
 import { badgeClass } from "../ui.js";
 import { Skeleton } from "./Skeleton.jsx";
 
-function Pill({ children, kind, pop = false, isDark }) {
+function Pill({ children, kind, pop = false, isDark, className = "" }) {
   return (
     <span
       className={[
@@ -13,6 +13,7 @@ function Pill({ children, kind, pop = false, isDark }) {
         "transition-transform transition-opacity duration-200",
         pop ? "scale-[1.03]" : "scale-100",
         badgeClass(kind, isDark),
+        className,
       ].join(" ")}
     >
       {children}
@@ -45,6 +46,7 @@ function AttemptRow({
       className={[
         `grid gap-1.5 md:gap-2 items-center px-4 py-3 transition-colors surface-hover`,
         gridClass,
+        isTop ? "reveal-pop" : "",
       ].join(" ")}
     >
       <div className="flex items-center gap-3 min-w-0">
@@ -69,6 +71,7 @@ function AttemptRow({
           kind={canRevealColumn(0) ? columns.type1 : ""}
           pop={isTop && canRevealColumn(0)}
           isDark={isDark}
+          className={gateTop ? "reveal-flip reveal-delay-0" : ""}
         >
           <span className="capitalize">
             {translateHint("types", attempt.types?.[0] ?? "none")}
@@ -81,6 +84,7 @@ function AttemptRow({
           kind={canRevealColumn(1) ? columns.type2 : ""}
           pop={isTop && canRevealColumn(1)}
           isDark={isDark}
+          className={gateTop ? "reveal-flip reveal-delay-1" : ""}
         >
           <span className="capitalize">
             {translateHint("types", attempt.types?.[1] ?? "none")}
@@ -100,6 +104,7 @@ function AttemptRow({
             }
             pop={isTop && canRevealColumn(2)}
             isDark={isDark}
+            className={gateTop ? "reveal-flip reveal-delay-2" : ""}
           >
             <span>Gen {attempt.gen}</span>
           </Pill>
@@ -111,6 +116,7 @@ function AttemptRow({
           kind={canRevealColumn(3) ? columns.habitat : ""}
           pop={isTop && canRevealColumn(3)}
           isDark={isDark}
+          className={gateTop ? "reveal-flip reveal-delay-3" : ""}
         >
           <span className="capitalize">
             {translateHint("habitats", attempt.habitat)}
@@ -123,6 +129,7 @@ function AttemptRow({
           kind={canRevealColumn(4) ? columns.color : ""}
           pop={isTop && canRevealColumn(4)}
           isDark={isDark}
+          className={gateTop ? "reveal-flip reveal-delay-4" : ""}
         >
           <span className="capitalize">
             {translateHint("colors", attempt.color)}
@@ -135,6 +142,7 @@ function AttemptRow({
           kind={canRevealColumn(5) ? columns.evolution : ""}
           pop={isTop && canRevealColumn(5)}
           isDark={isDark}
+          className={gateTop ? "reveal-flip reveal-delay-5" : ""}
         >
           <span>{attempt.evolution_stage}</span>
           <span className="font-black">
@@ -148,6 +156,7 @@ function AttemptRow({
           kind={canRevealColumn(6) ? columns.height : ""}
           pop={isTop && canRevealColumn(6)}
           isDark={isDark}
+          className={gateTop ? "reveal-flip reveal-delay-6" : ""}
         >
           <span>{formatHeight(attempt.height_dm)}</span>
           <span className="font-black">
@@ -161,6 +170,7 @@ function AttemptRow({
           kind={canRevealColumn(7) ? columns.weight : ""}
           pop={isTop && canRevealColumn(7)}
           isDark={isDark}
+          className={gateTop ? "reveal-flip reveal-delay-7" : ""}
         >
           <span>{formatWeight(attempt.weight_hg)}</span>
           <span className="font-black">

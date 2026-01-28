@@ -23,7 +23,29 @@ export default function SearchPanel({
   handlePick,
   handleTry,
   handleScrollBottom,
+  onReset,
+  mode,
 }) {
+  const inputRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Focus search with '/' if not typing in an input
+      if (e.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+      
+      // Close error with Escape
+      if (e.key === "Escape" && error) {
+        onErrorClose?.();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [error, onErrorClose]);
+
   return (
     <div className="rounded-[32px] border border-app bg-surface p-6 md:p-8 shadow-card">
       <div>
@@ -32,13 +54,14 @@ export default function SearchPanel({
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <input
+            ref={inputRef}
             value={q}
             onChange={handleQueryChange}
             disabled={finished}
             placeholder={finished ? t("game.win_message") : t("game.search_placeholder")}
             className="w-full sm:flex-1 rounded-2xl border input-surface px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-zinc-500 disabled:opacity-50"
           />
-          {finished ? (
+          {finished && (
             <button
               onClick={onShare}
               className="flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-extrabold text-white hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20 w-full sm:w-auto"
@@ -46,10 +69,21 @@ export default function SearchPanel({
               <Share2 className="h-4 w-4" />
               {t("game.share")}
             </button>
-          ) : (
+          )}
+
+          {finished && mode === "infinite" && (
+            <button
+              onClick={onReset}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-extrabold text-white hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20 w-full sm:w-auto"
+            >
+              {t("game.new_game")}
+            </button>
+          )}
+
+          {!finished && (
             <button
               onClick={handleTry}
-              disabled={!selected || busy || finished}
+              disabled={!selected || busy}
               className="rounded-2xl border px-8 py-3 text-sm font-extrabold btn-surface transition-colors disabled:opacity-50 disabled:pointer-events-none w-full sm:w-auto"
             >
               {t("game.try")}
@@ -64,6 +98,9 @@ export default function SearchPanel({
             </div>
             <div className="text-xs text-muted">
               {t("game.attempts_label")} {attemptsCount}/{MAX_ATTEMPTS}
+            </div>
+            <div className="text-[10px] text-muted-2 hidden md:block">
+              {t("game.keyboard_tip")}
             </div>
           </div>
         </div>
