@@ -11,6 +11,7 @@ export default function SearchPanel({
   results = [],
   hasMore,
   loadingMore,
+  searching,
   busy,
   finished,
   attemptsCount = 0,
@@ -67,7 +68,7 @@ export default function SearchPanel({
           </div>
         </div>
 
-        {results.length > 0 && (
+        {(results.length > 0 || searching) && (
           <div className="mt-6 border-t border-app pt-6">
             <ComboList
               items={results}
@@ -75,6 +76,7 @@ export default function SearchPanel({
               disabled={busy || finished}
               onScrollBottom={handleScrollBottom}
               loadingMore={loadingMore}
+              searching={searching}
               hasMore={hasMore}
               t={t}
             />

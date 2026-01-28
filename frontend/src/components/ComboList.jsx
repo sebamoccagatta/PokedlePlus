@@ -1,4 +1,5 @@
 import React from "react";
+import { PokemonCardSkeleton } from "./Skeleton.jsx";
 
 export default function ComboList({
   items = [],
@@ -6,6 +7,7 @@ export default function ComboList({
   disabled,
   onScrollBottom,
   loadingMore,
+  searching,
   hasMore,
   t,
 }) {
@@ -43,9 +45,28 @@ export default function ComboList({
             </div>
           </button>
         ))}
+
+        {searching && items.length === 0 && (
+          <>
+            <PokemonCardSkeleton />
+            <PokemonCardSkeleton />
+            <PokemonCardSkeleton />
+            <PokemonCardSkeleton />
+            <PokemonCardSkeleton />
+            <PokemonCardSkeleton />
+          </>
+        )}
+
+        {loadingMore && (
+          <>
+            <PokemonCardSkeleton />
+            <PokemonCardSkeleton />
+            <PokemonCardSkeleton />
+          </>
+        )}
       </div>
 
-      {(loadingMore || hasMore) && (
+      {!searching && (loadingMore || hasMore) && (
         <div className="border-t border-app px-3 py-2 text-center text-xs text-muted">
           {loadingMore ? t("game.loading_more") : t("game.scroll_more")}
         </div>
