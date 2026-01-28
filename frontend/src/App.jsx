@@ -173,6 +173,7 @@ export default function App() {
         <StatsModal
           stats={stats}
           onClose={() => setShowStats(false)}
+          onShare={onShare}
           t={t}
         />
       )}

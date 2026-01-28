@@ -1,7 +1,7 @@
 import React from "react";
-import { X, Trophy, Flame, Target, BarChart3 } from "lucide-react";
+import { X, Trophy, Flame, Target, BarChart3, Share2 } from "lucide-react";
 
-export default function StatsModal({ stats, onClose, t }) {
+export default function StatsModal({ stats, onClose, onShare, t }) {
   if (!stats) return null;
 
   const { totalGames, wins, currentStreak, maxStreak, distribution } = stats;
@@ -79,10 +79,17 @@ export default function StatsModal({ stats, onClose, t }) {
           </div>
         </div>
 
-        <div className="p-6 bg-surface-soft border-t border-app flex justify-center">
+        <div className="p-6 bg-surface-soft border-t border-app flex flex-col sm:flex-row gap-3">
+           <button
+             onClick={onShare}
+             className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20"
+           >
+             <Share2 className="h-4 w-4" />
+             {t("game.share")}
+           </button>
            <button
              onClick={onClose}
-             className="px-8 py-3 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20"
+             className="flex-1 px-6 py-3 rounded-2xl bg-surface border border-app font-bold hover:bg-surface-soft transition-colors"
            >
              {t("stats.close")}
            </button>
