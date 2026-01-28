@@ -24,6 +24,26 @@ export default function SearchPanel({
   handleTry,
   handleScrollBottom,
 }) {
+  const inputRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Focus search with '/' if not typing in an input
+      if (e.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+      
+      // Close error with Escape
+      if (e.key === "Escape" && error) {
+        onErrorClose?.();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [error, onErrorClose]);
+
   return (
     <div className="rounded-[32px] border border-app bg-surface p-6 md:p-8 shadow-card">
       <div>
@@ -32,6 +52,7 @@ export default function SearchPanel({
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <input
+            ref={inputRef}
             value={q}
             onChange={handleQueryChange}
             disabled={finished}
@@ -64,6 +85,9 @@ export default function SearchPanel({
             </div>
             <div className="text-xs text-muted">
               {t("game.attempts_label")} {attemptsCount}/{MAX_ATTEMPTS}
+            </div>
+            <div className="text-[10px] text-muted-2 hidden md:block">
+              {t("game.keyboard_tip")}
             </div>
           </div>
         </div>

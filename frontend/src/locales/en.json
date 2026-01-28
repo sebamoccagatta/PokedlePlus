@@ -66,6 +66,7 @@
     "search_placeholder": "E.g. pikachu",
     "try": "Try",
     "tip": "Tip: scroll the list to see more results.",
+    "keyboard_tip": "Press [/] to search and [↑][↓][Enter] to navigate.",
     "attempts_label": "Attempts:",
     "loading_more": "Loading more...",
     "scroll_more": "Scroll to load more",
