@@ -104,7 +104,7 @@ export function useGameState(t, addToast, clearToasts) {
     setRevealIndex(0);
 
     for (let i = 1; i < steps; i++) {
-      const timer = setTimeout(() => setRevealIndex(i), 120 * i);
+      const timer = setTimeout(() => setRevealIndex(i), 100 * i);
       revealTimersRef.current.push(timer);
     }
   }, []);

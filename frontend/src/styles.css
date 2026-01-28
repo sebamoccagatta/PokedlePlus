@@ -271,3 +271,44 @@
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* Flip Animation for Reveal (Modern 3D Feel) */
+@keyframes flipX {
+  0% {
+    transform: perspective(400px) rotateX(0deg);
+  }
+  45% {
+    transform: perspective(400px) rotateX(-90deg);
+  }
+  55% {
+    transform: perspective(400px) rotateX(-90deg);
+  }
+  100% {
+    transform: perspective(400px) rotateX(0deg);
+  }
+}
+
+@keyframes revealPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.reveal-flip {
+  animation: flipX 0.5s ease-in-out forwards;
+  backface-visibility: hidden;
+}
+
+.reveal-pop {
+  animation: revealPop 0.3s ease-in-out;
+}
+
+.reveal-delay-0 { animation-delay: 0ms; }
+.reveal-delay-1 { animation-delay: 100ms; }
+.reveal-delay-2 { animation-delay: 200ms; }
+.reveal-delay-3 { animation-delay: 300ms; }
+.reveal-delay-4 { animation-delay: 400ms; }
+.reveal-delay-5 { animation-delay: 500ms; }
+.reveal-delay-6 { animation-delay: 600ms; }
+.reveal-delay-7 { animation-delay: 700ms; }
+.reveal-delay-8 { animation-delay: 800ms; }
