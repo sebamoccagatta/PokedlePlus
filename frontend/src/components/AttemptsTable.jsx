@@ -5,10 +5,10 @@ function Pill({ children, kind, pop = false, isDark }) {
   return (
     <span
       className={[
-        "inline-flex items-center justify-center gap-1.5",
-        "rounded-xl border px-3 py-1.5",
-        "text-[12px] font-semibold leading-none",
-        "min-h-8 min-w-[92px]",
+        "inline-flex items-center justify-center gap-1 md:gap-1.5",
+        "rounded-xl border px-2 md:px-3 py-1.5",
+        "text-[11px] md:text-[12px] font-semibold leading-none",
+        "min-h-8 min-w-[85px] md:min-w-[92px]",
         "shadow-[0_1px_0_rgba(255,255,255,0.05)_inset]",
         "transition-transform transition-opacity duration-200",
         pop ? "scale-[1.03]" : "scale-100",
@@ -37,13 +37,13 @@ function AttemptRow({
   const canRevealColumn = (i) => (gateTop ? canReveal?.(i) : true);
 
   const gridClass = showGenColumn
-    ? "grid-cols-[240px,120px,120px,90px,140px,120px,80px,90px,110px]"
-    : "grid-cols-[240px,120px,120px,140px,120px,80px,90px,110px]";
+    ? "grid-cols-[180px,110px,110px,85px,130px,110px,75px,85px,100px]"
+    : "grid-cols-[180px,110px,110px,130px,110px,75px,85px,100px]";
 
   return (
     <div
       className={[
-        `grid gap-2 items-center px-4 py-3 transition-colors surface-hover`,
+        `grid gap-1.5 md:gap-2 items-center px-4 py-3 transition-colors surface-hover`,
         gridClass,
       ].join(" ")}
     >
@@ -185,8 +185,8 @@ export default function AttemptsTable({
   busy,
 }) {
   const headerClass = showGenColumn
-    ? "grid-cols-[240px,120px,120px,90px,140px,120px,80px,90px,110px]"
-    : "grid-cols-[240px,120px,120px,140px,120px,80px,90px,110px]";
+    ? "grid-cols-[180px,110px,110px,85px,130px,110px,75px,85px,100px]"
+    : "grid-cols-[180px,110px,110px,130px,110px,75px,85px,100px]";
 
   const colCount = showGenColumn ? 9 : 8;
 
@@ -194,7 +194,7 @@ export default function AttemptsTable({
     <div className="overflow-x-auto rounded-3xl border border-app bg-surface">
       <div
         className={[
-          "grid gap-2 px-4 py-3 text-[11px] font-black uppercase tracking-wider text-muted whitespace-nowrap",
+          "grid gap-1.5 md:gap-2 px-4 py-3 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-muted whitespace-nowrap",
           headerClass,
         ].join(" ")}
       >
@@ -215,17 +215,17 @@ export default function AttemptsTable({
 
       <div className="divide-y divide-app min-w-max">
         {busy && (
-          <div className={`grid gap-2 items-center px-4 py-3 ${headerClass}`}>
+          <div className={`grid gap-1.5 md:gap-2 items-center px-4 py-3 ${headerClass}`}>
             <div className="flex items-center gap-3">
-              <Skeleton className="h-12 w-12 rounded-2xl" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-3 w-12" />
+              <Skeleton className="h-10 w-10 md:h-12 md:w-12 rounded-2xl" />
+              <div className="space-y-1 md:space-y-2">
+                <Skeleton className="h-4 w-20 md:w-24" />
+                <Skeleton className="h-3 w-10 md:w-12" />
               </div>
             </div>
             {[...Array(colCount - 1)].map((_, i) => (
               <div key={i} className="flex justify-center">
-                <Skeleton className="h-8 w-24 rounded-xl" />
+                <Skeleton className="h-7 w-20 md:h-8 md:w-24 rounded-xl" />
               </div>
             ))}
           </div>

@@ -1,6 +1,8 @@
 # Local Netlify folder
 .netlify
 .opencode
+.agent
+.agents
 
 # Environment variables (never commit)
 .env

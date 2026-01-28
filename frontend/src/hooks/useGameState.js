@@ -162,7 +162,7 @@ export function useGameState(t, addToast, clearToasts) {
       console.error(e);
       setError(t("game.meta_error"));
     });
-  }, [mode, addToast, clearToasts, t]);
+  }, [mode, addToast, clearToasts]);
 
   // Global dayKey for Home
   useEffect(() => {
