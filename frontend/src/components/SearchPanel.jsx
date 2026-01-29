@@ -48,7 +48,7 @@ export default function SearchPanel({
   }, [error, onErrorClose]);
 
   return (
-    <div className="rounded-[32px] border border-app bg-surface p-6 md:p-8 shadow-card">
+    <div className={`rounded-[32px] border border-app bg-surface p-6 md:p-8 shadow-card transition-all ${error ? "animate-shake border-rose-500/50" : ""}`}>
       <div>
         <div className="text-sm font-bold text-strong mb-4">
           {finished ? t("game.win_title") : t("game.guess_title")}

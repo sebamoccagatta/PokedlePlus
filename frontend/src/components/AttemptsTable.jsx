@@ -1,5 +1,6 @@
 import { badgeClass } from "../ui.js";
 import { Skeleton } from "./Skeleton.jsx";
+import { useEffect, useRef } from "react";
 
 function Pill({ children, kind, pop = false, isDark, className = "" }) {
   return (
@@ -199,9 +200,16 @@ export default function AttemptsTable({
     : "grid-cols-[180px,110px,110px,130px,110px,75px,85px,100px]";
 
   const colCount = showGenColumn ? 9 : 8;
+  const tableRef = useRef(null);
+
+  useEffect(() => {
+    if (attempts.length > 0 && tableRef.current) {
+      tableRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [attempts.length]);
 
   return (
-    <div className="overflow-x-auto rounded-3xl border border-app bg-surface">
+    <div className="overflow-x-auto rounded-3xl border border-app bg-surface" ref={tableRef}>
       <div
         className={[
           "grid gap-1.5 md:gap-2 px-4 py-3 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-muted whitespace-nowrap",
