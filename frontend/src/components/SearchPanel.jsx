@@ -2,6 +2,7 @@ import React from "react";
 import ComboList from "./ComboList.jsx";
 import { Toast } from "./Toast.jsx";
 import { Share2 } from "lucide-react";
+import { LoadingSpinner } from "./Skeleton.jsx";
 
 const MAX_ATTEMPTS = 15;
 
@@ -84,9 +85,9 @@ export default function SearchPanel({
             <button
               onClick={handleTry}
               disabled={!selected || busy}
-              className="rounded-2xl border-2 border-b-[3px] border-indigo-500 bg-indigo-500 px-8 py-3.5 text-sm font-extrabold text-white hover:bg-indigo-600 hover:border-indigo-600 transition-all disabled:opacity-50 disabled:pointer-events-none w-full sm:w-auto active:translate-y-[2px] active:border-b-2 shadow-lg shadow-indigo-500/20"
+              className="rounded-2xl border-2 border-b-[3px] border-indigo-500 bg-indigo-500 px-8 py-3.5 text-sm font-extrabold text-white hover:bg-indigo-600 hover:border-indigo-600 transition-all disabled:opacity-50 disabled:pointer-events-none w-full sm:w-auto active:translate-y-[2px] active:border-b-2 shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 min-w-[100px]"
             >
-              {t("game.try")}
+              {busy ? <LoadingSpinner size="sm" className="text-white" /> : t("game.try")}
             </button>
           )}
         </div>
