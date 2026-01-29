@@ -1,6 +1,7 @@
 import { badgeClass } from "../ui.js";
 import { Skeleton } from "./Skeleton.jsx";
 import { useEffect, useRef } from "react";
+import { Search } from "lucide-react";
 
 function Pill({ children, kind, pop = false, isDark, className = "" }) {
   return (
@@ -249,8 +250,16 @@ export default function AttemptsTable({
           </div>
         )}
         {attempts.length === 0 && !busy ? (
-          <div className="px-4 py-10 text-center text-sm text-muted">
-            {t("game.empty_state")}
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="mb-4 rounded-full bg-surface-soft p-6 shadow-inner">
+              <Search className="h-10 w-10 text-muted-2" />
+            </div>
+            <h3 className="text-lg font-black uppercase tracking-tight text-strong">
+              {t("game.empty_state_title") || "¡Empieza a jugar!"}
+            </h3>
+            <p className="mt-1 text-sm text-muted max-w-xs">
+              {t("game.empty_state") || "Busca un Pokémon arriba para comenzar tu investigación."}
+            </p>
           </div>
         ) : (
           attempts.map((attempt, rowIndex) => (
