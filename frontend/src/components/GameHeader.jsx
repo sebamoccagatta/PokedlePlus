@@ -1,5 +1,6 @@
 import React from "react";
 import { BarChart3 } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 export default function GameHeader({ mode, dayKey, onChangeMode, onShowStats, t }) {
   return (
@@ -14,7 +15,8 @@ export default function GameHeader({ mode, dayKey, onChangeMode, onShowStats, t 
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 md:gap-3">
+        <ThemeToggle className="p-3 border-2" />
         <button
           onClick={onShowStats}
           className="p-3 rounded-2xl border-2 border-app bg-surface hover:bg-surface-soft hover:border-indigo-400/50 transition-all hover:scale-105 active:scale-95"
@@ -24,7 +26,7 @@ export default function GameHeader({ mode, dayKey, onChangeMode, onShowStats, t 
         </button>
         <button
           onClick={onChangeMode}
-          className="rounded-2xl border-2 border-app bg-surface hover:bg-surface-soft hover:border-indigo-400/50 px-5 py-2.5 text-xs font-extrabold uppercase tracking-wide transition-all hover:scale-105 active:scale-95"
+          className="hidden md:block rounded-2xl border-2 border-app bg-surface hover:bg-surface-soft hover:border-indigo-400/50 px-5 py-2.5 text-xs font-extrabold uppercase tracking-wide transition-all hover:scale-105 active:scale-95"
         >
           {t("game.change_mode")}
         </button>
