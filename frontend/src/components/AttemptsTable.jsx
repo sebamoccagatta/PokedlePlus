@@ -6,12 +6,12 @@ function Pill({ children, kind, pop = false, isDark, className = "" }) {
     <span
       className={[
         "inline-flex items-center justify-center gap-1 md:gap-1.5",
-        "rounded-xl border px-2 md:px-3 py-1.5",
-        "text-[11px] md:text-[12px] font-semibold leading-none",
-        "min-h-8 min-w-[85px] md:min-w-[92px]",
-        "shadow-[0_1px_0_rgba(255,255,255,0.05)_inset]",
-        "transition-transform transition-opacity duration-200",
-        pop ? "scale-[1.03]" : "scale-100",
+        "rounded-lg border-b-[3px] border-l border-r border-t px-2 md:px-3 py-1.5",
+        "text-[10px] md:text-[11px] font-bold uppercase tracking-wide leading-none",
+        "min-h-[34px] min-w-[85px] md:min-w-[92px]",
+        "shadow-sm",
+        "transition-all duration-200 active:translate-y-[2px] active:border-b active:shadow-none hover:brightness-110",
+        pop ? "scale-[1.05]" : "scale-100",
         badgeClass(kind, isDark),
         className,
       ].join(" ")}
