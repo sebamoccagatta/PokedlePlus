@@ -11,7 +11,7 @@ export default function StatsModal({ stats, onClose, onShare, t }) {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md bg-surface border border-app rounded-[32px] shadow-2xl overflow-hidden animate-scale-in">
+      <div className="w-full max-w-lg bg-surface border border-app rounded-[32px] shadow-2xl overflow-hidden animate-scale-in">
         <div className="flex items-center justify-between p-6 border-b border-app">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-indigo-500" />
@@ -27,29 +27,33 @@ export default function StatsModal({ stats, onClose, onShare, t }) {
           </button>
         </div>
 
-        <div className="p-8">
-          <div className="grid grid-cols-4 gap-4 text-center mb-10">
-            <div>
-              <div className="text-3xl font-black text-strong">{totalGames}</div>
-              <div className="text-[10px] uppercase font-bold text-muted">
+        <div className="p-6 md:p-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+            <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-2xl p-4 text-center">
+              <Target className="h-5 w-5 mx-auto mb-2 text-blue-500" />
+              <div className="text-2xl md:text-3xl font-black text-strong">{totalGames}</div>
+              <div className="text-[9px] md:text-[10px] uppercase font-bold text-muted mt-1">
                 {t("stats.played")}
               </div>
             </div>
-            <div>
-              <div className="text-3xl font-black text-strong">{winRate}%</div>
-              <div className="text-[10px] uppercase font-bold text-muted">
+            <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20 rounded-2xl p-4 text-center">
+              <Trophy className="h-5 w-5 mx-auto mb-2 text-emerald-500" />
+              <div className="text-2xl md:text-3xl font-black text-strong">{winRate}%</div>
+              <div className="text-[9px] md:text-[10px] uppercase font-bold text-muted mt-1">
                 {t("stats.win_rate")}
               </div>
             </div>
-            <div>
-              <div className="text-3xl font-black text-strong">{currentStreak}</div>
-              <div className="text-[10px] uppercase font-bold text-muted">
+            <div className="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border border-orange-500/20 rounded-2xl p-4 text-center">
+              <Flame className="h-5 w-5 mx-auto mb-2 text-orange-500" />
+              <div className="text-2xl md:text-3xl font-black text-strong">{currentStreak}</div>
+              <div className="text-[9px] md:text-[10px] uppercase font-bold text-muted mt-1">
                 {t("stats.current_streak")}
               </div>
             </div>
-            <div>
-              <div className="text-3xl font-black text-strong">{maxStreak}</div>
-              <div className="text-[10px] uppercase font-bold text-muted">
+            <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-2xl p-4 text-center">
+              <Trophy className="h-5 w-5 mx-auto mb-2 text-purple-500" />
+              <div className="text-2xl md:text-3xl font-black text-strong">{maxStreak}</div>
+              <div className="text-[9px] md:text-[10px] uppercase font-bold text-muted mt-1">
                 {t("stats.max_streak")}
               </div>
             </div>
@@ -59,15 +63,15 @@ export default function StatsModal({ stats, onClose, onShare, t }) {
             {t("stats.distribution")}
           </h3>
           
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {Object.entries(distribution).map(([guess, count]) => (
               <div key={guess} className="flex items-center gap-3">
-                <div className="w-4 text-[11px] font-bold text-muted">{guess}</div>
-                <div className="flex-1 h-5 bg-surface-soft rounded-full overflow-hidden">
+                <div className="w-5 text-[11px] font-bold text-strong bg-surface-soft rounded-lg px-1.5 py-1 text-center">{guess}</div>
+                <div className="flex-1 h-6 bg-surface-soft rounded-xl overflow-hidden border border-app/50">
                   <div
                     className={[
-                      "h-full rounded-full transition-all duration-500 flex items-center justify-end px-2 min-w-[20px]",
-                      count > 0 ? "bg-indigo-500 text-white" : "bg-zinc-200 dark:bg-zinc-800 text-transparent"
+                      "h-full rounded-xl transition-all duration-700 flex items-center justify-end px-2.5 min-w-[24px]",
+                      count > 0 ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-sm" : "bg-transparent text-transparent"
                     ].join(" ")}
                     style={{ width: `${Math.max((count / maxDist) * 100, 5)}%` }}
                   >
