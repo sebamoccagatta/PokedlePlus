@@ -213,14 +213,14 @@ export function Home({ onSelect, dayKey, i18n }) {
                 key={m.id}
                 onClick={() => handleSelect(m.id)}
                 className={[
-                  "group relative rounded-[28px] border text-left transition",
+                  "group relative rounded-[28px] border text-left transition-all duration-300",
                   "p-5 md:p-7 2xl:p-8 min-h-[160px] md:min-h-[170px] 2xl:min-h-[185px]",
-                  "shadow-card",
+                  "shadow-lg hover:shadow-2xl hover:-translate-y-1",
                   st.won
-                    ? "border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100/70 dark:border-emerald-900/60 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/25"
+                    ? "border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100/70 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/30"
                     : st.played
-                      ? "border-app bg-surface surface-hover dark:border-zinc-700 dark:bg-zinc-950/60 dark:hover:bg-zinc-900/60"
-                      : "border-app bg-surface-soft surface-hover dark:border-zinc-800 dark:bg-zinc-950/50 dark:hover:bg-zinc-900/50",
+                      ? "border-white/50 bg-white/60 hover:bg-white/80 dark:border-white/10 dark:bg-zinc-900/40 dark:hover:bg-zinc-800/60"
+                      : "border-transparent bg-white/40 hover:bg-white/60 dark:border-transparent dark:bg-zinc-900/20 dark:hover:bg-zinc-800/40",
                 ].join(" ")}
                 title={m.title}
               >

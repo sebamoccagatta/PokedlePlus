@@ -1,17 +1,19 @@
 import { badgeClass } from "../ui.js";
 import { Skeleton } from "./Skeleton.jsx";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { Search } from "lucide-react";
 
 function Pill({ children, kind, pop = false, isDark, className = "" }) {
   return (
     <span
       className={[
         "inline-flex items-center justify-center gap-1 md:gap-1.5",
-        "rounded-xl border px-2 md:px-3 py-1.5",
-        "text-[11px] md:text-[12px] font-semibold leading-none",
-        "min-h-8 min-w-[85px] md:min-w-[92px]",
-        "shadow-[0_1px_0_rgba(255,255,255,0.05)_inset]",
-        "transition-transform transition-opacity duration-200",
-        pop ? "scale-[1.03]" : "scale-100",
+        "rounded-lg border-b-[3px] border-l border-r border-t px-2 md:px-3 py-1.5",
+        "text-[10px] md:text-[11px] font-bold uppercase tracking-wide leading-none",
+        "min-h-[34px] min-w-[85px] md:min-w-[92px]",
+        "shadow-sm",
+        "transition-all duration-200 active:translate-y-[2px] active:border-b active:shadow-none hover:brightness-110",
+        pop ? "scale-[1.05]" : "scale-100",
         badgeClass(kind, isDark),
         className,
       ].join(" ")}
@@ -199,9 +201,48 @@ export default function AttemptsTable({
     : "grid-cols-[180px,110px,110px,130px,110px,75px,85px,100px]";
 
   const colCount = showGenColumn ? 9 : 8;
+  const tableRef = useRef(null);
+  const containerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true); // Assume true initially
+
+  useEffect(() => {
+    if (attempts.length > 0 && tableRef.current) {
+      tableRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [attempts.length]);
+
+  const checkScroll = useCallback(() => {
+    if (!containerRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
+  }, [checkScroll, attempts]);
 
   return (
-    <div className="overflow-x-auto rounded-3xl border border-app bg-surface">
+    <div className="relative group">
+      {/* Scroll Indicators */}
+      <div 
+        className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollLeft ? "opacity-100" : "opacity-0"}`} 
+      />
+      <div 
+        className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollRight ? "opacity-100" : "opacity-0"}`} 
+      />
+
+      <div 
+        className="overflow-x-auto rounded-3xl border border-app bg-surface scrollbar-hide" 
+        ref={(el) => {
+          tableRef.current = el; // Maintain old ref
+          containerRef.current = el; // Add new ref
+        }}
+        onScroll={checkScroll}
+      >
       <div
         className={[
           "grid gap-1.5 md:gap-2 px-4 py-3 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-muted whitespace-nowrap",
@@ -241,8 +282,16 @@ export default function AttemptsTable({
           </div>
         )}
         {attempts.length === 0 && !busy ? (
-          <div className="px-4 py-10 text-center text-sm text-muted">
-            {t("game.empty_state")}
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="mb-4 rounded-full bg-surface-soft p-6 shadow-inner">
+              <Search className="h-10 w-10 text-muted-2" />
+            </div>
+            <h3 className="text-lg font-black uppercase tracking-tight text-strong">
+              {t("game.empty_state_title") || "¡Empieza a jugar!"}
+            </h3>
+            <p className="mt-1 text-sm text-muted max-w-xs">
+              {t("game.empty_state") || "Busca un Pokémon arriba para comenzar tu investigación."}
+            </p>
           </div>
         ) : (
           attempts.map((attempt, rowIndex) => (
@@ -262,5 +311,6 @@ export default function AttemptsTable({
         )}
       </div>
     </div>
+  </div>
   );
 }

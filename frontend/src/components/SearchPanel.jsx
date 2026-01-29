@@ -2,6 +2,7 @@ import React from "react";
 import ComboList from "./ComboList.jsx";
 import { Toast } from "./Toast.jsx";
 import { Share2 } from "lucide-react";
+import { LoadingSpinner } from "./Skeleton.jsx";
 
 const MAX_ATTEMPTS = 15;
 
@@ -47,7 +48,7 @@ export default function SearchPanel({
   }, [error, onErrorClose]);
 
   return (
-    <div className="rounded-[32px] border border-app bg-surface p-6 md:p-8 shadow-card">
+    <div className={`rounded-[32px] border border-app bg-surface p-6 md:p-8 shadow-card transition-all ${error ? "animate-shake border-rose-500/50" : ""}`}>
       <div>
         <div className="text-sm font-bold text-strong mb-4">
           {finished ? t("game.win_title") : t("game.guess_title")}
@@ -59,7 +60,7 @@ export default function SearchPanel({
             onChange={handleQueryChange}
             disabled={finished}
             placeholder={finished ? t("game.win_message") : t("game.search_placeholder")}
-            className="w-full sm:flex-1 rounded-2xl border input-surface px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-zinc-500 disabled:opacity-50"
+            className="w-full sm:flex-1 rounded-2xl border-2 input-surface px-5 py-3.5 text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 disabled:opacity-50 transition-all placeholder:text-muted-2"
           />
           {finished && (
             <button
@@ -84,9 +85,9 @@ export default function SearchPanel({
             <button
               onClick={handleTry}
               disabled={!selected || busy}
-              className="rounded-2xl border px-8 py-3 text-sm font-extrabold btn-surface transition-colors disabled:opacity-50 disabled:pointer-events-none w-full sm:w-auto"
+              className="rounded-2xl border-2 border-b-[3px] border-indigo-500 bg-indigo-500 px-8 py-3.5 text-sm font-extrabold text-white hover:bg-indigo-600 hover:border-indigo-600 transition-all disabled:opacity-50 disabled:pointer-events-none w-full sm:w-auto active:translate-y-[2px] active:border-b-2 shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 min-w-[100px]"
             >
-              {t("game.try")}
+              {busy ? <LoadingSpinner size="sm" className="text-white" /> : t("game.try")}
             </button>
           )}
         </div>

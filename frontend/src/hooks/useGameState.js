@@ -57,11 +57,14 @@ function saveState(state, mode) {
 }
 
 function triggerWinConfetti() {
-  const duration = 5 * 1000;
+  const duration = 2.5 * 1000;
   const animationEnd = Date.now() + duration;
-  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 200 };
+  const defaults = { startVelocity: 25, spread: 360, ticks: 100, zIndex: 200 };
 
   const randomInRange = (min, max) => Math.random() * (max - min) + min;
+  
+  // Pokémon type colors: Fire, Grass, Water, Electric, Psychic
+  const colors = ['#f87171', '#4ade80', '#60a5fa', '#facc15', '#a855f7'];
 
   const interval = setInterval(() => {
     const timeLeft = animationEnd - Date.now();
@@ -70,18 +73,33 @@ function triggerWinConfetti() {
       return clearInterval(interval);
     }
 
-    const particleCount = 50 * (timeLeft / duration);
+    const particleCount = 40 * (timeLeft / duration);
+    
+    // Side bursts
     confetti({
       ...defaults,
       particleCount,
+      colors,
       origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
     });
     confetti({
       ...defaults,
       particleCount,
+      colors,
       origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
     });
-  }, 250);
+    
+    // Center burst occasionally
+    if (Math.random() < 0.1) {
+       confetti({
+        ...defaults,
+        particleCount: particleCount * 1.5,
+        colors,
+        origin: { x: 0.5, y: 0.5 },
+        scalar: 1.2
+      }); 
+    }
+  }, 200);
 }
 
 export function useGameState(t, addToast, clearToasts) {

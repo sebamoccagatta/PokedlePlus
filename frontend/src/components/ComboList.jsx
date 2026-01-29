@@ -56,9 +56,10 @@ export default function ComboList({
             onClick={() => onPick?.(item)}
             disabled={disabled}
             className={[
-              "flex items-center gap-3 rounded-2xl border border-app bg-surface px-4 py-3 text-left transition-all surface-hover hover:scale-[1.02] active:scale-[0.98]",
+              "flex items-center gap-3 rounded-2xl border-2 bg-surface px-4 py-3 text-left transition-all duration-200",
+              "hover:scale-[1.02] hover:shadow-lg hover:border-indigo-400/50 active:scale-[0.98]",
               "disabled:opacity-60 disabled:pointer-events-none",
-              index === activeIndex ? "border-indigo-500 ring-1 ring-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30" : "",
+              index === activeIndex ? "border-indigo-500 ring-2 ring-indigo-500/30 bg-indigo-50/50 dark:bg-indigo-950/30 shadow-md" : "border-app",
             ].join(" ")}
           >
             <div className="shrink-0">
