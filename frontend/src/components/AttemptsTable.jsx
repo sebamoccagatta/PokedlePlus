@@ -1,6 +1,6 @@
 import { badgeClass } from "../ui.js";
 import { Skeleton } from "./Skeleton.jsx";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Search } from "lucide-react";
 
 function Pill({ children, kind, pop = false, isDark, className = "" }) {
@@ -202,6 +202,9 @@ export default function AttemptsTable({
 
   const colCount = showGenColumn ? 9 : 8;
   const tableRef = useRef(null);
+  const containerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true); // Assume true initially
 
   useEffect(() => {
     if (attempts.length > 0 && tableRef.current) {
@@ -209,8 +212,37 @@ export default function AttemptsTable({
     }
   }, [attempts.length]);
 
+  const checkScroll = useCallback(() => {
+    if (!containerRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
+  }, [checkScroll, attempts]);
+
   return (
-    <div className="overflow-x-auto rounded-3xl border border-app bg-surface" ref={tableRef}>
+    <div className="relative group">
+      {/* Scroll Indicators */}
+      <div 
+        className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollLeft ? "opacity-100" : "opacity-0"}`} 
+      />
+      <div 
+        className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollRight ? "opacity-100" : "opacity-0"}`} 
+      />
+
+      <div 
+        className="overflow-x-auto rounded-3xl border border-app bg-surface scrollbar-hide" 
+        ref={(el) => {
+          tableRef.current = el; // Maintain old ref
+          containerRef.current = el; // Add new ref
+        }}
+        onScroll={checkScroll}
+      >
       <div
         className={[
           "grid gap-1.5 md:gap-2 px-4 py-3 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-muted whitespace-nowrap",
@@ -279,5 +311,6 @@ export default function AttemptsTable({
         )}
       </div>
     </div>
+  </div>
   );
 }
