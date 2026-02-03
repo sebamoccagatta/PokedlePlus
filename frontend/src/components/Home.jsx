@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   CircleDashed,
   ArrowRight,
+  CircleOff
 } from "lucide-react";
 import {
   ClassicBall,
@@ -218,9 +219,11 @@ export function Home({ onSelect, dayKey, i18n }) {
                   "shadow-lg hover:shadow-2xl hover:-translate-y-1",
                   st.won
                     ? "border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100/70 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/30"
-                    : st.played
-                      ? "border-white/50 bg-white/60 hover:bg-white/80 dark:border-white/10 dark:bg-zinc-900/40 dark:hover:bg-zinc-800/60"
-                      : "border-transparent bg-white/40 hover:bg-white/60 dark:border-transparent dark:bg-zinc-900/20 dark:hover:bg-zinc-800/40",
+                    : st.played && st.attempts == 15 && !st.won
+                      ? "border-red-200 bg-red-50/80 hover:bg-red-100/70 dark:border-red-500/30 dark:bg-red-950/20 dark:hover:bg-red-950/30"
+                      : st.played
+                        ? "border-white/50 bg-white/60 hover:bg-white/80 dark:border-white/10 dark:bg-zinc-900/40 dark:hover:bg-zinc-800/60"
+                        : "border-transparent bg-white/40 hover:bg-white/60 dark:border-transparent dark:bg-zinc-900/20 dark:hover:bg-zinc-800/40",
                 ].join(" ")}
                 title={m.title}
               >
@@ -249,12 +252,22 @@ export function Home({ onSelect, dayKey, i18n }) {
                   <div className="shrink-0">
                     {st.won ? (
                       <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200">
-                        <CheckCircle2 className="h-4 w-4" />{" "}
+                        <CheckCircle2 className="h-4 w-4" />
                         {t("home.status_won")}
+                      </span>
+                    ) : st.attempts === 15 && !st.won && st.played ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200">
+                        <CircleOff className="h-4 w-4" />
+                        {t("home.status_lost")}
+                      </span>
+                    ) : st.attempts > 0 ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+                        <CircleDashed className="h-4 w-4" />
+                        {t("home.status_inProgress")}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-bold text-slate-600 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-300">
-                        <CircleDashed className="h-4 w-4" />{" "}
+                        <CircleDashed className="h-4 w-4" />
                         {t("home.status_pending")}
                       </span>
                     )}
