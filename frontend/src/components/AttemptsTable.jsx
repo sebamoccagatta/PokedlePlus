@@ -40,13 +40,15 @@ function AttemptRow({
   const canRevealColumn = (i) => (gateTop ? canReveal?.(i) : true);
 
   const gridClass = showGenColumn
-    ? "grid-cols-[180px,110px,110px,85px,130px,110px,75px,85px,100px]"
-    : "grid-cols-[180px,110px,110px,130px,110px,75px,85px,100px]";
+  ? "grid-cols-[minmax(180px,1.6fr)_minmax(100px,1fr)_minmax(100px,1fr)_minmax(80px,.8fr)_minmax(110px,1.1fr)_minmax(100px,1fr)_minmax(80px,.8fr)_minmax(90px,.9fr)_minmax(95px,.9fr)]"
+  : "grid-cols-[minmax(200px,1.8fr)_minmax(110px,1fr)_minmax(110px,1fr)_minmax(120px,1.1fr)_minmax(110px,1fr)_minmax(90px,.9fr)_minmax(95px,.9fr)_minmax(105px,1fr)]";
+
 
   return (
     <div
       className={[
-        `grid gap-1.5 md:gap-2 items-center px-4 py-3 transition-colors surface-hover`,
+        "w-full", // 👈 importante
+        `grid gap-1.5 md:gap-2 items-center px-4 py-4 transition-colors surface-hover`,
         gridClass,
         isTop ? "reveal-pop" : "",
       ].join(" ")}
@@ -197,14 +199,15 @@ export default function AttemptsTable({
   busy,
 }) {
   const headerClass = showGenColumn
-    ? "grid-cols-[180px,110px,110px,85px,130px,110px,75px,85px,100px]"
-    : "grid-cols-[180px,110px,110px,130px,110px,75px,85px,100px]";
+  ? "grid-cols-[minmax(180px,1.6fr)_minmax(100px,1fr)_minmax(100px,1fr)_minmax(80px,.8fr)_minmax(110px,1.1fr)_minmax(100px,1fr)_minmax(80px,.8fr)_minmax(90px,.9fr)_minmax(95px,.9fr)]"
+  : "grid-cols-[minmax(200px,1.8fr)_minmax(110px,1fr)_minmax(110px,1fr)_minmax(120px,1.1fr)_minmax(110px,1fr)_minmax(90px,.9fr)_minmax(95px,.9fr)_minmax(105px,1fr)]";
+
 
   const colCount = showGenColumn ? 9 : 8;
   const tableRef = useRef(null);
   const containerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true); // Assume true initially
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   useEffect(() => {
     if (attempts.length > 0 && tableRef.current) {
@@ -228,89 +231,90 @@ export default function AttemptsTable({
   return (
     <div className="relative group">
       {/* Scroll Indicators */}
-      <div 
-        className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollLeft ? "opacity-100" : "opacity-0"}`} 
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollLeft ? "opacity-100" : "opacity-0"}`}
       />
-      <div 
-        className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollRight ? "opacity-100" : "opacity-0"}`} 
+      <div
+        className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollRight ? "opacity-100" : "opacity-0"}`}
       />
 
-      <div 
-        className="overflow-x-auto rounded-3xl border border-app bg-surface scrollbar-hide" 
+      <div
+        className="overflow-x-auto rounded-3xl border border-app bg-surface scrollbar-hide"
         ref={(el) => {
-          tableRef.current = el; // Maintain old ref
-          containerRef.current = el; // Add new ref
+          tableRef.current = el;
+          containerRef.current = el;
         }}
         onScroll={checkScroll}
       >
-      <div
-        className={[
-          "grid gap-1.5 md:gap-2 px-4 py-3 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-muted whitespace-nowrap",
-          headerClass,
-        ].join(" ")}
-      >
-        <div className="text-left">{t("game.columns.pokemon")}</div>
-        <div className="text-center">{t("game.columns.type1")}</div>
-        <div className="text-center">{t("game.columns.type2")}</div>
+        <div
+          className={[
+            "w-full", // 👈 importante
+            "grid gap-1.5 md:gap-2 px-4 py-4 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-muted whitespace-nowrap",
+            headerClass,
+          ].join(" ")}
+        >
+          <div className="text-left">{t("game.columns.pokemon")}</div>
+          <div className="text-center">{t("game.columns.type1")}</div>
+          <div className="text-center">{t("game.columns.type2")}</div>
 
-        {showGenColumn && (
-          <div className="text-center">{t("game.columns.gen")}</div>
-        )}
+          {showGenColumn && (
+            <div className="text-center">{t("game.columns.gen")}</div>
+          )}
 
-        <div className="text-center">{t("game.columns.habitat")}</div>
-        <div className="text-center">{t("game.columns.color")}</div>
-        <div className="text-center">{t("game.columns.evolution")}</div>
-        <div className="text-center">{t("game.columns.height")}</div>
-        <div className="text-center">{t("game.columns.weight")}</div>
-      </div>
+          <div className="text-center">{t("game.columns.habitat")}</div>
+          <div className="text-center">{t("game.columns.color")}</div>
+          <div className="text-center">{t("game.columns.evolution")}</div>
+          <div className="text-center">{t("game.columns.height")}</div>
+          <div className="text-center">{t("game.columns.weight")}</div>
+        </div>
 
-      <div className="divide-y divide-app min-w-max">
-        {busy && (
-          <div className={`grid gap-1.5 md:gap-2 items-center px-4 py-3 ${headerClass}`}>
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-10 w-10 md:h-12 md:w-12 rounded-2xl" />
-              <div className="space-y-1 md:space-y-2">
-                <Skeleton className="h-4 w-20 md:w-24" />
-                <Skeleton className="h-3 w-10 md:w-12" />
+        <div className="divide-y divide-app min-w-max">
+          {busy && (
+            <div className={`grid gap-1.5 md:gap-2 items-center px-4 py-4 ${headerClass}`}>
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 md:h-12 md:w-12 rounded-2xl" />
+                <div className="space-y-1 md:space-y-2">
+                  <Skeleton className="h-4 w-20 md:w-24" />
+                  <Skeleton className="h-3 w-10 md:w-12" />
+                </div>
               </div>
+              {[...Array(colCount - 1)].map((_, i) => (
+                <div key={i} className="flex justify-center">
+                  <Skeleton className="h-7 w-20 md:h-8 md:w-24 rounded-xl" />
+                </div>
+              ))}
             </div>
-            {[...Array(colCount - 1)].map((_, i) => (
-              <div key={i} className="flex justify-center">
-                <Skeleton className="h-7 w-20 md:h-8 md:w-24 rounded-xl" />
+          )}
+          {attempts.length === 0 && !busy ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+              <div className="mb-4 rounded-full bg-surface-soft p-6 shadow-inner">
+                <Search className="h-10 w-10 text-muted-2" />
               </div>
-            ))}
-          </div>
-        )}
-        {attempts.length === 0 && !busy ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-            <div className="mb-4 rounded-full bg-surface-soft p-6 shadow-inner">
-              <Search className="h-10 w-10 text-muted-2" />
+              <h3 className="text-lg font-black uppercase tracking-tight text-strong">
+                {t("game.empty_state_title") || "¡Empieza a jugar!"}
+              </h3>
+              <p className="mt-1 text-sm text-muted max-w-xs">
+                {t("game.empty_state") || "Busca un Pokémon arriba para comenzar tu investigación."}
+              </p>
             </div>
-            <h3 className="text-lg font-black uppercase tracking-tight text-strong">
-              {t("game.empty_state_title") || "¡Empieza a jugar!"}
-            </h3>
-            <p className="mt-1 text-sm text-muted max-w-xs">
-              {t("game.empty_state") || "Busca un Pokémon arriba para comenzar tu investigación."}
-            </p>
-          </div>
-        ) : (
-          attempts.map((attempt, rowIndex) => (
-            <AttemptRow
-              key={`${attempt.id}-${rowIndex}`}
-              attempt={attempt}
-              index={rowIndex}
-              showGenColumn={showGenColumn}
-              isDark={isDark}
-              translateHint={translateHint}
-              canReveal={canReveal}
-              arrow={arrow}
-              formatHeight={formatHeight}
-              formatWeight={formatWeight}
-            />
-          ))
-        )}
+          ) : (
+            attempts.map((attempt, rowIndex) => (
+              <AttemptRow
+                key={`${attempt.id}-${rowIndex}`}
+                attempt={attempt}
+                index={rowIndex}
+                showGenColumn={showGenColumn}
+                isDark={isDark}
+                translateHint={translateHint}
+                canReveal={canReveal}
+                arrow={arrow}
+                formatHeight={formatHeight}
+                formatWeight={formatWeight}
+              />
+            ))
+          )}
+        </div>
       </div>
     </div>
-  </div>
   );
 }
