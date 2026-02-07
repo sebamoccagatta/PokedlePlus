@@ -199,7 +199,7 @@ export default function AttemptsTable({
   busy,
 }) {
   const headerClass = showGenColumn
-  ? "grid-cols-[minmax(180px,1.6fr)_minmax(100px,1fr)_minmax(100px,1fr)_minmax(80px,.8fr)_minmax(110px,1.1fr)_minmax(100px,1fr)_minmax(80px,.8fr)_minmax(90px,.9fr)_minmax(95px,.9fr)]"
+  ? "grid-cols-[minmax(180px,2fr)_minmax(100px,1fr)_minmax(100px,1fr)_minmax(80px,.8fr)_minmax(110px,1.1fr)_minmax(100px,1fr)_minmax(80px,.8fr)_minmax(90px,.9fr)_minmax(95px,.9fr)]"
   : "grid-cols-[minmax(200px,1.8fr)_minmax(110px,1fr)_minmax(110px,1fr)_minmax(120px,1.1fr)_minmax(110px,1fr)_minmax(90px,.9fr)_minmax(95px,.9fr)_minmax(105px,1fr)]";
 
 

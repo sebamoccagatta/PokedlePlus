@@ -273,7 +273,7 @@ export function useGameState(t, addToast, clearToasts) {
       } else {
         // En otros modos, seguimos usando la API
         const [pokeRes, guessRes] = await Promise.all([
-          apiPokemon(pick.id),
+          apiPokemon(pick.id, activeMode),
           apiGuess(pick.id, dayKey, activeMode),
         ]);
         p = pokeRes;

@@ -1,4 +1,4 @@
-const CACHE_PREFIX = "pokedleplus:search:";
+const CACHE_PREFIX = "pokedleplus:search:v2:";
 const TTL = 5 * 60 * 1000;
 const MAX_ENTRIES = 50;
 

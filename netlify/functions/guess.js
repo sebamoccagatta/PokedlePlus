@@ -3,6 +3,7 @@ const { sql } = require("./_lib/db");
 const { modeConfig } = require("./_lib/modes");
 const { compareGuess, fnv1a } = require("./_lib/utils");
 const { parseTypes } = require("./_lib/normalize");
+const { getEvolutionStageForMode } = require("./_lib/evolutionStage");
 const { getClientIp, getRateLimitInfo } = require("./_lib/rateLimitRedis");
 
 function getSecret() {
@@ -13,12 +14,13 @@ function getSecret() {
   return secret;
 }
 
-function mapRow(row) {
+function mapRow(row, mode) {
   // soporta: types_json (viejo) o types (nuevo)
   const rawTypes = row.types_json != null ? row.types_json : row.types;
+  const id = Number(row.id);
 
   return {
-    id: row.id,
+    id,
     name: row.name,
     gen: Number(row.gen || 1),
     height_dm: Number(row.height_dm || 0),
@@ -26,7 +28,11 @@ function mapRow(row) {
     types: parseTypes(rawTypes),
     habitat: row.habitat ?? "unknown",
     color: row.color ?? "unknown",
-    evolution_stage: Number(row.evolution_stage || 1),
+    evolution_stage: getEvolutionStageForMode({
+      mode,
+      id,
+      evolutionStage: row.evolution_stage,
+    }),
   };
 }
 
@@ -122,8 +128,8 @@ exports.handler = async (event) => {
       };
     }
 
-    const target = mapRow(tRow);
-    const guess = mapRow(gRow);
+    const target = mapRow(tRow, cfg.id);
+    const guess = mapRow(gRow, cfg.id);
 
     const comparison = compareGuess({ target, guess });
 

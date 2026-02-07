@@ -1,6 +1,8 @@
 // frontend/src/api.js
 import { searchCache } from "./cache/searchCache.js";
 
+const SEARCH_VERSION = "2";
+
 async function jsonOrText(res, errorCode) {
   const text = await res.text();
 
@@ -33,7 +35,7 @@ export async function apiSearch(q, offset = 0, mode = "classic", opts = {}) {
   }
 
   const res = await fetch(
-    `/api/search?q=${encodeURIComponent(query)}&offset=${offset}&mode=${encodeURIComponent(mode)}`,
+    `/api/search?q=${encodeURIComponent(query)}&offset=${offset}&mode=${encodeURIComponent(mode)}&sv=${SEARCH_VERSION}`,
     { signal: opts.signal },
   );
 
@@ -46,8 +48,10 @@ export async function apiSearch(q, offset = 0, mode = "classic", opts = {}) {
   return data;
 }
 
-export async function apiPokemon(id) {
-  const res = await fetch(`/api/pokemon/${id}`);
+export async function apiPokemon(id, mode = "classic") {
+  const res = await fetch(
+    `/api/pokemon/${id}?mode=${encodeURIComponent(mode || "classic")}`,
+  );
   const data = await jsonOrText(res, "pokemon_failed");
 
   return {

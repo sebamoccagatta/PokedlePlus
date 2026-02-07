@@ -1,9 +1,11 @@
 // netlify/functions/pokemon.js
 const { sql } = require("./_lib/db");
 const { parseTypes } = require("./_lib/normalize");
+const { getEvolutionStageForMode } = require("./_lib/evolutionStage");
 
 exports.handler = async (event) => {
   try {
+    const mode = String(event.queryStringParameters?.mode || "classic");
     const id = Number(event.path.split("/").pop());
     if (!id) {
       return {
@@ -42,7 +44,11 @@ exports.handler = async (event) => {
         types: parseTypes(rawTypes),
         habitat: row.habitat ?? "unknown",
         color: row.color ?? "unknown",
-        evolution_stage: Number(row.evolution_stage || 1),
+        evolution_stage: getEvolutionStageForMode({
+          mode,
+          id: Number(row.id),
+          evolutionStage: row.evolution_stage,
+        }),
       }),
     };
   } catch (e) {
