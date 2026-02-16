@@ -4,7 +4,7 @@ import { Toast } from "./Toast.jsx";
 import { Share2 } from "lucide-react";
 import { LoadingSpinner } from "./Skeleton.jsx";
 
-const MAX_ATTEMPTS = 15;
+const MAX_ATTEMPTS = 20;
 
 export default function SearchPanel({
   q,
