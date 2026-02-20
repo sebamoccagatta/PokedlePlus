@@ -29,35 +29,35 @@
       },
       "gen2": {
         "title": "Generation II",
-        "desc": "Only Johto"
+        "desc": "Up to Johto"
       },
       "gen3": {
         "title": "Generation III",
-        "desc": "Only Hoenn"
+        "desc": "Up to Hoenn"
       },
       "gen4": {
         "title": "Generation IV",
-        "desc": "Only Sinnoh"
+        "desc": "Up to Sinnoh"
       },
       "gen5": {
         "title": "Generation V",
-        "desc": "Only Unova"
+        "desc": "Up to Unova"
       },
       "gen6": {
         "title": "Generation VI",
-        "desc": "Only Kalos"
+        "desc": "Up to Kalos"
       },
       "gen7": {
         "title": "Generation VII",
-        "desc": "Only Alola"
+        "desc": "Up to Alola"
       },
       "gen8": {
         "title": "Generation VIII",
-        "desc": "Only Galar"
+        "desc": "Up to Galar"
       },
       "gen9": {
         "title": "Generation IX",
-        "desc": "Only Paldea"
+        "desc": "Up to Paldea"
       },
       "infinite": {
         "title": "Infinite Mode",

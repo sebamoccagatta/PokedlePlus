@@ -38,7 +38,7 @@ export function generateShareText(mode, dayKey, attempts, won, currentStreak, t)
     })
     .join("\n");
 
-  const footer = `\nhttps://pokedle-plus.netlify.app/`;
+  const footer = `\nhttps://pokedle.sebamoccagatta.com/`;
   
   return `${header}\n${grid}\n${footer}`;
 }
