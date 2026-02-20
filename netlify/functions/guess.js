@@ -5,6 +5,7 @@ const { compareGuess, fnv1a } = require("./_lib/utils");
 const { parseTypes } = require("./_lib/normalize");
 const { getEvolutionStageForMode } = require("./_lib/evolutionStage");
 const { getClientIp, getRateLimitInfo } = require("./_lib/rateLimitRedis");
+const { getTypesForMode } = require("./_lib/typesByMode");
 
 function getSecret() {
   const secret = process.env.SECRET;
@@ -18,14 +19,16 @@ function mapRow(row, mode) {
   // soporta: types_json (viejo) o types (nuevo)
   const rawTypes = row.types_json != null ? row.types_json : row.types;
   const id = Number(row.id);
+  const gen = Number(row.gen || 1);
+  const currentTypes = parseTypes(rawTypes);
 
   return {
     id,
     name: row.name,
-    gen: Number(row.gen || 1),
+    gen,
     height_dm: Number(row.height_dm || 0),
     weight_hg: Number(row.weight_hg || 0),
-    types: parseTypes(rawTypes),
+    types: getTypesForMode(id, gen, currentTypes, mode),
     habitat: row.habitat ?? "unknown",
     color: row.color ?? "unknown",
     evolution_stage: getEvolutionStageForMode({

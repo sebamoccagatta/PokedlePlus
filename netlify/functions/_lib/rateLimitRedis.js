@@ -82,7 +82,10 @@ async function getRateLimitInfo(ip) {
         }),
       );
     } else {
-      const data = JSON.parse(currentValue);
+      // @upstash/redis puede devolver el valor ya parseado o como string
+      const data = typeof currentValue === 'string'
+        ? JSON.parse(currentValue)
+        : currentValue;
 
       // Verificar si la ventana expiró (por seguridad, Redis TTL debería manejarlo)
       if (currentTtl === -2 || now >= data.resetTime) {

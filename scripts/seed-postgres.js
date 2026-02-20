@@ -46,13 +46,14 @@ function generationToNumber(genName) {
   return map[roman] || 1;
 }
 
+
 async function loadOne(id) {
   // /pokemon: height, weight, types
   const p = await fetchJson(`https://pokeapi.co/api/v2/pokemon/${id}`);
   const name = String(p.name).toLowerCase();
   const height_dm = Number(p.height || 0);
   const weight_hg = Number(p.weight || 0);
-  const types = (p.types || [])
+  let types = (p.types || [])
     .sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0))
     .map((t) => String(t.type.name).toLowerCase());
 
@@ -62,6 +63,9 @@ async function loadOne(id) {
   const color = s.color?.name ? String(s.color.name).toLowerCase() : null;
   const habitat = s.habitat?.name ? String(s.habitat.name).toLowerCase() : null;
   const gen = generationToNumber(s.generation?.name);
+
+  // Guardamos los tipos modernos (actuales) en la base de datos
+  // La función getTypesForMode en typesByMode.js se encargará de ajustarlos según el modo
 
   let evolution_stage = 1;
   try {

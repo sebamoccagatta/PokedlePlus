@@ -2,6 +2,7 @@
 const { sql } = require("./_lib/db");
 const { parseTypes } = require("./_lib/normalize");
 const { getEvolutionStageForMode } = require("./_lib/evolutionStage");
+const { getTypesForMode } = require("./_lib/typesByMode");
 
 exports.handler = async (event) => {
   try {
@@ -28,6 +29,9 @@ exports.handler = async (event) => {
     }
 
     const rawTypes = row.types_json != null ? row.types_json : row.types;
+    const pokemonId = Number(row.id);
+    const gen = Number(row.gen || 1);
+    const currentTypes = parseTypes(rawTypes);
 
     return {
       statusCode: 200,
@@ -36,17 +40,17 @@ exports.handler = async (event) => {
         "cache-control": "public, max-age=86400",
       },
       body: JSON.stringify({
-        id: row.id,
+        id: pokemonId,
         name: row.name,
-        gen: Number(row.gen || 1),
+        gen,
         height_dm: Number(row.height_dm || 0),
         weight_hg: Number(row.weight_hg || 0),
-        types: parseTypes(rawTypes),
+        types: getTypesForMode(pokemonId, gen, currentTypes, mode),
         habitat: row.habitat ?? "unknown",
         color: row.color ?? "unknown",
         evolution_stage: getEvolutionStageForMode({
           mode,
-          id: Number(row.id),
+          id: pokemonId,
           evolutionStage: row.evolution_stage,
         }),
       }),
