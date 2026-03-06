@@ -6,7 +6,7 @@ import confetti from "canvas-confetti";
 
 const STORAGE_PREFIX = "pokedleplus:v1:";
 const MODE_KEY = "pokedleplus:mode";
-const MAX_ATTEMPTS = 15;
+const MAX_ATTEMPTS = 20;
 
 function loadMode() {
   try {
@@ -62,9 +62,9 @@ function triggerWinConfetti() {
   const defaults = { startVelocity: 25, spread: 360, ticks: 100, zIndex: 200 };
 
   const randomInRange = (min, max) => Math.random() * (max - min) + min;
-  
+
   // Pokémon type colors: Fire, Grass, Water, Electric, Psychic
-  const colors = ['#f87171', '#4ade80', '#60a5fa', '#facc15', '#a855f7'];
+  const colors = ["#f87171", "#4ade80", "#60a5fa", "#facc15", "#a855f7"];
 
   const interval = setInterval(() => {
     const timeLeft = animationEnd - Date.now();
@@ -74,7 +74,7 @@ function triggerWinConfetti() {
     }
 
     const particleCount = 40 * (timeLeft / duration);
-    
+
     // Side bursts
     confetti({
       ...defaults,
@@ -88,16 +88,16 @@ function triggerWinConfetti() {
       colors,
       origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
     });
-    
+
     // Center burst occasionally
     if (Math.random() < 0.1) {
-       confetti({
+      confetti({
         ...defaults,
         particleCount: particleCount * 1.5,
         colors,
         origin: { x: 0.5, y: 0.5 },
-        scalar: 1.2
-      }); 
+        scalar: 1.2,
+      });
     }
   }, 200);
 }
@@ -172,11 +172,12 @@ export function useGameState(t, addToast, clearToasts) {
         const meta = await apiMeta(mode);
         activeDayKey = meta.dayKey;
       }
-      
+
       setDayKey(activeDayKey);
 
       const loaded = loadState(activeDayKey, mode);
-      const shouldFinish = !loaded.won && loaded.attempts.length >= MAX_ATTEMPTS;
+      const shouldFinish =
+        !loaded.won && loaded.attempts.length >= MAX_ATTEMPTS;
       const normalized = shouldFinish
         ? { ...loaded, finished: true, won: false }
         : loaded;
@@ -190,16 +191,28 @@ export function useGameState(t, addToast, clearToasts) {
         clearToasts();
         addToast({
           kind: "success",
-          title: mode === "infinite" ? t("game.win_title_infinite") : t("game.win_title"),
-          message: mode === "infinite" ? t("game.win_message_infinite") : t("game.win_message"),
+          title:
+            mode === "infinite"
+              ? t("game.win_title_infinite")
+              : t("game.win_title"),
+          message:
+            mode === "infinite"
+              ? t("game.win_message_infinite")
+              : t("game.win_message"),
         });
         triggerWinConfetti();
       } else if (normalized.finished) {
         clearToasts();
         addToast({
           kind: "warning",
-          title: mode === "infinite" ? t("game.lost_title_infinite") : t("game.lost_title"),
-          message: mode === "infinite" ? t("game.lost_message_infinite") : t("game.lost_message"),
+          title:
+            mode === "infinite"
+              ? t("game.lost_title_infinite")
+              : t("game.lost_title"),
+          message:
+            mode === "infinite"
+              ? t("game.lost_message_infinite")
+              : t("game.lost_message"),
         });
       }
     })().catch((e) => {
@@ -230,116 +243,136 @@ export function useGameState(t, addToast, clearToasts) {
     setMode(newMode);
   }, []);
 
-  const handleTryWithItem = useCallback(async (pick) => {
-    if (!dayKey || !pick) return;
+  const handleTryWithItem = useCallback(
+    async (pick) => {
+      if (!dayKey || !pick) return;
 
-    if (state.finished) {
-      addToast({
-        kind: state.won ? "info" : "warning",
-        title: state.won ? t("game.already_played_title") : t("game.lost_title"),
-        message: state.won ? t("game.day_end_message") : t("game.lost_message"),
-      });
-      return;
-    }
+      if (state.finished) {
+        addToast({
+          kind: state.won ? "info" : "warning",
+          title: state.won
+            ? t("game.already_played_title")
+            : t("game.lost_title"),
+          message: state.won
+            ? t("game.day_end_message")
+            : t("game.lost_message"),
+        });
+        return;
+      }
 
-    if (state.attempts.some((a) => a.id === pick.id)) {
-      addToast({
-        kind: "info",
-        title: t("game.already_tried_title"),
-        message: t("game.already_tried_message"),
-      });
-      return;
-    }
+      if (state.attempts.some((a) => a.id === pick.id)) {
+        addToast({
+          kind: "info",
+          title: t("game.already_tried_title"),
+          message: t("game.already_tried_message"),
+        });
+        return;
+      }
 
-    setBusy(true);
-    setError("");
+      setBusy(true);
+      setError("");
 
-    try {
-      const activeMode = mode || "classic";
-      let p, g;
+      try {
+        const activeMode = mode || "classic";
+        let p, g;
 
-      if (activeMode === "infinite") {
-        // En modo infinito, usamos la data local
-        const targetIdx = fnv1a(`secret-local:${dayKey}`) % pokemonData.length;
-        const target = pokemonData[targetIdx];
-        p = pokemonData.find(pk => pk.id === pick.id);
-        
-        if (!target || !p) {
-          throw new Error("Pokémon data not found locally");
+        if (activeMode === "infinite") {
+          // En modo infinito, usamos la data local
+          const targetIdx =
+            fnv1a(`secret-local:${dayKey}`) % pokemonData.length;
+          const target = pokemonData[targetIdx];
+          p = pokemonData.find((pk) => pk.id === pick.id);
+
+          if (!target || !p) {
+            throw new Error("Pokémon data not found locally");
+          }
+
+          const comparison = compareGuess({ target, guess: p });
+          g = { comparison };
+        } else {
+          // En otros modos, seguimos usando la API
+          const [pokeRes, guessRes] = await Promise.all([
+            apiPokemon(pick.id, activeMode),
+            apiGuess(pick.id, dayKey, activeMode),
+          ]);
+          p = pokeRes;
+          g = guessRes;
         }
 
-        const comparison = compareGuess({ target, guess: p });
-        g = { comparison };
-      } else {
-        // En otros modos, seguimos usando la API
-        const [pokeRes, guessRes] = await Promise.all([
-          apiPokemon(pick.id, activeMode),
-          apiGuess(pick.id, dayKey, activeMode),
-        ]);
-        p = pokeRes;
-        g = guessRes;
-      }
+        const attempt = {
+          id: p.id,
+          name: p.name,
+          sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`,
+          types: Array.isArray(p.types)
+            ? p.types
+            : typeof p.types === "string"
+              ? p.types.split(",").map((t) => t.trim())
+              : [],
+          habitat: p.habitat ?? "unknown",
+          color: p.color ?? "unknown",
+          gen: Number(p.gen || 1),
+          evolution_stage: Number(p.evolution_stage || 1),
+          height_dm: Number(p.height_dm || 0),
+          weight_hg: Number(p.weight_hg || 0),
+          columns: g?.comparison?.columns || {},
+          isCorrect: Boolean(g?.comparison?.isCorrect),
+        };
 
-      const attempt = {
-        id: p.id,
-        name: p.name,
-        sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png`,
-        types: Array.isArray(p.types)
-          ? p.types
-          : typeof p.types === "string"
-            ? p.types.split(",").map((t) => t.trim())
-            : [],
-        habitat: p.habitat ?? "unknown",
-        color: p.color ?? "unknown",
-        gen: Number(p.gen || 1),
-        evolution_stage: Number(p.evolution_stage || 1),
-        height_dm: Number(p.height_dm || 0),
-        weight_hg: Number(p.weight_hg || 0),
-        columns: g?.comparison?.columns || {},
-        isCorrect: Boolean(g?.comparison?.isCorrect),
-      };
+        const nextAttempts = [attempt, ...state.attempts];
+        const isWin = Boolean(attempt.isCorrect);
+        const isOutOfAttempts = !isWin && nextAttempts.length >= MAX_ATTEMPTS;
 
-      const nextAttempts = [attempt, ...state.attempts];
-      const isWin = Boolean(attempt.isCorrect);
-      const isOutOfAttempts = !isWin && nextAttempts.length >= MAX_ATTEMPTS;
+        const next = {
+          dayKey,
+          attempts: nextAttempts,
+          finished: isWin || isOutOfAttempts,
+          won: isWin,
+        };
 
-      const next = {
-        dayKey,
-        attempts: nextAttempts,
-        finished: isWin || isOutOfAttempts,
-        won: isWin,
-      };
+        setState(next);
+        saveState(next, activeMode);
+        scheduleReveal();
 
-      setState(next);
-      saveState(next, activeMode);
-      scheduleReveal();
-
-      if (isWin) {
+        if (isWin) {
+          addToast({
+            kind: "success",
+            title:
+              mode === "infinite"
+                ? t("game.win_title_infinite")
+                : t("game.win_title"),
+            message:
+              mode === "infinite"
+                ? t("game.win_message_infinite")
+                : t("game.win_message"),
+          });
+          triggerWinConfetti();
+        } else if (isOutOfAttempts) {
+          addToast({
+            kind: "warning",
+            title:
+              mode === "infinite"
+                ? t("game.lost_title_infinite")
+                : t("game.lost_title"),
+            message:
+              mode === "infinite"
+                ? t("game.lost_message_infinite")
+                : t("game.lost_message"),
+          });
+        }
+      } catch (e) {
+        console.error(e);
+        setError(`${t("game.try_error")} ${e.message}`);
         addToast({
-          kind: "success",
-          title: mode === "infinite" ? t("game.win_title_infinite") : t("game.win_title"),
-          message: mode === "infinite" ? t("game.win_message_infinite") : t("game.win_message"),
+          kind: "error",
+          title: t("game.try_failed_title"),
+          message: String(e.message || t("game.try_again")),
         });
-        triggerWinConfetti();
-      } else if (isOutOfAttempts) {
-        addToast({
-          kind: "warning",
-          title: mode === "infinite" ? t("game.lost_title_infinite") : t("game.lost_title"),
-          message: mode === "infinite" ? t("game.lost_message_infinite") : t("game.lost_message"),
-        });
+      } finally {
+        setBusy(false);
       }
-    } catch (e) {
-      console.error(e);
-      setError(`${t("game.try_error")} ${e.message}`);
-      addToast({
-        kind: "error",
-        title: t("game.try_failed_title"),
-        message: String(e.message || t("game.try_again")),
-      });
-    } finally {
-      setBusy(false);
-    }
-  }, [dayKey, state, mode, t, addToast, scheduleReveal]);
+    },
+    [dayKey, state, mode, t, addToast, scheduleReveal],
+  );
 
   return {
     mode,
