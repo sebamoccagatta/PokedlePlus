@@ -7,7 +7,9 @@
     "db:schema": "node scripts/apply-schema.js",
     "db:seed": "node scripts/seed-postgres.js",
     "db:fts": "node scripts/add-fts-indexes.mjs",
-    "db:test-search": "node scripts/test-search.mjs"
+    "db:test-search": "node scripts/test-search.mjs",
+    "test:game-logic": "node scripts/test-game-logic.js",
+    "verify:shared": "node scripts/verify-shared-logic.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.0",
