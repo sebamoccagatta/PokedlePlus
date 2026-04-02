@@ -1,5 +1,5 @@
-import { modeConfig } from "./_lib/modes.js";
-import { validators } from "../../../shared/validation.js";
+const { modeConfig } = require("./_lib/modes.js");
+const { validators } = require("../../shared/validation.js");
 
 function dayKeyArgentina() {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -13,7 +13,7 @@ function dayKeyArgentina() {
   return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
-export async function handler(event) {
+exports.handler = async function handler(event) {
   const mode = event.queryStringParameters?.mode || "classic";
 
   // Validate mode
@@ -45,4 +45,4 @@ export async function handler(event) {
       gens: cfg.gens, // null = todas
     }),
   };
-}
+};

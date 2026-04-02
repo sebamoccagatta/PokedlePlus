@@ -1,6 +1,6 @@
 const { sql } = require("./_lib/db");
 const { modeConfig } = require("./_lib/modes");
-const { validators } = require("../../../shared/validation.js");
+const { validators } = require("../../shared/validation.js");
 
 exports.handler = async (event) => {
   try {
