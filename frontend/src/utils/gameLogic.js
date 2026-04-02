@@ -1,54 +1,12 @@
-export function fnv1a(str) {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = (h * 0x01000193) >>> 0;
-  }
-  return h >>> 0;
-}
+/**
+ * Frontend game logic utilities
+ *
+ * IMPORTANT: Core game logic has been moved to shared/gameLogic.js
+ * This file now just re-exports from the shared module to maintain
+ * backwards compatibility with existing imports.
+ *
+ * The shared module is the single source of truth for compareGuess and fnv1a.
+ */
 
-function kindText(a, b) {
-  if (!a || !b) return a === b ? "correct" : "absent";
-  return a === b ? "correct" : "absent";
-}
-
-function kindNumber(guess, target) {
-  if (guess === target) return "correct";
-  return guess > target ? "higher" : "lower";
-}
-
-function kindType(pos, guessTypes, targetTypes) {
-  const g = guessTypes?.[pos] ?? null;
-  const t = targetTypes?.[pos] ?? null;
-  if (!g) return t ? "absent" : "correct";
-  if (t === g) return "correct";
-  if (Array.isArray(targetTypes) && targetTypes.includes(g)) return "present";
-  return "absent";
-}
-
-export function compareGuess({ target, guess }) {
-  const tTypes = target.types || [];
-  const gTypes = guess.types || [];
-
-  const gen = kindNumber(guess.gen, target.gen);
-  const height = kindNumber(guess.height_dm, target.height_dm);
-  const weight = kindNumber(guess.weight_hg, target.weight_hg);
-  const evolution = kindNumber(guess.evolution_stage, target.evolution_stage);
-
-  return {
-    id: guess.id,
-    name: guess.name,
-    sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${guess.id}.png`,
-    isCorrect: guess.id === target.id,
-    columns: {
-      type1: kindType(0, gTypes, tTypes),
-      type2: kindType(1, gTypes, tTypes),
-      gen,
-      habitat: kindText(guess.habitat, target.habitat),
-      color: kindText(guess.color, target.color),
-      evolution,
-      height,
-      weight,
-    },
-  };
-}
+// Import from shared module using Vite alias
+export { fnv1a, compareGuess } from "@shared/gameLogic.js";
