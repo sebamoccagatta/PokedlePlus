@@ -6,6 +6,7 @@ const { parseTypes } = require("./_lib/normalize");
 const { getEvolutionStageForMode } = require("./_lib/evolutionStage");
 const { getClientIp, getRateLimitInfo } = require("./_lib/rateLimitRedis");
 const { getTypesForMode } = require("./_lib/typesByMode");
+const { validators } = require("../../../shared/validation.js");
 
 function getSecret() {
   const secret = process.env.SECRET;
@@ -75,11 +76,40 @@ exports.handler = async (event) => {
     const dayKey = String(body.dayKey || "").trim();
     const mode = String(body.mode || "classic");
 
-    if (!guessId || !dayKey) {
+    // Validate all inputs
+    const guessIdValidation = validators.pokemonId(guessId);
+    if (!guessIdValidation.valid) {
       return {
         statusCode: 400,
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ error: "INVALID_INPUT" }),
+        body: JSON.stringify({
+          error: "INVALID_GUESS_ID",
+          message: guessIdValidation.error,
+        }),
+      };
+    }
+
+    const dayKeyValidation = validators.dayKey(dayKey);
+    if (!dayKeyValidation.valid) {
+      return {
+        statusCode: 400,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          error: "INVALID_DAY_KEY",
+          message: dayKeyValidation.error,
+        }),
+      };
+    }
+
+    const modeValidation = validators.mode(mode);
+    if (!modeValidation.valid) {
+      return {
+        statusCode: 400,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          error: "INVALID_MODE",
+          message: modeValidation.error,
+        }),
       };
     }
 

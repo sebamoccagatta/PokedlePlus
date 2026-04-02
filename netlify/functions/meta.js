@@ -1,4 +1,5 @@
 import { modeConfig } from "./_lib/modes.js";
+import { validators } from "../../../shared/validation.js";
 
 function dayKeyArgentina() {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -14,6 +15,20 @@ function dayKeyArgentina() {
 
 export async function handler(event) {
   const mode = event.queryStringParameters?.mode || "classic";
+
+  // Validate mode
+  const modeValidation = validators.mode(mode);
+  if (!modeValidation.valid) {
+    return {
+      statusCode: 400,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        error: "INVALID_MODE",
+        message: modeValidation.error,
+      }),
+    };
+  }
+
   const cfg = modeConfig(mode);
 
   return {

@@ -3,16 +3,35 @@ const { sql } = require("./_lib/db");
 const { parseTypes } = require("./_lib/normalize");
 const { getEvolutionStageForMode } = require("./_lib/evolutionStage");
 const { getTypesForMode } = require("./_lib/typesByMode");
+const { validators } = require("../../../shared/validation.js");
 
 exports.handler = async (event) => {
   try {
     const mode = String(event.queryStringParameters?.mode || "classic");
     const id = Number(event.path.split("/").pop());
-    if (!id) {
+
+    // Validate inputs
+    const idValidation = validators.pokemonId(id);
+    if (!idValidation.valid) {
       return {
         statusCode: 400,
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ error: "INVALID_ID" }),
+        body: JSON.stringify({
+          error: "INVALID_POKEMON_ID",
+          message: idValidation.error,
+        }),
+      };
+    }
+
+    const modeValidation = validators.mode(mode);
+    if (!modeValidation.valid) {
+      return {
+        statusCode: 400,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          error: "INVALID_MODE",
+          message: modeValidation.error,
+        }),
       };
     }
 

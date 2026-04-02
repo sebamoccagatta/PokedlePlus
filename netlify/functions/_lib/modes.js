@@ -1,3 +1,18 @@
+// Valid game modes (used for validation)
+const VALID_MODES = [
+  "classic",
+  "gen1",
+  "gen2",
+  "gen3",
+  "gen4",
+  "gen5",
+  "gen6",
+  "gen7",
+  "gen8",
+  "gen9",
+  "infinite",
+];
+
 function modeConfig(mode) {
   const m = String(mode || "classic").toLowerCase();
   const genMatch = m.match(/^gen([1-9])$/);
@@ -14,4 +29,4 @@ function modeConfig(mode) {
   return { id: "classic", gens: null };
 }
 
-module.exports = { modeConfig };
+module.exports = { modeConfig, VALID_MODES };
