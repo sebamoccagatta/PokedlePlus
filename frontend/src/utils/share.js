@@ -3,8 +3,8 @@ export function generateShareText(mode, dayKey, attempts, won, currentStreak, t)
     correct: "🟩",
     present: "🟨",
     absent: "⬛",
-    higher: "🟦",
-    lower: "🟦",
+    higher: "🔼",
+    lower: "🔽",
   };
 
   const score = won ? attempts.length : "X";
@@ -21,7 +21,6 @@ export function generateShareText(mode, dayKey, attempts, won, currentStreak, t)
 
   const grid = attempts
     .slice()
-    .reverse()
     .map((attempt) => {
       const cols = attempt.columns || {};
       const keys = ["type1", "type2"];
@@ -48,15 +47,51 @@ export async function copyToClipboard(text) {
     return navigator.clipboard.writeText(text);
   } else {
     // Fallback for older browsers
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-      document.execCommand("copy");
-    } catch (err) {
-      console.error("Fallback copy failed", err);
-    }
-    document.body.removeChild(textArea);
+    return new Promise((resolve, reject) => {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        const successful = document.execCommand("copy");
+        document.body.removeChild(textArea);
+        if (successful) {
+          resolve();
+        } else {
+          reject(new Error("Copy command failed"));
+        }
+      } catch (err) {
+        document.body.removeChild(textArea);
+        reject(err);
+      }
+    });
   }
+}
+
+/**
+ * Share results using native Web Share API (mobile) or fallback to clipboard
+ * @param {string} text - The share text to copy/share
+ * @returns {Promise<{method: 'native'|'clipboard'}>} - Returns the method used for sharing
+ */
+export async function shareResults(text) {
+  // Try native Web Share API first (better UX on mobile)
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        text: text,
+      });
+      return { method: 'native' };
+    } catch (err) {
+      // User cancelled share or error occurred
+      // Only throw if it's not an AbortError (user cancelled)
+      if (err.name !== 'AbortError') {
+        console.error('Web Share API failed:', err);
+      }
+      // Fall through to clipboard fallback
+    }
+  }
+
+  // Fallback to clipboard
+  await copyToClipboard(text);
+  return { method: 'clipboard' };
 }

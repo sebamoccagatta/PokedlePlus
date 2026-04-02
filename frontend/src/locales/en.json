@@ -103,6 +103,7 @@
     "footer": "Pokedle+ - original style - Tailwind + Netlify",
     "share": "Share Results",
     "share_copied": "Copied to clipboard!",
+    "share_error": "Failed to share results",
     "columns": {
       "pokemon": "Pokemon",
       "type1": "Type 1",

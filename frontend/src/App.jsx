@@ -7,7 +7,7 @@ import { useI18n } from "./hooks/useI18n.js";
 import { useGameState } from "./hooks/useGameState.js";
 import { usePokemonSearch } from "./hooks/usePokemonSearch.js";
 import { useStats } from "./hooks/useStats.js";
-import { generateShareText, copyToClipboard } from "./utils/share.js";
+import { generateShareText, shareResults } from "./utils/share.js";
 
 import GameHeader from "./components/GameHeader.jsx";
 import SearchPanel from "./components/SearchPanel.jsx";
@@ -90,13 +90,26 @@ export default function App() {
 
   const onShare = async () => {
     const text = generateShareText(mode, dayKey, state.attempts, state.won, stats.currentStreak, t);
-    await copyToClipboard(text);
-    addToast({
-      kind: "success",
-      title: t("game.share"),
-      message: t("game.share_copied"),
-      duration: 2000,
-    });
+    try {
+      const result = await shareResults(text);
+
+      // Only show toast if clipboard was used (native share has its own UI)
+      if (result.method === 'clipboard') {
+        addToast({
+          kind: "success",
+          title: t("game.share"),
+          message: t("game.share_copied"),
+          duration: 2000,
+        });
+      }
+    } catch (err) {
+      addToast({
+        kind: "error",
+        title: t("game.share"),
+        message: t("game.share_error") || "Failed to share results",
+        duration: 2000,
+      });
+    }
   };
 
   const translateHint = (category, value) => {
