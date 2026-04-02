@@ -1,5 +1,6 @@
 const { sql } = require("./_lib/db");
 const { modeConfig } = require("./_lib/modes");
+const { validators } = require("../../../shared/validation.js");
 
 exports.handler = async (event) => {
   try {
@@ -7,6 +8,44 @@ exports.handler = async (event) => {
     const q = String(qRaw).trim().toLowerCase();
     const offset = Number(event.queryStringParameters?.offset || 0);
     const mode = event.queryStringParameters?.mode || "classic";
+
+    // Validate inputs
+    const queryValidation = validators.searchQuery(q);
+    if (!queryValidation.valid) {
+      return {
+        statusCode: 400,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          error: "INVALID_SEARCH_QUERY",
+          message: queryValidation.error,
+        }),
+      };
+    }
+
+    const offsetValidation = validators.offset(offset);
+    if (!offsetValidation.valid) {
+      return {
+        statusCode: 400,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          error: "INVALID_OFFSET",
+          message: offsetValidation.error,
+        }),
+      };
+    }
+
+    const modeValidation = validators.mode(mode);
+    if (!modeValidation.valid) {
+      return {
+        statusCode: 400,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          error: "INVALID_MODE",
+          message: modeValidation.error,
+        }),
+      };
+    }
+
     const cfg = modeConfig(mode);
 
     if (!q) {

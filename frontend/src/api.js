@@ -1,5 +1,6 @@
 // frontend/src/api.js
 import { searchCache } from "./cache/searchCache.js";
+import { validators } from "@shared/validation.js";
 
 const SEARCH_VERSION = "2";
 
@@ -18,6 +19,12 @@ async function jsonOrText(res, errorCode) {
 }
 
 export async function apiMeta(mode) {
+  // Validate mode
+  const modeValidation = validators.mode(mode);
+  if (!modeValidation.valid) {
+    throw new Error(`Invalid mode: ${modeValidation.error}`);
+  }
+
   const res = await fetch(
     `/api/meta?mode=${encodeURIComponent(mode || "classic")}`,
   );
@@ -26,6 +33,22 @@ export async function apiMeta(mode) {
 
 export async function apiSearch(q, offset = 0, mode = "classic", opts = {}) {
   const query = String(q || "").trim();
+
+  // Validate inputs
+  const queryValidation = validators.searchQuery(query);
+  if (!queryValidation.valid) {
+    throw new Error(`Invalid search query: ${queryValidation.error}`);
+  }
+
+  const offsetValidation = validators.offset(offset);
+  if (!offsetValidation.valid) {
+    throw new Error(`Invalid offset: ${offsetValidation.error}`);
+  }
+
+  const modeValidation = validators.mode(mode);
+  if (!modeValidation.valid) {
+    throw new Error(`Invalid mode: ${modeValidation.error}`);
+  }
 
   if (offset === 0 && query) {
     const cached = searchCache.get(query, mode);
@@ -49,6 +72,17 @@ export async function apiSearch(q, offset = 0, mode = "classic", opts = {}) {
 }
 
 export async function apiPokemon(id, mode = "classic") {
+  // Validate inputs
+  const idValidation = validators.pokemonId(id);
+  if (!idValidation.valid) {
+    throw new Error(`Invalid Pokemon ID: ${idValidation.error}`);
+  }
+
+  const modeValidation = validators.mode(mode);
+  if (!modeValidation.valid) {
+    throw new Error(`Invalid mode: ${modeValidation.error}`);
+  }
+
   const res = await fetch(
     `/api/pokemon/${id}?mode=${encodeURIComponent(mode || "classic")}`,
   );
@@ -67,6 +101,22 @@ export async function apiPokemon(id, mode = "classic") {
 }
 
 export async function apiGuess(guessId, dayKey, mode = "classic") {
+  // Validate inputs
+  const guessIdValidation = validators.pokemonId(guessId);
+  if (!guessIdValidation.valid) {
+    throw new Error(`Invalid guess ID: ${guessIdValidation.error}`);
+  }
+
+  const dayKeyValidation = validators.dayKey(dayKey);
+  if (!dayKeyValidation.valid) {
+    throw new Error(`Invalid day key: ${dayKeyValidation.error}`);
+  }
+
+  const modeValidation = validators.mode(mode);
+  if (!modeValidation.valid) {
+    throw new Error(`Invalid mode: ${modeValidation.error}`);
+  }
+
   const res = await fetch(`/api/guess`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
