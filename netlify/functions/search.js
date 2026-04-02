@@ -23,21 +23,40 @@ exports.handler = async (event) => {
     const db = sql();
     const limit = 50;
 
+    // Umbral de similaridad: 0.3 es permisivo (tolera typos), 0.6 es estricto
+    // Para nombres de Pokémon cortos, 0.3 funciona bien
+    const similarityThreshold = 0.3;
+
     let rows;
     if (cfg.gens && cfg.gens.length) {
+      // Búsqueda fuzzy con filtro de generación
+      // Usa word_similarity para matching parcial (ej: "char" → "Charizard")
+      // Ordena por similaridad DESC para mostrar mejores matches primero
       rows = await db`
-        SELECT id, name
+        SELECT id, name, word_similarity(${q}, name) AS sim
         FROM pokemon
-        WHERE gen = ANY(${cfg.gens}) AND name LIKE ${q + "%"}
-        ORDER BY id
+        WHERE gen = ANY(${cfg.gens})
+          AND (
+            name ILIKE ${q + "%"}
+            OR word_similarity(${q}, name) >= ${similarityThreshold}
+          )
+        ORDER BY
+          CASE WHEN name ILIKE ${q + "%"} THEN 0 ELSE 1 END,
+          sim DESC,
+          id
         LIMIT ${limit} OFFSET ${offset}
       `;
     } else {
+      // Búsqueda fuzzy sin filtro de generación
       rows = await db`
-        SELECT id, name
+        SELECT id, name, word_similarity(${q}, name) AS sim
         FROM pokemon
-        WHERE name LIKE ${q + "%"}
-        ORDER BY id
+        WHERE name ILIKE ${q + "%"}
+          OR word_similarity(${q}, name) >= ${similarityThreshold}
+        ORDER BY
+          CASE WHEN name ILIKE ${q + "%"} THEN 0 ELSE 1 END,
+          sim DESC,
+          id
         LIMIT ${limit} OFFSET ${offset}
       `;
     }
