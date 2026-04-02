@@ -10,6 +10,8 @@
     "db:test-search": "node scripts/test-search.mjs",
     "test:game-logic": "node scripts/test-game-logic.js",
     "test:validation": "node scripts/test-validation.js",
+    "test:endpoints": "node scripts/test-endpoints.mjs",
+    "test:all": "npm run test:validation && npm run test:game-logic && npm run test:endpoints",
     "verify:shared": "node scripts/verify-shared-logic.js"
   },
   "dependencies": {

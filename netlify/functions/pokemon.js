@@ -3,7 +3,7 @@ const { sql } = require("./_lib/db");
 const { parseTypes } = require("./_lib/normalize");
 const { getEvolutionStageForMode } = require("./_lib/evolutionStage");
 const { getTypesForMode } = require("./_lib/typesByMode");
-const { validators } = require("../../../shared/validation.js");
+const { validators } = require("../../shared/validation.js");
 
 exports.handler = async (event) => {
   try {
