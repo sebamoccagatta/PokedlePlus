@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { arrow } from "./ui.js";
 import { useTheme } from "./hooks/useTheme.js";
 import { useSearchCache } from "./hooks/useSearchCache.js";
@@ -89,7 +89,7 @@ export default function App() {
   };
 
   const onShare = async () => {
-    const text = generateShareText(mode, dayKey, state.attempts, state.won, stats.currentStreak, t);
+    const text = generateShareText(mode, dayKey, state.attempts, state.won, stats.currentStreak);
     try {
       const result = await shareResults(text);
 

@@ -159,7 +159,6 @@ export function Home({ onSelect, dayKey, i18n }) {
     const onStorage = () => setStatusByMode(computeStatuses());
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dayKey, modes]);
 
   function handleSelect(id) {

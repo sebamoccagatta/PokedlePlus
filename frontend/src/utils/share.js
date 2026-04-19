@@ -1,6 +1,6 @@
 import { MAX_ATTEMPTS } from "../constants/game.js";
 
-export function generateShareText(mode, dayKey, attempts, won, currentStreak, t) {
+export function generateShareText(mode, dayKey, attempts, won, currentStreak) {
   const emojiMap = {
     correct: "🟩",
     present: "🟨",
