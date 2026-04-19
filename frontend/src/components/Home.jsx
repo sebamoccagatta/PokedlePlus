@@ -3,7 +3,10 @@ import {
   CheckCircle2,
   CircleDashed,
   ArrowRight,
-  CircleOff
+  CircleOff,
+  Flame,
+  Trophy,
+  Target,
 } from "lucide-react";
 import {
   ClassicBall,
@@ -108,8 +111,14 @@ export function Home({ onSelect, dayKey, i18n }) {
   );
 
   const [statusByMode, setStatusByMode] = useState(() => ({}));
+  const [streakSummary, setStreakSummary] = useState({ current: 0, best: 0 });
   const [lastMode, setLastMode] = useState(
     () => localStorage.getItem("pokedleplus:lastMode") || "classic"
+  );
+
+  const missionModes = useMemo(
+    () => modes.filter((m) => m.id !== "infinite"),
+    [modes]
   );
 
   function safeParse(json) {
@@ -154,12 +163,88 @@ export function Home({ onSelect, dayKey, i18n }) {
     return map;
   }
 
+  function readModeStats(modeId) {
+    const parsed = safeParse(localStorage.getItem(`pokedleplus:stats:${modeId}`));
+    if (!parsed || typeof parsed !== "object") {
+      return { currentStreak: 0, maxStreak: 0 };
+    }
+
+    return {
+      currentStreak: Number(parsed.currentStreak) || 0,
+      maxStreak: Number(parsed.maxStreak) || 0,
+    };
+  }
+
+  function computeStreakSummary() {
+    return missionModes.reduce(
+      (acc, mode) => {
+        const modeStats = readModeStats(mode.id);
+        return {
+          current: Math.max(acc.current, modeStats.currentStreak),
+          best: Math.max(acc.best, modeStats.maxStreak),
+        };
+      },
+      { current: 0, best: 0 }
+    );
+  }
+
   useEffect(() => {
     setStatusByMode(computeStatuses());
-    const onStorage = () => setStatusByMode(computeStatuses());
+    setStreakSummary(computeStreakSummary());
+
+    const onStorage = () => {
+      setStatusByMode(computeStatuses());
+      setStreakSummary(computeStreakSummary());
+    };
+
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
-  }, [dayKey, modes]);
+  }, [dayKey, modes, missionModes]);
+
+  const missionCompleted = useMemo(
+    () => missionModes.filter((mode) => statusByMode[mode.id]?.won).length,
+    [missionModes, statusByMode]
+  );
+
+  const missionTotal = missionModes.length;
+
+  const recommendedMode = useMemo(() => {
+    const inProgress = missionModes.find((mode) => {
+      const st = statusByMode[mode.id];
+      return st?.played && !st?.won && st?.attempts < MAX_ATTEMPTS;
+    });
+
+    if (inProgress) return { mode: inProgress, intent: "continue" };
+
+    const pending = missionModes.find((mode) => {
+      const st = statusByMode[mode.id];
+      return !st?.played;
+    });
+
+    if (pending) return { mode: pending, intent: "start" };
+
+    const fallback =
+      modes.find((mode) => mode.id === lastMode) || missionModes[0] || modes[0];
+
+    return { mode: fallback, intent: "play" };
+  }, [lastMode, missionModes, modes, statusByMode]);
+
+  const missionProgressPct = missionTotal
+    ? Math.round((missionCompleted / missionTotal) * 100)
+    : 0;
+
+  const recommendedModeId = recommendedMode?.mode?.id;
+
+  const heroCtaLabel = useMemo(() => {
+    const modeTitle = recommendedMode?.mode?.title ?? "";
+    if (recommendedMode?.intent === "continue") {
+      return `${t("home.hero.cta_continue")} ${modeTitle}`;
+    }
+    if (recommendedMode?.intent === "start") {
+      return `${t("home.hero.cta_start")} ${modeTitle} ${t("home.hero.cta_now")}`;
+    }
+    return `${t("home.hero.cta_play")} ${modeTitle} ${t("home.hero.cta_now")}`;
+  }, [recommendedMode, t]);
 
   function handleSelect(id) {
     localStorage.setItem("pokedleplus:lastMode", id);
@@ -182,23 +267,84 @@ export function Home({ onSelect, dayKey, i18n }) {
             />
           </div>
         </div>
-        <p className="text-center mb-6 text-muted">{t("home.tagline")}</p>
 
-        <div className="mb-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <span className="text-xs text-muted">
-            {t("home.today")}{" "}
-            <span className="font-semibold text-strong">{dayKey || "??"}</span>
-          </span>
+        <div className="mb-8 rounded-3xl border border-app bg-surface shadow-card p-5 md:p-8">
+          <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-muted mb-3">
+                {t("home.hero.kicker")}
+              </p>
+              <h2 className="text-3xl md:text-4xl font-black leading-tight mb-3 text-strong">
+                {t("home.hero.title")}
+              </h2>
+              <p className="text-muted mb-5 max-w-2xl">{t("home.hero.subtitle")}</p>
 
-          <button
-            onClick={() => handleSelect(lastMode)}
-            className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold btn-surface transition"
-            title={t("home.continue_title")}
-          >
-            {t("home.continue")}{" "}
-            <span className="text-muted">({lastMode})</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
+              <div className="flex flex-wrap items-center gap-3 mb-6 text-xs text-muted">
+                <span className="inline-flex items-center gap-2 rounded-full border border-app bg-surface-soft px-3 py-1.5">
+                  <Target className="h-4 w-4" aria-hidden="true" />
+                  {t("home.today")} <span className="font-semibold text-strong">{dayKey || "??"}</span>
+                </span>
+              </div>
+
+              <button
+                onClick={() => handleSelect(recommendedMode.mode.id)}
+                className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-indigo-500 hover:shadow-xl hover:shadow-indigo-500/35 active:translate-y-0 active:scale-[0.99] animate-[pulse_2.8s_ease-in-out_infinite] motion-reduce:animate-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
+                title={t("home.hero.cta_title")}
+                aria-label={`${t("home.hero.cta_aria")} ${recommendedMode.mode.title}`}
+              >
+                <span>{heroCtaLabel}</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div className="rounded-2xl border border-app bg-surface-soft p-4">
+                <div className="flex items-center gap-2 text-sm text-muted mb-1">
+                  <Flame className="h-4 w-4" aria-hidden="true" />
+                  {t("home.hero.current_streak")}
+                </div>
+                <div className="text-3xl font-black text-strong">{streakSummary.current}</div>
+              </div>
+
+              <div className="rounded-2xl border border-app bg-surface-soft p-4">
+                <div className="flex items-center gap-2 text-sm text-muted mb-1">
+                  <Trophy className="h-4 w-4" aria-hidden="true" />
+                  {t("home.hero.best_streak")}
+                </div>
+                <div className="text-3xl font-black text-strong">{streakSummary.best}</div>
+              </div>
+
+              <div className="rounded-2xl border border-app bg-surface-soft p-4 sm:col-span-2 lg:col-span-1 xl:col-span-2">
+                <div className="mb-2 flex items-center justify-between text-sm">
+                  <span className="text-muted">{t("home.hero.daily_progress")}</span>
+                  <span className="font-semibold text-strong">
+                    {missionCompleted}/{missionTotal} · {missionProgressPct}%
+                  </span>
+                </div>
+                <div
+                  className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-200/60 dark:bg-zinc-800/70"
+                  role="progressbar"
+                  aria-label={t("home.hero.daily_progress")}
+                  aria-valuemin={0}
+                  aria-valuemax={missionTotal}
+                  aria-valuenow={missionCompleted}
+                >
+                  <div
+                    className="h-full rounded-full bg-emerald-500 transition-all duration-300"
+                    style={{ width: `${missionProgressPct}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-muted">{t("home.hero.progress_hint")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-4 flex items-end justify-between gap-3">
+          <div>
+            <h3 className="text-xl md:text-2xl font-extrabold text-strong">{t("home.modes_title")}</h3>
+            <p className="text-sm text-muted">{t("home.tagline")}</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
@@ -217,6 +363,9 @@ export function Home({ onSelect, dayKey, i18n }) {
                   "group relative rounded-[28px] border text-left transition-all duration-300",
                   "p-5 md:p-7 2xl:p-8 min-h-[160px] md:min-h-[170px] 2xl:min-h-[185px]",
                   "shadow-lg hover:shadow-2xl hover:-translate-y-1",
+                  m.id === recommendedModeId
+                    ? "ring-1 ring-indigo-300/70 dark:ring-indigo-400/45 shadow-[0_0_0_1px_rgba(99,102,241,0.18),0_14px_40px_-22px_rgba(79,70,229,0.65)] hover:-translate-y-1.5 hover:shadow-[0_0_0_1px_rgba(99,102,241,0.28),0_22px_48px_-22px_rgba(79,70,229,0.7)]"
+                    : "",
                   st.won
                     ? "border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100/70 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/30"
                     : st.played && st.attempts === MAX_ATTEMPTS && !st.won
