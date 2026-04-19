@@ -1,10 +1,10 @@
 /**
  * Shared Input Validation for Pokedle+
  *
- * ESM entrypoint for frontend/Vite.
+ * CommonJS entrypoint for Netlify Functions and Node scripts.
  */
 
-export const VALID_MODES = [
+const VALID_MODES = [
   "classic",
   "gen1",
   "gen2",
@@ -159,7 +159,7 @@ function validateLimit(value) {
   return { valid: true };
 }
 
-export const validators = {
+const validators = {
   dayKey: validateDayKey,
   mode: validateMode,
   searchQuery: validateSearchQuery,
@@ -168,7 +168,6 @@ export const validators = {
   limit: validateLimit,
 };
 
-export default {
-  validators,
-  VALID_MODES,
-};
+module.exports = { validators, VALID_MODES };
+
+module.exports.default = module.exports;

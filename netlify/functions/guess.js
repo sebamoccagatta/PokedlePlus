@@ -6,7 +6,7 @@ const { parseTypes } = require("./_lib/normalize");
 const { getEvolutionStageForMode } = require("./_lib/evolutionStage");
 const { getClientIp, getRateLimitInfo } = require("./_lib/rateLimitRedis");
 const { getTypesForMode } = require("./_lib/typesByMode");
-const { validators } = require("../../shared/validation.js");
+const { validators } = require("../../shared/validation.cjs");
 
 function getSecret() {
   const secret = process.env.SECRET;

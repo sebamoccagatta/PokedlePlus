@@ -9,7 +9,7 @@
  */
 
 const backendUtils = require("../netlify/functions/_lib/utils.js");
-const shared = require("../shared/gameLogic.js");
+const shared = require("../shared/gameLogic.cjs");
 const sharedLogic = shared.default || shared;
 
 console.log("=== Shared Game Logic Verification ===\n");

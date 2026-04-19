@@ -1,7 +1,7 @@
 // scripts/test-validation.js
 // Comprehensive test suite for input validation
 
-const { validators } = require("../shared/validation.js");
+const { validators } = require("../shared/validation.cjs");
 
 let passed = 0;
 let failed = 0;

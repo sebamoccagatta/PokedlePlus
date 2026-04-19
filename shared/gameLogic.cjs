@@ -1,14 +1,14 @@
 /**
  * Shared Game Logic for Pokedle+
  *
- * ESM entrypoint for frontend/Vite.
+ * CommonJS entrypoint for Netlify Functions and Node scripts.
  */
 
 /**
  * FNV-1a hash function (32-bit)
  * Used for deterministic daily target selection
  */
-export function fnv1a(str) {
+function fnv1a(str) {
   let h = 0x811c9dc5;
   for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i);
@@ -59,7 +59,7 @@ function kindType(pos, guessTypes, targetTypes) {
  * @param {Object} params.guess - The guessed Pokémon
  * @returns {Object} Comparison result with column-by-column analysis
  */
-export function compareGuess({ target, guess }) {
+function compareGuess({ target, guess }) {
   const tTypes = target.types || [];
   const gTypes = guess.types || [];
 
@@ -86,9 +86,9 @@ export function compareGuess({ target, guess }) {
   };
 }
 
-const gameLogic = {
+module.exports = {
   fnv1a,
   compareGuess,
 };
 
-export default gameLogic;
+module.exports.default = module.exports;

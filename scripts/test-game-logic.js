@@ -4,7 +4,7 @@
  * Tests edge cases and ensures correctness of compareGuess and fnv1a
  */
 
-const { compareGuess, fnv1a } = require("../shared/gameLogic.js");
+const { compareGuess, fnv1a } = require("../shared/gameLogic.cjs");
 
 let testsPassed = 0;
 let testsFailed = 0;

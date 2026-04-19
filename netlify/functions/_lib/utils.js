@@ -1,12 +1,12 @@
 /**
  * Backend-specific utilities
  *
- * Core game logic (compareGuess, fnv1a) has been moved to shared/gameLogic.js
+ * Core game logic (compareGuess, fnv1a) has been moved to shared/gameLogic.cjs
  * This file now only contains backend-specific utilities.
  */
 
 // Import shared game logic from the shared module
-const { fnv1a, compareGuess } = require("../../../shared/gameLogic.js");
+const { fnv1a, compareGuess } = require("../../../shared/gameLogic.cjs");
 
 function normalizeName(s) {
   return String(s || "")

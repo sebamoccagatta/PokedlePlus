@@ -1,5 +1,5 @@
 const { modeConfig } = require("./_lib/modes.js");
-const { validators } = require("../../shared/validation.js");
+const { validators } = require("../../shared/validation.cjs");
 
 function dayKeyArgentina() {
   const parts = new Intl.DateTimeFormat("en-CA", {
