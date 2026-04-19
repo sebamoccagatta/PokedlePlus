@@ -1,6 +1,6 @@
 // frontend/src/api.js
 import { searchCache } from "./cache/searchCache.js";
-import { validators } from "@shared/validation.js";
+import { validators } from "@shared/validation.mjs";
 
 const SEARCH_VERSION = "2";
 

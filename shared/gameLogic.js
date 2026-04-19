@@ -91,11 +91,11 @@ function compareGuess({ target, guess }) {
   };
 }
 
-// ES module exports (primary)
-export { fnv1a, compareGuess };
-
-// Default export for convenience
-export default {
+// CommonJS export (Netlify Functions / Node backend)
+module.exports = {
   fnv1a,
   compareGuess,
 };
+
+// Interop convenience for tools expecting a default export shape
+module.exports.default = module.exports;

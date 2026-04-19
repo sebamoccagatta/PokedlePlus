@@ -10,6 +10,7 @@
 
 const backendUtils = require("../netlify/functions/_lib/utils.js");
 const shared = require("../shared/gameLogic.js");
+const sharedLogic = shared.default || shared;
 
 console.log("=== Shared Game Logic Verification ===\n");
 
@@ -42,22 +43,22 @@ const guess = {
 console.log("✓ Test 1: Functions are exported");
 console.log("  Backend utils.compareGuess:", typeof backendUtils.compareGuess);
 console.log("  Backend utils.fnv1a:", typeof backendUtils.fnv1a);
-console.log("  Shared compareGuess:", typeof shared.default.compareGuess);
-console.log("  Shared fnv1a:", typeof shared.default.fnv1a);
+console.log("  Shared compareGuess:", typeof sharedLogic.compareGuess);
+console.log("  Shared fnv1a:", typeof sharedLogic.fnv1a);
 console.log();
 
 // Test 2: Same reference (they should point to the same function)
 console.log("✓ Test 2: Backend re-exports shared code (same reference)");
 console.log(
   "  compareGuess same reference:",
-  backendUtils.compareGuess === shared.default.compareGuess
+  backendUtils.compareGuess === sharedLogic.compareGuess
 );
-console.log("  fnv1a same reference:", backendUtils.fnv1a === shared.default.fnv1a);
+console.log("  fnv1a same reference:", backendUtils.fnv1a === sharedLogic.fnv1a);
 console.log();
 
 // Test 3: Identical results
 const backendResult = backendUtils.compareGuess({ target, guess });
-const sharedResult = shared.default.compareGuess({ target, guess });
+const sharedResult = sharedLogic.compareGuess({ target, guess });
 
 console.log("✓ Test 3: Identical results");
 console.log(
@@ -85,7 +86,7 @@ console.log();
 // Test 4: Hash consistency
 const testString = "2025-01-01|classic";
 const backendHash = backendUtils.fnv1a(testString);
-const sharedHash = shared.default.fnv1a(testString);
+const sharedHash = sharedLogic.fnv1a(testString);
 
 console.log("✓ Test 4: Hash function consistency");
 console.log("  Backend hash:", backendHash);
@@ -95,8 +96,8 @@ console.log();
 
 // Summary
 const allTestsPass =
-  backendUtils.compareGuess === shared.default.compareGuess &&
-  backendUtils.fnv1a === shared.default.fnv1a &&
+  backendUtils.compareGuess === sharedLogic.compareGuess &&
+  backendUtils.fnv1a === sharedLogic.fnv1a &&
   backendResult.isCorrect === sharedResult.isCorrect &&
   backendHash === sharedHash;
 

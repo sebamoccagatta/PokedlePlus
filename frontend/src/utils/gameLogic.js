@@ -8,5 +8,5 @@
  * The shared module is the single source of truth for compareGuess and fnv1a.
  */
 
-// Import from shared module using Vite alias
-export { fnv1a, compareGuess } from "@shared/gameLogic.js";
+// Import from shared ESM wrapper using Vite alias
+export { fnv1a, compareGuess } from "@shared/gameLogic.mjs";

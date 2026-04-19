@@ -202,10 +202,8 @@ const validators = {
   limit: validateLimit,
 };
 
-// ES module export
-export { validators, VALID_MODES };
+// CommonJS export (Netlify Functions / Node backend)
+module.exports = { validators, VALID_MODES };
 
-// CommonJS export (for Node.js backend)
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = { validators, VALID_MODES };
-}
+// Interop convenience for tools expecting a default export shape
+module.exports.default = module.exports;
