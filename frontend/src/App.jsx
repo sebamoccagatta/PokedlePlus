@@ -152,6 +152,7 @@ export default function App() {
               searching={searching}
               busy={busy}
               finished={state.finished}
+              won={state.won}
               attemptsCount={state.attempts.length}
               error={error}
               onErrorClose={() => setError("")}

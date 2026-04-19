@@ -1,7 +1,7 @@
 import { badgeClass } from "../ui.js";
 import { Skeleton } from "./Skeleton.jsx";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 
 function Pill({ children, kind, pop = false, isDark, className = "" }) {
   return (
@@ -296,6 +296,17 @@ export default function AttemptsTable({
               <p className="mt-1 text-sm text-muted max-w-xs">
                 {t("game.empty_state") || "Busca un Pokémon arriba para comenzar tu investigación."}
               </p>
+              <div className="mt-5 w-full max-w-md rounded-2xl border border-app bg-surface-soft p-4 text-left">
+                <p className="mb-3 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">
+                  <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                  {t("game.empty_steps_title")}
+                </p>
+                <ol className="space-y-2 text-sm text-muted">
+                  <li>1. {t("game.empty_step_1")}</li>
+                  <li>2. {t("game.empty_step_2")}</li>
+                  <li>3. {t("game.empty_step_3")}</li>
+                </ol>
+              </div>
             </div>
           ) : (
             attempts.map((attempt, rowIndex) => (
