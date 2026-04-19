@@ -2,6 +2,84 @@ const { sql } = require("./_lib/db");
 const { modeConfig } = require("./_lib/modes");
 const { validators } = require("../../shared/validation.js");
 
+function isPgTrgmUnavailable(error) {
+  const message = String(error?.message || "").toLowerCase();
+  return (
+    error?.code === "42883" ||
+    message.includes("word_similarity") ||
+    message.includes("pg_trgm")
+  );
+}
+
+async function runFuzzySearch(db, { q, cfg, similarityThreshold, limit, offset }) {
+  if (cfg.gens && cfg.gens.length) {
+    return db`
+      SELECT id, name, word_similarity(${q}, name) AS sim
+      FROM pokemon
+      WHERE gen = ANY(${cfg.gens})
+        AND (
+          name ILIKE ${q + "%"}
+          OR word_similarity(${q}, name) >= ${similarityThreshold}
+        )
+      ORDER BY
+        CASE WHEN name ILIKE ${q + "%"} THEN 0 ELSE 1 END,
+        sim DESC,
+        id
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+  }
+
+  return db`
+    SELECT id, name, word_similarity(${q}, name) AS sim
+    FROM pokemon
+    WHERE name ILIKE ${q + "%"}
+      OR word_similarity(${q}, name) >= ${similarityThreshold}
+    ORDER BY
+      CASE WHEN name ILIKE ${q + "%"} THEN 0 ELSE 1 END,
+      sim DESC,
+      id
+    LIMIT ${limit} OFFSET ${offset}
+  `;
+}
+
+async function runSafeFallbackSearch(db, { q, cfg, limit, offset }) {
+  const containsQuery = `%${q}%`;
+  const prefixQuery = `${q}%`;
+
+  if (cfg.gens && cfg.gens.length) {
+    return db`
+      SELECT id, name
+      FROM pokemon
+      WHERE gen = ANY(${cfg.gens})
+        AND name ILIKE ${containsQuery}
+      ORDER BY
+        CASE
+          WHEN name ILIKE ${prefixQuery} THEN 0
+          ELSE 1
+        END,
+        char_length(name),
+        name,
+        id
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+  }
+
+  return db`
+    SELECT id, name
+    FROM pokemon
+    WHERE name ILIKE ${containsQuery}
+    ORDER BY
+      CASE
+        WHEN name ILIKE ${prefixQuery} THEN 0
+        ELSE 1
+      END,
+      char_length(name),
+      name,
+      id
+    LIMIT ${limit} OFFSET ${offset}
+  `;
+}
+
 exports.handler = async (event) => {
   try {
     const qRaw = event.queryStringParameters?.q || "";
@@ -67,37 +145,33 @@ exports.handler = async (event) => {
     const similarityThreshold = 0.3;
 
     let rows;
-    if (cfg.gens && cfg.gens.length) {
-      // Búsqueda fuzzy con filtro de generación
-      // Usa word_similarity para matching parcial (ej: "char" → "Charizard")
-      // Ordena por similaridad DESC para mostrar mejores matches primero
-      rows = await db`
-        SELECT id, name, word_similarity(${q}, name) AS sim
-        FROM pokemon
-        WHERE gen = ANY(${cfg.gens})
-          AND (
-            name ILIKE ${q + "%"}
-            OR word_similarity(${q}, name) >= ${similarityThreshold}
-          )
-        ORDER BY
-          CASE WHEN name ILIKE ${q + "%"} THEN 0 ELSE 1 END,
-          sim DESC,
-          id
-        LIMIT ${limit} OFFSET ${offset}
-      `;
-    } else {
-      // Búsqueda fuzzy sin filtro de generación
-      rows = await db`
-        SELECT id, name, word_similarity(${q}, name) AS sim
-        FROM pokemon
-        WHERE name ILIKE ${q + "%"}
-          OR word_similarity(${q}, name) >= ${similarityThreshold}
-        ORDER BY
-          CASE WHEN name ILIKE ${q + "%"} THEN 0 ELSE 1 END,
-          sim DESC,
-          id
-        LIMIT ${limit} OFFSET ${offset}
-      `;
+    try {
+      rows = await runFuzzySearch(db, {
+        q,
+        cfg,
+        similarityThreshold,
+        limit,
+        offset,
+      });
+    } catch (error) {
+      if (!isPgTrgmUnavailable(error)) {
+        throw error;
+      }
+
+      console.warn(
+        "[search] pg_trgm/word_similarity no disponible, usando fallback ILIKE",
+        {
+          code: error?.code,
+          message: error?.message,
+        },
+      );
+
+      rows = await runSafeFallbackSearch(db, {
+        q,
+        cfg,
+        limit,
+        offset,
+      });
     }
 
     return {

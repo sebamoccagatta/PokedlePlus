@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 CREATE TABLE IF NOT EXISTS pokemon (
   id              INT PRIMARY KEY,
   name            TEXT NOT NULL,
