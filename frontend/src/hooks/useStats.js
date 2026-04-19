@@ -1,6 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
+import { MAX_ATTEMPTS } from "../constants/game.js";
 
 const STATS_KEY_PREFIX = "pokedleplus:stats:";
+
+function createEmptyDistribution() {
+  return Array.from({ length: MAX_ATTEMPTS }, (_, idx) => idx + 1).reduce(
+    (acc, attempt) => {
+      acc[attempt] = 0;
+      return acc;
+    },
+    {},
+  );
+}
 
 function getInitialStats() {
   return {
@@ -8,10 +19,28 @@ function getInitialStats() {
     wins: 0,
     currentStreak: 0,
     maxStreak: 0,
-    distribution: {
-      1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0
-    },
+    distribution: createEmptyDistribution(),
     lastPlayedDay: null,
+  };
+}
+
+function normalizeStats(rawStats) {
+  const base = getInitialStats();
+  const distribution = createEmptyDistribution();
+
+  if (rawStats?.distribution && typeof rawStats.distribution === "object") {
+    for (const [attempt, count] of Object.entries(rawStats.distribution)) {
+      const attemptNumber = Number(attempt);
+      if (attemptNumber >= 1 && attemptNumber <= MAX_ATTEMPTS) {
+        distribution[attemptNumber] = Number(count) || 0;
+      }
+    }
+  }
+
+  return {
+    ...base,
+    ...rawStats,
+    distribution,
   };
 }
 
@@ -23,7 +52,7 @@ export function useStats(mode) {
     const raw = localStorage.getItem(key);
     if (!raw) return getInitialStats();
     try {
-      return JSON.parse(raw);
+      return normalizeStats(JSON.parse(raw));
     } catch {
       return getInitialStats();
     }
@@ -49,7 +78,7 @@ export function useStats(mode) {
         lastPlayedDay: dayKey,
       };
 
-      if (won && attemptsCount >= 1 && attemptsCount <= 15) {
+      if (won && attemptsCount >= 1 && attemptsCount <= MAX_ATTEMPTS) {
         newStats.distribution[attemptsCount] = (newStats.distribution[attemptsCount] || 0) + 1;
       }
 

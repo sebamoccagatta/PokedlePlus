@@ -2,11 +2,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { apiGuess, apiMeta, apiPokemon } from "../api.js";
 import pokemonData from "../data/pokemon.json";
 import { compareGuess, fnv1a } from "../utils/gameLogic.js";
+import { MAX_ATTEMPTS } from "../constants/game.js";
 import confetti from "canvas-confetti";
 
 const STORAGE_PREFIX = "pokedleplus:v1:";
 const MODE_KEY = "pokedleplus:mode";
-const MAX_ATTEMPTS = 20;
 
 function loadMode() {
   try {

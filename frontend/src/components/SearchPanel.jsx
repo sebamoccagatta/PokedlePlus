@@ -3,8 +3,7 @@ import ComboList from "./ComboList.jsx";
 import { Toast } from "./Toast.jsx";
 import { Share2 } from "lucide-react";
 import { LoadingSpinner } from "./Skeleton.jsx";
-
-const MAX_ATTEMPTS = 20;
+import { MAX_ATTEMPTS } from "../constants/game.js";
 
 export default function SearchPanel({
   q,
