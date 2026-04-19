@@ -1,3 +1,5 @@
+import { MAX_ATTEMPTS } from "../constants/game.js";
+
 export function generateShareText(mode, dayKey, attempts, won, currentStreak, t) {
   const emojiMap = {
     correct: "🟩",
@@ -10,8 +12,8 @@ export function generateShareText(mode, dayKey, attempts, won, currentStreak, t)
   const score = won ? attempts.length : "X";
   const modeName = mode === "classic" ? "Classic" : mode.toUpperCase();
   
-  // Header: Pokedle+ #DayKey 5/15 (Classic)
-  let header = `Pokedle+ #${dayKey} ${score}/15 (${modeName})`;
+  // Header: Pokedle+ #DayKey 5/30 (Classic)
+  let header = `Pokedle+ #${dayKey} ${score}/${MAX_ATTEMPTS} (${modeName})`;
   
   // Add streak if won and streak > 1
   if (won && currentStreak > 1) {
