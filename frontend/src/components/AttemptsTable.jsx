@@ -1,7 +1,8 @@
 import { badgeClass } from "../ui.js";
 import { Skeleton } from "./Skeleton.jsx";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Search, Sparkles } from "lucide-react";
+import { ArrowLeftRight, Search, Sparkles } from "lucide-react";
+import { MAX_ATTEMPTS } from "../constants/game.js";
 
 function Pill({ children, kind, pop = false, isDark, className = "" }) {
   return (
@@ -210,6 +211,7 @@ export default function AttemptsTable({
   const containerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const hasHorizontalOverflow = canScrollLeft || canScrollRight;
 
   useEffect(() => {
     if (attempts.length > 0 && tableRef.current) {
@@ -231,49 +233,57 @@ export default function AttemptsTable({
   }, [checkScroll, attempts]);
 
   return (
-    <div className="relative group">
-      <div className="mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-app bg-surface-soft px-3 py-2 text-[11px] text-muted">
-        <span className="mr-1 text-[10px] font-black uppercase tracking-[0.12em] text-muted-2">
-          {t("game.legend.title")}
-        </span>
-        <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("correct", isDark)}`}>
-          {t("game.legend.correct")}
-        </span>
-        <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("present", isDark)}`}>
-          {t("game.legend.present")}
-        </span>
-        <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("absent", isDark)}`}>
-          {t("game.legend.absent")}
-        </span>
-        <span className="mx-1 hidden h-4 w-px bg-app sm:block" aria-hidden="true" />
-        <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("higher", isDark)}`}>
-          {arrow("higher")} {t("game.legend.higher")}
-        </span>
-        <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("lower", isDark)}`}>
-          {arrow("lower")} {t("game.legend.lower")}
-        </span>
+    <section className="rounded-[32px] border border-app bg-surface p-4 md:p-6 shadow-card transition-colors">
+      <div className="mb-4 rounded-2xl border border-app bg-surface-soft p-3 md:p-4">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <span className="text-[10px] font-black uppercase tracking-[0.14em] text-muted-2">
+            {t("game.legend.title")}
+          </span>
+          <span className="text-[11px] text-muted">
+            {attempts.length} / {MAX_ATTEMPTS}
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-[11px] leading-tight text-muted">
+          <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("correct", isDark)}`}>
+            {t("game.legend.correct")}
+          </span>
+          <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("present", isDark)}`}>
+            {t("game.legend.present")}
+          </span>
+          <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("absent", isDark)}`}>
+            {t("game.legend.absent")}
+          </span>
+          <span className="mx-1 hidden h-4 w-px bg-app sm:block" aria-hidden="true" />
+          <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("higher", isDark)}`}>
+            {arrow("higher")} {t("game.legend.higher")}
+          </span>
+          <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("lower", isDark)}`}>
+            {arrow("lower")} {t("game.legend.lower")}
+          </span>
+        </div>
       </div>
 
-      {/* Scroll Indicators */}
-      <div
-        className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollLeft ? "opacity-100" : "opacity-0"}`}
-      />
-      <div
-        className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollRight ? "opacity-100" : "opacity-0"}`}
-      />
+      <div className="relative group">
+        {/* Scroll Indicators */}
+        <div
+          className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollLeft ? "opacity-100" : "opacity-0"}`}
+        />
+        <div
+          className={`absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollRight ? "opacity-100" : "opacity-0"}`}
+        />
 
-      <div
-        className="overflow-x-auto rounded-3xl border border-app bg-surface scrollbar-hide"
-        ref={(el) => {
-          tableRef.current = el;
-          containerRef.current = el;
-        }}
-        onScroll={checkScroll}
-      >
+        <div
+          className="overflow-x-auto overscroll-x-contain rounded-3xl border border-app bg-surface"
+          ref={(el) => {
+            tableRef.current = el;
+            containerRef.current = el;
+          }}
+          onScroll={checkScroll}
+        >
         <div
           className={[
             "w-full", // 👈 importante
-            "grid gap-1.5 md:gap-2 px-4 py-4 text-[10px] md:text-[11px] font-black uppercase tracking-wider text-muted whitespace-nowrap",
+            "grid gap-1.5 md:gap-2 border-b border-app bg-surface-soft px-4 py-3 text-[10px] md:text-[11px] font-black uppercase tracking-[0.12em] text-muted whitespace-nowrap",
             headerClass,
           ].join(" ")}
         >
@@ -350,7 +360,24 @@ export default function AttemptsTable({
             ))
           )}
         </div>
+        </div>
+
+        <div className="mt-2 flex items-center justify-between gap-2 px-1 sm:hidden">
+          <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-2">
+            <ArrowLeftRight className="h-3.5 w-3.5" aria-hidden="true" />
+            {t("game.table_scroll_hint")}
+          </p>
+          {hasHorizontalOverflow && (
+            <span className="inline-flex items-center gap-1 text-[10px] text-muted">
+              <span
+                className={`h-1.5 w-1.5 rounded-full bg-indigo-400 ${canScrollRight ? "animate-pulse" : "opacity-40"}`}
+                aria-hidden="true"
+              />
+              {canScrollRight ? t("game.table_scroll_more") : t("game.table_scroll_end")}
+            </span>
+          )}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
