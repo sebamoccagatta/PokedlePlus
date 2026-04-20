@@ -222,6 +222,12 @@
         "yellow": "yellow",
         "unknown": "unknown"
       }
+    },
+    "daily_loop": {
+      "progress_compact": "Daily progress",
+      "streak_compact": "Streak",
+      "tomorrow_cta": "Mission complete — come back tomorrow",
+      "tomorrow_hint": "You already closed all daily modes for today."
     }
   },
   "stats": {

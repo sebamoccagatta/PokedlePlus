@@ -24,6 +24,13 @@ import {
 import { ThemeToggle } from "./ThemeToggle.jsx";
 import { LanguageSelector } from "./LanguageSelector.jsx";
 import { MAX_ATTEMPTS } from "../constants/game.js";
+import {
+  DAILY_MODE_IDS,
+  computeGlobalStreak,
+  computeMissionProgress,
+  getRecommendedMode,
+  getModeStatus,
+} from "../utils/dailyMission.js";
 
 export function Home({ onSelect, dayKey, i18n }) {
   const { t, locale, changeLocale, availableLocales } = i18n;
@@ -121,80 +128,21 @@ export function Home({ onSelect, dayKey, i18n }) {
     [modes]
   );
 
-  function safeParse(json) {
-    try {
-      return JSON.parse(json);
-    } catch {
-      return null;
-    }
-  }
-
-  function readModeState(dk, modeId) {
-    if (!dk) return null;
-
-    const keys = [
-      `pokedleplus:v1:${dk}:${modeId}`,
-      `pokedleplus:v1:${dk}`,
-      `pokedle_state_v1`,
-    ];
-
-    for (const k of keys) {
-      const raw = localStorage.getItem(k);
-      if (!raw) continue;
-      const parsed = safeParse(raw);
-      if (parsed && typeof parsed === "object") return parsed;
-    }
-    return null;
-  }
-
   function computeStatuses() {
     const map = {};
     for (const m of modes) {
-      const st = readModeState(dayKey, m.id);
-      const attempts = Array.isArray(st?.attempts) ? st.attempts.length : 0;
-      const won =
-        st?.won === true ||
-        st?.status === "won" ||
-        st?.win === true ||
-        st?.isWon === true;
-
-      map[m.id] = { attempts, won, played: attempts > 0 || won };
+      map[m.id] = getModeStatus(dayKey, m.id);
     }
     return map;
   }
 
-  function readModeStats(modeId) {
-    const parsed = safeParse(localStorage.getItem(`pokedleplus:stats:${modeId}`));
-    if (!parsed || typeof parsed !== "object") {
-      return { currentStreak: 0, maxStreak: 0 };
-    }
-
-    return {
-      currentStreak: Number(parsed.currentStreak) || 0,
-      maxStreak: Number(parsed.maxStreak) || 0,
-    };
-  }
-
-  function computeStreakSummary() {
-    return missionModes.reduce(
-      (acc, mode) => {
-        const modeStats = readModeStats(mode.id);
-        return {
-          current: Math.max(acc.current, modeStats.currentStreak),
-          best: Math.max(acc.best, modeStats.maxStreak),
-        };
-      },
-      { current: 0, best: 0 }
-    );
-  }
-
   useEffect(() => {
     setStatusByMode(computeStatuses());
-    setStreakSummary(computeStreakSummary());
+    setStreakSummary(computeGlobalStreak(DAILY_MODE_IDS));
 
     const onStorage = () => {
       setStatusByMode(computeStatuses());
-      setStreakSummary(computeStreakSummary());
+      setStreakSummary(computeGlobalStreak(DAILY_MODE_IDS));
     };
 
     window.addEventListener("storage", onStorage);
@@ -202,36 +150,22 @@ export function Home({ onSelect, dayKey, i18n }) {
   }, [dayKey, modes, missionModes]);
 
   const missionCompleted = useMemo(
-    () => missionModes.filter((mode) => statusByMode[mode.id]?.won).length,
-    [missionModes, statusByMode]
+    () => computeMissionProgress(statusByMode, DAILY_MODE_IDS).completed,
+    [statusByMode]
   );
 
-  const missionTotal = missionModes.length;
+  const missionTotal = DAILY_MODE_IDS.length;
+
+  const missionProgressPct = useMemo(
+    () => computeMissionProgress(statusByMode, DAILY_MODE_IDS).pct,
+    [statusByMode]
+  );
 
   const recommendedMode = useMemo(() => {
-    const inProgress = missionModes.find((mode) => {
-      const st = statusByMode[mode.id];
-      return st?.played && !st?.won && st?.attempts < MAX_ATTEMPTS;
-    });
-
-    if (inProgress) return { mode: inProgress, intent: "continue" };
-
-    const pending = missionModes.find((mode) => {
-      const st = statusByMode[mode.id];
-      return !st?.played;
-    });
-
-    if (pending) return { mode: pending, intent: "start" };
-
-    const fallback =
-      modes.find((mode) => mode.id === lastMode) || missionModes[0] || modes[0];
-
-    return { mode: fallback, intent: "play" };
+    const recommendation = getRecommendedMode(statusByMode, lastMode, DAILY_MODE_IDS);
+    const mode = modes.find((item) => item.id === recommendation.modeId) || missionModes[0] || modes[0];
+    return { mode, intent: recommendation.intent };
   }, [lastMode, missionModes, modes, statusByMode]);
-
-  const missionProgressPct = missionTotal
-    ? Math.round((missionCompleted / missionTotal) * 100)
-    : 0;
 
   const recommendedModeId = recommendedMode?.mode?.id;
 

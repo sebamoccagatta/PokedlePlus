@@ -222,6 +222,12 @@
         "yellow": "amarillo",
         "unknown": "desconocido"
       }
+    },
+    "daily_loop": {
+      "progress_compact": "Progreso diario",
+      "streak_compact": "Racha",
+      "tomorrow_cta": "Misión completa: volvés mañana",
+      "tomorrow_hint": "Ya cerraste todos los modos diarios de hoy."
     }
   },
   "stats": {

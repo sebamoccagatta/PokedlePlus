@@ -10,6 +10,8 @@ import {
   Lightbulb,
   Gauge,
   AlertTriangle,
+  ArrowRight,
+  CalendarDays,
 } from "lucide-react";
 import { LoadingSpinner } from "./Skeleton.jsx";
 import { MAX_ATTEMPTS } from "../constants/game.js";
@@ -35,6 +37,8 @@ export default function SearchPanel({
   handleScrollBottom,
   onReset,
   mode,
+  postGameAction,
+  onPostGameAction,
 }) {
   const inputRef = React.useRef(null);
   const status = won ? "won" : finished ? "lost" : "inProgress";
@@ -200,7 +204,26 @@ export default function SearchPanel({
                   {t("game.new_game")}
                 </button>
               )}
+
+              {mode !== "infinite" && postGameAction && (
+                <button
+                  onClick={onPostGameAction}
+                  className="flex items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-extrabold text-white hover:bg-white/20 transition-colors w-full sm:w-auto"
+                  aria-label={postGameAction.label}
+                >
+                  {postGameAction.type === "next-mode" ? (
+                    <ArrowRight className="h-4 w-4" />
+                  ) : (
+                    <CalendarDays className="h-4 w-4" />
+                  )}
+                  {postGameAction.label}
+                </button>
+              )}
             </div>
+
+            {mode !== "infinite" && postGameAction?.type === "come-back-tomorrow" && (
+              <p className="mt-2 text-xs opacity-90">{t("game.daily_loop.tomorrow_hint")}</p>
+            )}
           </div>
         )}
 
