@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { arrow } from "./ui.js";
 import { useTheme } from "./hooks/useTheme.js";
 import { useSearchCache } from "./hooks/useSearchCache.js";
@@ -8,6 +8,14 @@ import { useGameState } from "./hooks/useGameState.js";
 import { usePokemonSearch } from "./hooks/usePokemonSearch.js";
 import { useStats } from "./hooks/useStats.js";
 import { generateShareText, shareResults } from "./utils/share.js";
+import { apiMeta } from "./api.js";
+import {
+  DAILY_MODE_IDS,
+  computeGlobalStreak,
+  computeMissionProgress,
+  computeStatusesByMode,
+  getRecommendedMode,
+} from "./utils/dailyMission.js";
 
 import GameHeader from "./components/GameHeader.jsx";
 import SearchPanel from "./components/SearchPanel.jsx";
@@ -32,6 +40,10 @@ export default function App() {
   const { clear: clearCache } = useSearchCache();
   const { toasts, addToast, removeToast, clearToasts } = useToast();
   const [showStats, setShowStats] = useState(false);
+  const [dailyReferenceDayKey, setDailyReferenceDayKey] = useState("");
+  const [lastMode, setLastMode] = useState(
+    () => localStorage.getItem("pokedleplus:lastMode") || "classic"
+  );
 
   const {
     mode,
@@ -71,9 +83,93 @@ export default function App() {
     fetch(`/api/search?q=a&offset=0&mode=${encodeURIComponent(mode)}`).catch(() => {});
   }, [mode]);
 
+  useEffect(() => {
+    let mounted = true;
+    apiMeta("classic")
+      .then((meta) => {
+        if (!mounted) return;
+        setDailyReferenceDayKey(meta?.dayKey || "");
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setDailyReferenceDayKey("");
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const onStorage = () => {
+      setLastMode(localStorage.getItem("pokedleplus:lastMode") || "classic");
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
   const onPickPokemon = async (item) => {
     handlePick(item);
     await handleTryWithItem(item);
+  };
+
+  const missionDayKey = mode === "infinite" ? dailyReferenceDayKey : dayKey;
+
+  const missionStatusByMode = useMemo(
+    () => computeStatusesByMode(missionDayKey, DAILY_MODE_IDS),
+    [missionDayKey, state.attempts.length, state.finished, state.won]
+  );
+
+  const missionProgress = useMemo(
+    () => computeMissionProgress(missionStatusByMode, DAILY_MODE_IDS),
+    [missionStatusByMode]
+  );
+
+  const globalStreak = useMemo(
+    () => computeGlobalStreak(DAILY_MODE_IDS),
+    [state.finished, mode, dayKey]
+  );
+
+  const postGameAction = useMemo(() => {
+    if (!state.finished || mode === "infinite") return null;
+
+    const recommendation = getRecommendedMode(missionStatusByMode, lastMode, DAILY_MODE_IDS);
+    const recommendedModeTitle = t(`home.modes.${recommendation.modeId}.title`);
+
+    if (recommendation.intent === "continue") {
+      return {
+        type: "next-mode",
+        modeId: recommendation.modeId,
+        label: `${t("home.hero.cta_continue")} ${recommendedModeTitle}`,
+      };
+    }
+
+    if (recommendation.intent === "start") {
+      return {
+        type: "next-mode",
+        modeId: recommendation.modeId,
+        label: `${t("home.hero.cta_start")} ${recommendedModeTitle} ${t("home.hero.cta_now")}`,
+      };
+    }
+
+    return {
+      type: "come-back-tomorrow",
+      modeId: null,
+      label: t("game.daily_loop.tomorrow_cta"),
+    };
+  }, [lastMode, missionStatusByMode, mode, state.finished, t]);
+
+  const handlePostGameAction = () => {
+    if (!postGameAction) return;
+
+    if (postGameAction.type === "next-mode" && postGameAction.modeId) {
+      localStorage.setItem("pokedleplus:lastMode", postGameAction.modeId);
+      setLastMode(postGameAction.modeId);
+      changeMode(postGameAction.modeId);
+      return;
+    }
+
+    changeMode(null);
   };
 
   const onTrySelected = async () => {
@@ -141,6 +237,10 @@ export default function App() {
           onChangeMode={() => changeMode(null)}
           onShowStats={() => setShowStats(true)}
           t={t}
+          missionCompleted={missionProgress.completed}
+          missionTotal={missionProgress.total}
+          missionProgressPct={missionProgress.pct}
+          globalStreak={globalStreak.current}
         />
         <div className="flex flex-col gap-4">
             <SearchPanel
@@ -160,6 +260,8 @@ export default function App() {
               onReset={nextInfinite}
               mode={mode}
               t={t}
+              postGameAction={postGameAction}
+              onPostGameAction={handlePostGameAction}
               handleQueryChange={(e) => handleQueryChange(e.target.value)}
               handlePick={onPickPokemon}
               handleTry={onTrySelected}

@@ -1,17 +1,42 @@
 import React from "react";
-import { BarChart3, ArrowLeft } from "lucide-react";
+import { BarChart3, ArrowLeft, Flame, Target } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
-export default function GameHeader({ mode, dayKey, onChangeMode, onShowStats, t }) {
+export default function GameHeader({
+  mode,
+  dayKey,
+  onChangeMode,
+  onShowStats,
+  t,
+  missionCompleted,
+  missionTotal,
+  missionProgressPct,
+  globalStreak,
+}) {
   return (
-    <header className="mb-8 flex items-center justify-between">
-      <div>
+    <header className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="min-w-0">
         <div className="text-3xl font-black tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Pokedle+</div>
         <div className="text-sm text-muted mt-1">
           <span className="inline-flex items-center gap-2">
             <span className="font-semibold uppercase text-strong">{mode}</span>
             <span className="text-muted-2">•</span>
             <span className="text-muted-2">{dayKey}</span>
+          </span>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-app bg-surface-soft px-3 py-1 text-[11px] font-semibold text-muted">
+            <Target className="h-3.5 w-3.5" aria-hidden="true" />
+            {t("game.daily_loop.progress_compact")}
+            <span className="font-bold text-strong">
+              {missionCompleted}/{missionTotal}
+            </span>
+            <span className="text-muted-2">· {missionProgressPct}%</span>
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-app bg-surface-soft px-3 py-1 text-[11px] font-semibold text-muted">
+            <Flame className="h-3.5 w-3.5 text-amber-500" aria-hidden="true" />
+            {t("game.daily_loop.streak_compact")}
+            <span className="font-bold text-strong">{globalStreak}</span>
           </span>
         </div>
       </div>
