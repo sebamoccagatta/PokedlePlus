@@ -177,16 +177,19 @@
       "global_streak": "Racha global"
     },
     "columns": {
-      "pokemon": "Pokemon",
+      "pokemon": "Pokémon",
       "type1": "Tipo 1",
       "type2": "Tipo 2",
       "gen": "Gen",
-      "habitat": "Habitat",
+      "habitat": "Hábitat",
       "color": "Color",
-      "evolution": "Evol.",
-      "height": "Alt.",
+      "evolution": "Evolución",
+      "height": "Altura",
       "weight": "Peso"
     },
+    "table_scroll_hint": "Deslizá para ver más columnas",
+    "table_scroll_more": "Más a la derecha",
+    "table_scroll_end": "Fin de tabla",
     "hints": {
       "types": {
         "normal": "normal",
