@@ -1,7 +1,16 @@
 import React from "react";
 import ComboList from "./ComboList.jsx";
 import { Toast } from "./Toast.jsx";
-import { Share2, CircleDashed, Trophy, CircleOff, Sparkles } from "lucide-react";
+import {
+  Share2,
+  CircleDashed,
+  Trophy,
+  CircleOff,
+  Sparkles,
+  Lightbulb,
+  Gauge,
+  AlertTriangle,
+} from "lucide-react";
 import { LoadingSpinner } from "./Skeleton.jsx";
 import { MAX_ATTEMPTS } from "../constants/game.js";
 
@@ -56,6 +65,62 @@ export default function SearchPanel({
 
   const currentStatus = statusConfig[status];
   const StatusIcon = currentStatus.icon;
+
+  const hintRail = React.useMemo(() => {
+    if (finished && won) {
+      return {
+        title: t("game.hint_rail.won_title"),
+        message: t("game.hint_rail.won_message"),
+        Icon: Trophy,
+        tone: "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
+      };
+    }
+
+    if (finished) {
+      return {
+        title: t("game.hint_rail.lost_title"),
+        message: t("game.hint_rail.lost_message"),
+        Icon: CircleOff,
+        tone: "border-rose-500/30 bg-rose-500/10 text-rose-200",
+      };
+    }
+
+    if (attemptsSafe === 0) {
+      return {
+        title: t("game.hint_rail.no_attempts_title"),
+        message: t("game.hint_rail.no_attempts_message"),
+        Icon: Lightbulb,
+        tone: "border-indigo-500/30 bg-indigo-500/10 text-indigo-200",
+      };
+    }
+
+    if (attemptsSafe <= 2) {
+      return {
+        title: t("game.hint_rail.early_title"),
+        message: t("game.hint_rail.early_message"),
+        Icon: Gauge,
+        tone: "border-sky-500/30 bg-sky-500/10 text-sky-200",
+      };
+    }
+
+    if (attemptsLeft <= 2) {
+      return {
+        title: t("game.hint_rail.near_limit_title"),
+        message: t("game.hint_rail.near_limit_message"),
+        Icon: AlertTriangle,
+        tone: "border-amber-500/30 bg-amber-500/10 text-amber-200",
+      };
+    }
+
+    return {
+      title: t("game.hint_rail.mid_title"),
+      message: t("game.hint_rail.mid_message"),
+      Icon: CircleDashed,
+      tone: "border-violet-500/30 bg-violet-500/10 text-violet-200",
+    };
+  }, [attemptsLeft, attemptsSafe, finished, t, won]);
+
+  const HintIcon = hintRail.Icon;
 
   React.useEffect(() => {
     const handleKeyDown = (e) => {
@@ -158,6 +223,23 @@ export default function SearchPanel({
               ) : !selected ? t("game.try_pick_first") : t("game.try")}
             </button>
           )}
+          </div>
+        </div>
+
+        <div
+          className={`mt-4 rounded-2xl border px-4 py-3 ${hintRail.tone}`}
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-start gap-3">
+            <HintIcon className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.14em]">
+                {t("game.hint_rail.title")}
+              </p>
+              <p className="mt-0.5 text-sm font-bold">{hintRail.title}</p>
+              <p className="mt-0.5 text-xs opacity-90">{hintRail.message}</p>
+            </div>
           </div>
         </div>
 
