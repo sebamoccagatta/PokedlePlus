@@ -41,6 +41,11 @@ export default function SearchPanel({
   const attemptsSafe = Math.min(attemptsCount, MAX_ATTEMPTS);
   const attemptsLeft = Math.max(MAX_ATTEMPTS - attemptsSafe, 0);
   const progressPct = Math.round((attemptsSafe / MAX_ATTEMPTS) * 100);
+  const progressVisualPct = status === "won" ? 100 : Math.max(progressPct, 6);
+  const progressCopy =
+    status === "won"
+      ? `${t("game.progress_goal_completed_prefix")} ${attemptsSafe} ${t("game.progress_goal_completed_suffix")}`
+      : `${t("game.progress_attempts_used")} ${attemptsSafe}/${MAX_ATTEMPTS} · ${attemptsLeft} ${t("game.progress_remaining")}`;
 
   const statusConfig = {
     inProgress: {
@@ -150,7 +155,7 @@ export default function SearchPanel({
                 {t("game.progress_title")}
               </p>
               <p className="text-sm text-muted">
-                {t("game.progress_attempts_used")} {attemptsSafe}/{MAX_ATTEMPTS} · {attemptsLeft} {t("game.progress_remaining")}
+                {progressCopy}
               </p>
             </div>
             <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${currentStatus.chip}`}>
@@ -161,15 +166,48 @@ export default function SearchPanel({
           <div className="h-2 w-full overflow-hidden rounded-full border border-app bg-surface">
             <div
               className={`h-full rounded-full transition-all duration-300 ${currentStatus.bar}`}
-              style={{ width: `${Math.max(progressPct, status === "won" ? 100 : 6)}%` }}
+              style={{ width: `${progressVisualPct}%` }}
             />
           </div>
         </div>
 
+        {finished && (
+          <div className={`mb-4 rounded-2xl border px-4 py-4 ${won ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-100" : "border-rose-500/30 bg-rose-500/10 text-rose-100"}`}>
+            <p className="text-[11px] font-black uppercase tracking-[0.14em] opacity-90">
+              {won ? t("game.progress_status_won") : t("game.progress_status_lost")}
+            </p>
+            <p className="mt-1 text-sm font-bold">
+              {won
+                ? `${t("game.progress_goal_completed_prefix")} ${attemptsSafe} ${t("game.progress_goal_completed_suffix")}`
+                : t("game.lost_message")}
+            </p>
+            <p className="mt-2 text-xs opacity-90">{t("game.finished_return_cta")}</p>
+
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <button
+                onClick={onShare}
+                className="flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-extrabold text-white hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20 w-full sm:w-auto"
+              >
+                <Share2 className="h-4 w-4" />
+                {t("game.share")}
+              </button>
+
+              {mode === "infinite" && (
+                <button
+                  onClick={onReset}
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-extrabold text-white hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20 w-full sm:w-auto"
+                >
+                  {t("game.new_game")}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="text-sm font-bold text-strong mb-4">
           {finished ? t("game.win_title") : t("game.guess_title")}
         </div>
-        <div className="rounded-2xl border border-app bg-surface-soft p-3">
+        <div className={`rounded-2xl border border-app bg-surface-soft p-3 transition-opacity ${finished ? "opacity-60" : "opacity-100"}`}>
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-1">
             <label htmlFor="pokemon-search" className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
               {t("game.search_title")}
@@ -187,27 +225,9 @@ export default function SearchPanel({
               value={q}
               onChange={handleQueryChange}
               disabled={finished}
-              placeholder={finished ? t("game.win_message") : t("game.search_placeholder")}
-              className="w-full sm:flex-1 rounded-2xl border-2 input-surface px-5 py-4 text-base font-semibold outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 disabled:opacity-50 transition-all placeholder:text-muted-2"
+              placeholder={finished ? t("game.search_locked_placeholder") : t("game.search_placeholder")}
+              className="w-full sm:flex-1 rounded-2xl border-2 input-surface px-5 py-4 text-base font-semibold outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 disabled:cursor-not-allowed disabled:opacity-35 transition-all placeholder:text-muted-2"
             />
-          {finished && (
-            <button
-              onClick={onShare}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-extrabold text-white hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20 w-full sm:w-auto"
-            >
-              <Share2 className="h-4 w-4" />
-              {t("game.share")}
-            </button>
-          )}
-
-          {finished && mode === "infinite" && (
-            <button
-              onClick={onReset}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-extrabold text-white hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20 w-full sm:w-auto"
-            >
-              {t("game.new_game")}
-            </button>
-          )}
 
           {!finished && (
             <button
@@ -257,7 +277,7 @@ export default function SearchPanel({
           </div>
         </div>
 
-        {(results.length > 0 || searching) && (
+        {!finished && (results.length > 0 || searching) && (
           <div className="mt-6 border-t border-app pt-6">
             <ComboList
               items={results}
