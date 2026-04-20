@@ -185,7 +185,27 @@ export default function App() {
   };
 
   const onShare = async () => {
-    const text = generateShareText(mode, dayKey, state.attempts, state.won, stats.currentStreak);
+    const modeLabel = t(`home.modes.${mode}.title`);
+    const safeModeLabel = modeLabel === `home.modes.${mode}.title` ? mode : modeLabel;
+
+    const text = generateShareText(
+      mode,
+      dayKey,
+      state.attempts,
+      state.won,
+      stats.currentStreak,
+      {
+        modeLabel: safeModeLabel,
+        resultWonLabel: t("game.progress_status_won"),
+        resultLostLabel: t("game.progress_status_lost"),
+        resultLabel: t("game.share_meta.result"),
+        modeMetaLabel: t("game.share_meta.mode"),
+        dailyProgressLabel: t("game.share_meta.daily_progress"),
+        globalStreakLabel: t("game.share_meta.global_streak"),
+        dailyProgress: missionProgress,
+        globalStreak: globalStreak.current,
+      },
+    );
     try {
       const result = await shareResults(text);
 
@@ -259,6 +279,8 @@ export default function App() {
               onShare={onShare}
               onReset={nextInfinite}
               mode={mode}
+              dailyProgress={missionProgress}
+              globalStreak={globalStreak.current}
               t={t}
               postGameAction={postGameAction}
               onPostGameAction={handlePostGameAction}
