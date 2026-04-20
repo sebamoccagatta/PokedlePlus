@@ -26,6 +26,7 @@ function Pill({ children, kind, pop = false, isDark, className = "" }) {
 function AttemptRow({
   attempt,
   index,
+  isLatest,
   showGenColumn,
   isDark,
   translateHint,
@@ -49,6 +50,7 @@ function AttemptRow({
       className={[
         "w-full", // 👈 importante
         `grid gap-1.5 md:gap-2 items-center px-4 py-4 transition-colors surface-hover`,
+        isLatest ? "bg-indigo-500/5 ring-1 ring-inset ring-indigo-500/25" : "",
         gridClass,
         isTop ? "reveal-pop" : "",
       ].join(" ")}
@@ -230,6 +232,28 @@ export default function AttemptsTable({
 
   return (
     <div className="relative group">
+      <div className="mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-app bg-surface-soft px-3 py-2 text-[11px] text-muted">
+        <span className="mr-1 text-[10px] font-black uppercase tracking-[0.12em] text-muted-2">
+          {t("game.legend.title")}
+        </span>
+        <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("correct", isDark)}`}>
+          {t("game.legend.correct")}
+        </span>
+        <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("present", isDark)}`}>
+          {t("game.legend.present")}
+        </span>
+        <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("absent", isDark)}`}>
+          {t("game.legend.absent")}
+        </span>
+        <span className="mx-1 hidden h-4 w-px bg-app sm:block" aria-hidden="true" />
+        <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("higher", isDark)}`}>
+          {arrow("higher")} {t("game.legend.higher")}
+        </span>
+        <span className={`inline-flex rounded-md px-2 py-1 font-bold ${badgeClass("lower", isDark)}`}>
+          {arrow("lower")} {t("game.legend.lower")}
+        </span>
+      </div>
+
       {/* Scroll Indicators */}
       <div
         className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface to-transparent z-10 pointer-events-none transition-opacity duration-300 ${canScrollLeft ? "opacity-100" : "opacity-0"}`}
@@ -314,6 +338,7 @@ export default function AttemptsTable({
                 key={`${attempt.id}-${rowIndex}`}
                 attempt={attempt}
                 index={rowIndex}
+                isLatest={rowIndex === 0}
                 showGenColumn={showGenColumn}
                 isDark={isDark}
                 translateHint={translateHint}
