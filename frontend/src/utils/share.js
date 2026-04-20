@@ -1,6 +1,7 @@
 import { MAX_ATTEMPTS } from "../constants/game.js";
 
-export function generateShareText(mode, dayKey, attempts, won, currentStreak) {
+export function generateShareText(mode, dayKey, attempts, won, currentStreak, options = {}) {
+
   const emojiMap = {
     correct: "🟩",
     present: "🟨",
@@ -10,16 +11,43 @@ export function generateShareText(mode, dayKey, attempts, won, currentStreak) {
   };
 
   const score = won ? attempts.length : "X";
-  const modeName = mode === "classic" ? "Classic" : mode.toUpperCase();
-  
-  // Header: Pokedle+ #DayKey 5/30 (Classic)
-  let header = `Pokedle+ #${dayKey} ${score}/${MAX_ATTEMPTS} (${modeName})`;
-  
-  // Add streak if won and streak > 1
-  if (won && currentStreak > 1) {
-    header += `\nStreak: ${currentStreak} 🔥`;
+  const safeDayKey = dayKey || "-";
+  const modeName = options.modeLabel || (mode === "classic" ? "Classic" : mode.toUpperCase());
+  const resultWonLabel = options.resultWonLabel || "Won";
+  const resultLostLabel = options.resultLostLabel || "Lost";
+  const modeMetaLabel = options.modeMetaLabel || "Mode";
+  const resultLabel = options.resultLabel || "Result";
+  const dailyProgressLabel = options.dailyProgressLabel || "Daily Progress";
+  const globalStreakLabel = options.globalStreakLabel || "Global Streak";
+
+  const dailyProgressCompleted = Number(options.dailyProgress?.completed);
+  const dailyProgressTotal = Number(options.dailyProgress?.total);
+  const dailyProgressPct = Number(options.dailyProgress?.pct);
+  const hasDailyProgress =
+    Number.isFinite(dailyProgressCompleted) &&
+    Number.isFinite(dailyProgressTotal) &&
+    Number.isFinite(dailyProgressPct);
+
+  const globalStreak = Number.isFinite(Number(options.globalStreak))
+    ? Number(options.globalStreak)
+    : Number(currentStreak) || 0;
+
+  const metaLines = [
+    `${modeMetaLabel}: ${modeName}`,
+    `${resultLabel}: ${won ? resultWonLabel : resultLostLabel} (${score}/${MAX_ATTEMPTS})`,
+  ];
+
+  if (hasDailyProgress) {
+    metaLines.push(
+      `${dailyProgressLabel}: ${dailyProgressCompleted}/${dailyProgressTotal} (${dailyProgressPct}%)`,
+    );
   }
-  header += "\n";
+
+  if (globalStreak > 0) {
+    metaLines.push(`${globalStreakLabel}: ${globalStreak} 🔥`);
+  }
+
+  const header = [`Pokedle+ #${safeDayKey}`, ...metaLines].join("\n");
 
   const grid = attempts
     .slice()
@@ -41,7 +69,7 @@ export function generateShareText(mode, dayKey, attempts, won, currentStreak) {
 
   const footer = `\nhttps://pokedle.sebamoccagatta.com/`;
   
-  return `${header}\n${grid}\n${footer}`;
+  return `${header}\n\n${grid}\n${footer}`;
 }
 
 export async function copyToClipboard(text) {

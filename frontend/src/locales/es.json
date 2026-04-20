@@ -163,6 +163,19 @@
     "share": "Compartir Resultados",
     "share_copied": "Copiado al portapapeles!",
     "share_error": "Error al compartir resultados",
+    "share_meta": {
+      "mode": "Modo",
+      "result": "Resultado",
+      "daily_progress": "Progreso diario",
+      "global_streak": "Racha global"
+    },
+    "session_summary": {
+      "title": "Resumen de sesión",
+      "result": "Resultado",
+      "attempts": "Intentos usados",
+      "daily_progress": "Progreso diario",
+      "global_streak": "Racha global"
+    },
     "columns": {
       "pokemon": "Pokemon",
       "type1": "Tipo 1",

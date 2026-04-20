@@ -37,6 +37,8 @@ export default function SearchPanel({
   handleScrollBottom,
   onReset,
   mode,
+  dailyProgress,
+  globalStreak = 0,
   postGameAction,
   onPostGameAction,
 }) {
@@ -50,6 +52,12 @@ export default function SearchPanel({
     status === "won"
       ? `${t("game.progress_goal_completed_prefix")} ${attemptsSafe} ${t("game.progress_goal_completed_suffix")}`
       : `${t("game.progress_attempts_used")} ${attemptsSafe}/${MAX_ATTEMPTS} · ${attemptsLeft} ${t("game.progress_remaining")}`;
+
+  const safeDailyProgress = {
+    completed: Number(dailyProgress?.completed) || 0,
+    total: Number(dailyProgress?.total) || 10,
+    pct: Number(dailyProgress?.pct) || 0,
+  };
 
   const statusConfig = {
     inProgress: {
@@ -152,40 +160,55 @@ export default function SearchPanel({
   return (
     <div className={`rounded-[32px] border border-app bg-surface p-6 md:p-8 shadow-card transition-all ${error ? "animate-shake border-rose-500/50" : ""}`}>
       <div>
-        <div className="mb-5 rounded-2xl border border-app bg-surface-soft p-4">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.16em] text-muted">
-                {t("game.progress_title")}
-              </p>
-              <p className="text-sm text-muted">
-                {progressCopy}
-              </p>
+        {!finished && (
+          <div className="mb-5 rounded-2xl border border-app bg-surface-soft p-4">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.16em] text-muted">
+                  {t("game.progress_title")}
+                </p>
+                <p className="text-sm text-muted">
+                  {progressCopy}
+                </p>
+              </div>
+              <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${currentStatus.chip}`}>
+                <StatusIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                {currentStatus.label}
+              </span>
             </div>
-            <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold ${currentStatus.chip}`}>
-              <StatusIcon className="h-3.5 w-3.5" aria-hidden="true" />
-              {currentStatus.label}
-            </span>
+            <div className="h-2 w-full overflow-hidden rounded-full border border-app bg-surface">
+              <div
+                className={`h-full rounded-full transition-all duration-300 ${currentStatus.bar}`}
+                style={{ width: `${progressVisualPct}%` }}
+              />
+            </div>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full border border-app bg-surface">
-            <div
-              className={`h-full rounded-full transition-all duration-300 ${currentStatus.bar}`}
-              style={{ width: `${progressVisualPct}%` }}
-            />
-          </div>
-        </div>
+        )}
 
         {finished && (
           <div className={`mb-4 rounded-2xl border px-4 py-4 ${won ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-100" : "border-rose-500/30 bg-rose-500/10 text-rose-100"}`}>
             <p className="text-[11px] font-black uppercase tracking-[0.14em] opacity-90">
-              {won ? t("game.progress_status_won") : t("game.progress_status_lost")}
+              {t("game.session_summary.title")}
             </p>
-            <p className="mt-1 text-sm font-bold">
-              {won
-                ? `${t("game.progress_goal_completed_prefix")} ${attemptsSafe} ${t("game.progress_goal_completed_suffix")}`
-                : t("game.lost_message")}
-            </p>
-            <p className="mt-2 text-xs opacity-90">{t("game.finished_return_cta")}</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/15 bg-black/10 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-[0.12em] opacity-80">{t("game.session_summary.result")}</p>
+                <p className="text-sm font-extrabold">{won ? t("game.progress_status_won") : t("game.progress_status_lost")}</p>
+              </div>
+              <div className="rounded-xl border border-white/15 bg-black/10 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-[0.12em] opacity-80">{t("game.session_summary.attempts")}</p>
+                <p className="text-sm font-extrabold">{attemptsSafe}/{MAX_ATTEMPTS}</p>
+              </div>
+              <div className="rounded-xl border border-white/15 bg-black/10 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-[0.12em] opacity-80">{t("game.session_summary.daily_progress")}</p>
+                <p className="text-sm font-extrabold">{safeDailyProgress.completed}/{safeDailyProgress.total} ({safeDailyProgress.pct}%)</p>
+              </div>
+              <div className="rounded-xl border border-white/15 bg-black/10 px-3 py-2">
+                <p className="text-[10px] uppercase tracking-[0.12em] opacity-80">{t("game.session_summary.global_streak")}</p>
+                <p className="text-sm font-extrabold">{globalStreak} 🔥</p>
+              </div>
+            </div>
+            <p className="mt-3 text-xs opacity-90">{t("game.finished_return_cta")}</p>
 
             <div className="mt-3 flex flex-col gap-2 sm:flex-row">
               <button
