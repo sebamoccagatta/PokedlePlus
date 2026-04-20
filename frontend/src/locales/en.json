@@ -245,11 +245,43 @@
   },
   "stats": {
     "title": "Statistics",
+    "tabs": {
+      "aria_label": "Statistics sections",
+      "summary": "Summary",
+      "activity": "Activity"
+    },
     "played": "Played",
     "win_rate": "Win %",
     "current_streak": "Current Streak",
     "max_streak": "Max Streak",
     "distribution": "Guess Distribution",
-    "close": "Close"
+    "distribution_toggle": {
+      "show_full": "Show full",
+      "show_less": "Show less"
+    },
+    "events_toggle": {
+      "show_more": "Show more",
+      "show_less": "Show less"
+    },
+    "close": "Close",
+    "local": {
+      "title": "Local Metrics",
+      "started": "Started",
+      "finished": "Finished",
+      "completion_rate": "Completion",
+      "share_rate": "Share Rate",
+      "mode_changes": "Mode Changes",
+      "recent_events": "Recent Events",
+      "no_events": "No events yet",
+      "mode": "Mode",
+      "events": {
+        "game_started": "Game started",
+        "game_finished": "Game finished",
+        "share_clicked": "Share clicked",
+        "mode_changed": "Mode changed",
+        "finished_won": "Won",
+        "finished_lost": "Lost"
+      }
+    }
   }
 }

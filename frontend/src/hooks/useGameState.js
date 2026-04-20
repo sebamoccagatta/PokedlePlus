@@ -3,6 +3,10 @@ import { apiGuess, apiMeta, apiPokemon } from "../api.js";
 import pokemonData from "../data/pokemon.json";
 import { compareGuess, fnv1a } from "../utils/gameLogic.js";
 import { MAX_ATTEMPTS } from "../constants/game.js";
+import {
+  trackLocalMetricEvent,
+  trackLocalMetricEventOnce,
+} from "../utils/localMetrics.js";
 import confetti from "canvas-confetti";
 
 const STORAGE_PREFIX = "pokedleplus:v1:";
@@ -187,6 +191,30 @@ export function useGameState(t, addToast, clearToasts) {
         saveState(normalized, mode);
       }
 
+      const activeMode = mode || "classic";
+      if (normalized.finished) {
+        trackLocalMetricEventOnce({
+          type: "game_finished",
+          ts: Date.now(),
+          mode: activeMode,
+          dayKey: activeDayKey,
+          meta: {
+            won: normalized.won,
+            attemptsCount: normalized.attempts.length,
+          },
+        });
+      } else {
+        trackLocalMetricEventOnce({
+          type: "game_started",
+          ts: Date.now(),
+          mode: activeMode,
+          dayKey: activeDayKey,
+          meta: {
+            attemptsCount: normalized.attempts.length,
+          },
+        });
+      }
+
       if (normalized.won) {
         clearToasts();
         addToast({
@@ -235,13 +263,26 @@ export function useGameState(t, addToast, clearToasts) {
   }, [mode]);
 
   const changeMode = useCallback((newMode) => {
+    if (newMode !== mode) {
+      trackLocalMetricEvent({
+        type: "mode_changed",
+        ts: Date.now(),
+        mode: newMode || "home",
+        dayKey: dayKey || "unknown",
+        meta: {
+          fromMode: mode || "home",
+          toMode: newMode || "home",
+        },
+      });
+    }
+
     if (newMode) {
       saveMode(newMode);
     } else {
       clearMode();
     }
     setMode(newMode);
-  }, []);
+  }, [dayKey, mode]);
 
   const handleTryWithItem = useCallback(
     async (pick) => {
@@ -332,6 +373,19 @@ export function useGameState(t, addToast, clearToasts) {
         setState(next);
         saveState(next, activeMode);
         scheduleReveal();
+
+        if (next.finished) {
+          trackLocalMetricEventOnce({
+            type: "game_finished",
+            ts: Date.now(),
+            mode: activeMode,
+            dayKey,
+            meta: {
+              won: next.won,
+              attemptsCount: next.attempts.length,
+            },
+          });
+        }
 
         if (isWin) {
           addToast({
