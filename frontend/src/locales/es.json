@@ -245,11 +245,43 @@
   },
   "stats": {
     "title": "Estadisticas",
+    "tabs": {
+      "aria_label": "Secciones de estadisticas",
+      "summary": "Resumen",
+      "activity": "Actividad"
+    },
     "played": "Jugadas",
     "win_rate": "% Victorias",
     "current_streak": "Racha Actual",
     "max_streak": "Racha Maxima",
     "distribution": "Distribucion de Intentos",
-    "close": "Cerrar"
+    "distribution_toggle": {
+      "show_full": "Ver completa",
+      "show_less": "Ver menos"
+    },
+    "events_toggle": {
+      "show_more": "Ver más",
+      "show_less": "Ver menos"
+    },
+    "close": "Cerrar",
+    "local": {
+      "title": "Metricas Locales",
+      "started": "Iniciadas",
+      "finished": "Finalizadas",
+      "completion_rate": "Completado",
+      "share_rate": "Tasa de compartir",
+      "mode_changes": "Cambios de modo",
+      "recent_events": "Eventos recientes",
+      "no_events": "Todavia no hay eventos",
+      "mode": "Modo",
+      "events": {
+        "game_started": "Partida iniciada",
+        "game_finished": "Partida finalizada",
+        "share_clicked": "Compartir presionado",
+        "mode_changed": "Modo cambiado",
+        "finished_won": "Ganada",
+        "finished_lost": "Perdida"
+      }
+    }
   }
 }

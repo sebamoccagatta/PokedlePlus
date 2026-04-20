@@ -7,7 +7,9 @@ import { useI18n } from "./hooks/useI18n.js";
 import { useGameState } from "./hooks/useGameState.js";
 import { usePokemonSearch } from "./hooks/usePokemonSearch.js";
 import { useStats } from "./hooks/useStats.js";
+import { useLocalMetrics } from "./hooks/useLocalMetrics.js";
 import { generateShareText, shareResults } from "./utils/share.js";
+import { trackLocalMetricEvent } from "./utils/localMetrics.js";
 import { apiMeta } from "./api.js";
 import {
   DAILY_MODE_IDS,
@@ -59,6 +61,7 @@ export default function App() {
   } = useGameState(t, addToast, clearToasts);
 
   const { stats, recordGame } = useStats(mode);
+  const { localMetrics, recentMetricEvents } = useLocalMetrics();
 
   useEffect(() => {
     if (state.finished && dayKey) {
@@ -185,6 +188,17 @@ export default function App() {
   };
 
   const onShare = async () => {
+    trackLocalMetricEvent({
+      type: "share_clicked",
+      ts: Date.now(),
+      mode: mode || "classic",
+      dayKey: dayKey || "unknown",
+      meta: {
+        won: state.won,
+        attemptsCount: state.attempts.length,
+      },
+    });
+
     const modeLabel = t(`home.modes.${mode}.title`);
     const safeModeLabel = modeLabel === `home.modes.${mode}.title` ? mode : modeLabel;
 
@@ -313,6 +327,8 @@ export default function App() {
       {showStats && (
         <StatsModal
           stats={stats}
+          localMetrics={localMetrics}
+          recentMetricEvents={recentMetricEvents}
           onClose={() => setShowStats(false)}
           onShare={onShare}
           t={t}
