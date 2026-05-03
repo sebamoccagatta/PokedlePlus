@@ -120,7 +120,7 @@ export function Home({ onSelect, dayKey, i18n }) {
   const [statusByMode, setStatusByMode] = useState(() => ({}));
   const [streakSummary, setStreakSummary] = useState({ current: 0, best: 0 });
   const [lastMode, setLastMode] = useState(
-    () => localStorage.getItem("pokedleplus:lastMode") || "classic"
+    () => localStorage.getItem("pokedleplus:lastMode")
   );
 
   const missionModes = useMemo(
@@ -143,6 +143,7 @@ export function Home({ onSelect, dayKey, i18n }) {
     const onStorage = () => {
       setStatusByMode(computeStatuses());
       setStreakSummary(computeGlobalStreak(DAILY_MODE_IDS));
+      setLastMode(localStorage.getItem("pokedleplus:lastMode"));
     };
 
     window.addEventListener("storage", onStorage);
@@ -167,10 +168,19 @@ export function Home({ onSelect, dayKey, i18n }) {
     return { mode, intent: recommendation.intent };
   }, [lastMode, missionModes, modes, statusByMode]);
 
-  const recommendedModeId = recommendedMode?.mode?.id;
+  const fallbackMode = recommendedMode?.mode || missionModes[0] || modes[0];
+  const ctaMode = useMemo(() => {
+    if (!lastMode) return fallbackMode;
+    return modes.find((item) => item.id === lastMode) || fallbackMode;
+  }, [fallbackMode, lastMode, modes]);
+
+  const recommendedModeId = ctaMode?.id;
 
   const heroCtaLabel = useMemo(() => {
-    const modeTitle = recommendedMode?.mode?.title ?? "";
+    const modeTitle = ctaMode?.title ?? "";
+    if (lastMode) {
+      return `${t("home.hero.cta_continue")} ${modeTitle}`;
+    }
     if (recommendedMode?.intent === "continue") {
       return `${t("home.hero.cta_continue")} ${modeTitle}`;
     }
@@ -178,7 +188,7 @@ export function Home({ onSelect, dayKey, i18n }) {
       return `${t("home.hero.cta_start")} ${modeTitle} ${t("home.hero.cta_now")}`;
     }
     return `${t("home.hero.cta_play")} ${modeTitle} ${t("home.hero.cta_now")}`;
-  }, [recommendedMode, t]);
+  }, [ctaMode, lastMode, recommendedMode, t]);
 
   function handleSelect(id) {
     localStorage.setItem("pokedleplus:lastMode", id);
@@ -221,10 +231,10 @@ export function Home({ onSelect, dayKey, i18n }) {
               </div>
 
               <button
-                onClick={() => handleSelect(recommendedMode.mode.id)}
+                onClick={() => handleSelect(ctaMode.id)}
                 className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-indigo-500 hover:shadow-xl hover:shadow-indigo-500/35 active:translate-y-0 active:scale-[0.99] animate-[pulse_2.8s_ease-in-out_infinite] motion-reduce:animate-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
                 title={t("home.hero.cta_title")}
-                aria-label={`${t("home.hero.cta_aria")} ${recommendedMode.mode.title}`}
+                aria-label={`${t("home.hero.cta_aria")} ${ctaMode.title}`}
               >
                 <span>{heroCtaLabel}</span>
                 <ArrowRight className="h-4 w-4" />

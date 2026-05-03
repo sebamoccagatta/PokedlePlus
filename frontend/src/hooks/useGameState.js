@@ -10,26 +10,10 @@ import {
 import confetti from "canvas-confetti";
 
 const STORAGE_PREFIX = "pokedleplus:v1:";
-const MODE_KEY = "pokedleplus:mode";
-
 function loadMode() {
-  try {
-    return localStorage.getItem(MODE_KEY);
-  } catch {
-    return null;
-  }
-}
-
-function saveMode(mode) {
-  try {
-    localStorage.setItem(MODE_KEY, mode);
-  } catch {}
-}
-
-function clearMode() {
-  try {
-    localStorage.removeItem(MODE_KEY);
-  } catch {}
+  // UX decision: app should always open on Home.
+  // We intentionally avoid restoring the previous in-game mode.
+  return null;
 }
 
 function storageKey(dayKey, mode) {
@@ -278,9 +262,9 @@ export function useGameState(t, addToast, clearToasts) {
     }
 
     if (newMode) {
-      saveMode(newMode);
-    } else {
-      clearMode();
+      try {
+        localStorage.setItem("pokedleplus:lastMode", newMode);
+      } catch {}
     }
     setMode(newMode);
   }, [dayKey, mode]);
