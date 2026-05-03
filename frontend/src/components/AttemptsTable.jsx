@@ -2,7 +2,7 @@ import { badgeClass } from "../ui.js";
 import { Skeleton } from "./Skeleton.jsx";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { ArrowLeftRight, Search, Sparkles } from "lucide-react";
-import { MAX_ATTEMPTS } from "../constants/game.js";
+import { getMaxAttempts } from "../constants/game.js";
 
 function Pill({ children, kind, pop = false, isDark, className = "" }) {
   return (
@@ -191,6 +191,7 @@ function AttemptRow({
 
 export default function AttemptsTable({
   attempts = [],
+  mode,
   showGenColumn,
   isDark,
   translateHint,
@@ -201,6 +202,7 @@ export default function AttemptsTable({
   formatWeight,
   busy,
 }) {
+  const maxAttempts = getMaxAttempts(mode || "classic");
   const headerClass = showGenColumn
   ? "grid-cols-[minmax(180px,2fr)_minmax(100px,1fr)_minmax(100px,1fr)_minmax(80px,.8fr)_minmax(110px,1.1fr)_minmax(100px,1fr)_minmax(80px,.8fr)_minmax(90px,.9fr)_minmax(95px,.9fr)]"
   : "grid-cols-[minmax(200px,1.8fr)_minmax(110px,1fr)_minmax(110px,1fr)_minmax(120px,1.1fr)_minmax(110px,1fr)_minmax(90px,.9fr)_minmax(95px,.9fr)_minmax(105px,1fr)]";
@@ -240,7 +242,7 @@ export default function AttemptsTable({
             {t("game.legend.title")}
           </span>
           <span className="text-[11px] text-muted">
-            {attempts.length} / {MAX_ATTEMPTS}
+            {attempts.length} / {maxAttempts}
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px] leading-tight text-muted">

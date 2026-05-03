@@ -23,7 +23,7 @@ import {
 } from "./Icons.jsx";
 import { ThemeToggle } from "./ThemeToggle.jsx";
 import { LanguageSelector } from "./LanguageSelector.jsx";
-import { MAX_ATTEMPTS } from "../constants/game.js";
+import { getMaxAttempts } from "../constants/game.js";
 import {
   DAILY_MODE_IDS,
   computeGlobalStreak,
@@ -302,7 +302,7 @@ export function Home({ onSelect, dayKey, i18n }) {
                     : "",
                   st.won
                     ? "border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100/70 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:hover:bg-emerald-950/30"
-                    : st.played && st.attempts === MAX_ATTEMPTS && !st.won
+                    : st.played && st.attempts >= getMaxAttempts(m.id) && !st.won
                       ? "border-red-200 bg-red-50/80 hover:bg-red-100/70 dark:border-red-500/30 dark:bg-red-950/20 dark:hover:bg-red-950/30"
                       : st.played
                         ? "border-white/50 bg-white/60 hover:bg-white/80 dark:border-white/10 dark:bg-zinc-900/40 dark:hover:bg-zinc-800/60"
@@ -338,7 +338,7 @@ export function Home({ onSelect, dayKey, i18n }) {
                         <CheckCircle2 className="h-4 w-4" />
                         {t("home.status_won")}
                       </span>
-                    ) : st.attempts === MAX_ATTEMPTS && !st.won && st.played ? (
+                    ) : st.attempts >= getMaxAttempts(m.id) && !st.won && st.played ? (
                       <span className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-[11px] font-bold text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200">
                         <CircleOff className="h-4 w-4" />
                         {t("home.status_lost")}

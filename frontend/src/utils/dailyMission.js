@@ -1,4 +1,4 @@
-import { MAX_ATTEMPTS } from "../constants/game.js";
+import { getMaxAttempts } from "../constants/game.js";
 
 export const DAILY_MODE_IDS = [
   "classic",
@@ -73,7 +73,11 @@ export function computeMissionProgress(statusByMode, modeIds = DAILY_MODE_IDS) {
 export function getRecommendedMode(statusByMode, lastMode, modeIds = DAILY_MODE_IDS) {
   const inProgress = modeIds.find((modeId) => {
     const status = statusByMode?.[modeId];
-    return status?.played && !status?.won && status?.attempts < MAX_ATTEMPTS;
+    return (
+      status?.played &&
+      !status?.won &&
+      status?.attempts < getMaxAttempts(modeId)
+    );
   });
 
   if (inProgress) {

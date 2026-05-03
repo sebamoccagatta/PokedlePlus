@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { MAX_ATTEMPTS } from "../constants/game.js";
+import { getMaxAttempts } from "../constants/game.js";
 
 const STATS_KEY_PREFIX = "pokedleplus:stats:";
 
-function createEmptyDistribution() {
-  return Array.from({ length: MAX_ATTEMPTS }, (_, idx) => idx + 1).reduce(
+function createEmptyDistribution(maxAttempts) {
+  return Array.from({ length: maxAttempts }, (_, idx) => idx + 1).reduce(
     (acc, attempt) => {
       acc[attempt] = 0;
       return acc;
@@ -13,25 +13,25 @@ function createEmptyDistribution() {
   );
 }
 
-function getInitialStats() {
+function getInitialStats(maxAttempts) {
   return {
     totalGames: 0,
     wins: 0,
     currentStreak: 0,
     maxStreak: 0,
-    distribution: createEmptyDistribution(),
+    distribution: createEmptyDistribution(maxAttempts),
     lastPlayedDay: null,
   };
 }
 
-function normalizeStats(rawStats) {
-  const base = getInitialStats();
-  const distribution = createEmptyDistribution();
+function normalizeStats(rawStats, maxAttempts) {
+  const base = getInitialStats(maxAttempts);
+  const distribution = createEmptyDistribution(maxAttempts);
 
   if (rawStats?.distribution && typeof rawStats.distribution === "object") {
     for (const [attempt, count] of Object.entries(rawStats.distribution)) {
       const attemptNumber = Number(attempt);
-      if (attemptNumber >= 1 && attemptNumber <= MAX_ATTEMPTS) {
+      if (attemptNumber >= 1 && attemptNumber <= maxAttempts) {
         distribution[attemptNumber] = Number(count) || 0;
       }
     }
@@ -45,16 +45,17 @@ function normalizeStats(rawStats) {
 }
 
 export function useStats(mode) {
-  const [stats, setStats] = useState(() => getInitialStats());
+  const [stats, setStats] = useState(() => getInitialStats(getMaxAttempts(mode || "classic")));
 
   const loadStats = useCallback((m) => {
+    const maxAttempts = getMaxAttempts(m || "classic");
     const key = `${STATS_KEY_PREFIX}${m || "classic"}`;
     const raw = localStorage.getItem(key);
-    if (!raw) return getInitialStats();
+    if (!raw) return getInitialStats(maxAttempts);
     try {
-      return normalizeStats(JSON.parse(raw));
+      return normalizeStats(JSON.parse(raw), maxAttempts);
     } catch {
-      return getInitialStats();
+      return getInitialStats(maxAttempts);
     }
   }, []);
 
@@ -64,6 +65,7 @@ export function useStats(mode) {
 
   const recordGame = useCallback((dayKey, won, attemptsCount) => {
     const activeMode = mode || "classic";
+    const maxAttempts = getMaxAttempts(activeMode);
     const key = `${STATS_KEY_PREFIX}${activeMode}`;
     
     setStats((prev) => {
@@ -78,7 +80,7 @@ export function useStats(mode) {
         lastPlayedDay: dayKey,
       };
 
-      if (won && attemptsCount >= 1 && attemptsCount <= MAX_ATTEMPTS) {
+      if (won && attemptsCount >= 1 && attemptsCount <= maxAttempts) {
         newStats.distribution[attemptsCount] = (newStats.distribution[attemptsCount] || 0) + 1;
       }
 
