@@ -31,6 +31,22 @@
     "status_pending": "Available",
     "status_inProgress": "In Progress",
     "status_lost": "Lost",
+    "daily_games": {
+      "title": "Daily games",
+      "subtitle": "Foundation for active and upcoming mechanics in Pokedle+.",
+      "active_today": "Active today",
+      "active_title": "Guess the Pokémon",
+      "active_desc": "Currently active game in",
+      "play_now": "Play now",
+      "upcoming_title": "New daily game",
+      "upcoming_desc": "We're preparing a new mechanic for this section.",
+      "soon": "Coming soon"
+    },
+    "mode_hub": {
+      "title": "Guess the Pokémon",
+      "subtitle": "Pick a generation variant to start your run.",
+      "back_home": "Back to Home"
+    },
     "attempts": "Attempts:",
     "play": "Play",
     "footer": "You can play all modes on the same day",

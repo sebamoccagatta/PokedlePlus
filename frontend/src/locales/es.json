@@ -31,6 +31,22 @@
     "status_pending": "Disponible",
     "status_inProgress": "En progreso",
     "status_lost": "Perdido",
+    "daily_games": {
+      "title": "Juegos del día",
+      "subtitle": "Base de mecánicas activas y próximas en Pokedle+.",
+      "active_today": "Activo hoy",
+      "active_title": "Adivinar Pokémon",
+      "active_desc": "Juego activo ahora en",
+      "play_now": "Jugar ahora",
+      "upcoming_title": "Nuevo juego diario",
+      "upcoming_desc": "Estamos preparando una nueva mecánica para esta sección.",
+      "soon": "Próximamente"
+    },
+    "mode_hub": {
+      "title": "Adivinar Pokémon",
+      "subtitle": "Elegí una variante por generación para empezar la partida.",
+      "back_home": "Volver al Home"
+    },
     "attempts": "Intentos:",
     "play": "Jugar",
     "footer": "Podes jugar todos los modos el mismo dia",
