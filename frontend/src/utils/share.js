@@ -1,4 +1,4 @@
-import { MAX_ATTEMPTS } from "../constants/game.js";
+import { getMaxAttempts } from "../constants/game.js";
 
 export function generateShareText(mode, dayKey, attempts, won, currentStreak, options = {}) {
 
@@ -11,6 +11,7 @@ export function generateShareText(mode, dayKey, attempts, won, currentStreak, op
   };
 
   const score = won ? attempts.length : "X";
+  const maxAttempts = getMaxAttempts(mode || "classic");
   const safeDayKey = dayKey || "-";
   const modeName = options.modeLabel || (mode === "classic" ? "Classic" : mode.toUpperCase());
   const resultWonLabel = options.resultWonLabel || "Won";
@@ -34,7 +35,7 @@ export function generateShareText(mode, dayKey, attempts, won, currentStreak, op
 
   const metaLines = [
     `${modeMetaLabel}: ${modeName}`,
-    `${resultLabel}: ${won ? resultWonLabel : resultLostLabel} (${score}/${MAX_ATTEMPTS})`,
+    `${resultLabel}: ${won ? resultWonLabel : resultLostLabel} (${score}/${maxAttempts})`,
   ];
 
   if (hasDailyProgress) {

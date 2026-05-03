@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { apiGuess, apiMeta, apiPokemon } from "../api.js";
 import pokemonData from "../data/pokemon.json";
 import { compareGuess, fnv1a } from "../utils/gameLogic.js";
-import { MAX_ATTEMPTS } from "../constants/game.js";
+import { getMaxAttempts } from "../constants/game.js";
 import {
   trackLocalMetricEvent,
   trackLocalMetricEventOnce,
@@ -180,8 +180,9 @@ export function useGameState(t, addToast, clearToasts) {
       setDayKey(activeDayKey);
 
       const loaded = loadState(activeDayKey, mode);
+      const modeMaxAttempts = getMaxAttempts(mode);
       const shouldFinish =
-        !loaded.won && loaded.attempts.length >= MAX_ATTEMPTS;
+        !loaded.won && loaded.attempts.length >= modeMaxAttempts;
       const normalized = shouldFinish
         ? { ...loaded, finished: true, won: false }
         : loaded;
@@ -361,7 +362,8 @@ export function useGameState(t, addToast, clearToasts) {
 
         const nextAttempts = [attempt, ...state.attempts];
         const isWin = Boolean(attempt.isCorrect);
-        const isOutOfAttempts = !isWin && nextAttempts.length >= MAX_ATTEMPTS;
+        const modeMaxAttempts = getMaxAttempts(activeMode);
+        const isOutOfAttempts = !isWin && nextAttempts.length >= modeMaxAttempts;
 
         const next = {
           dayKey,

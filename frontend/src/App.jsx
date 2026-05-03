@@ -307,6 +307,7 @@ export default function App() {
           <div className="flex flex-col gap-4">
             <AttemptsTable
               attempts={state.attempts}
+              mode={mode}
               showGenColumn={showGenColumn}
               isDark={isDark}
               translateHint={translateHint}

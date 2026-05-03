@@ -14,7 +14,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { LoadingSpinner } from "./Skeleton.jsx";
-import { MAX_ATTEMPTS } from "../constants/game.js";
+import { getMaxAttempts } from "../constants/game.js";
 
 export default function SearchPanel({
   q,
@@ -43,15 +43,16 @@ export default function SearchPanel({
   onPostGameAction,
 }) {
   const inputRef = React.useRef(null);
+  const maxAttempts = getMaxAttempts(mode || "classic");
   const status = won ? "won" : finished ? "lost" : "inProgress";
-  const attemptsSafe = Math.min(attemptsCount, MAX_ATTEMPTS);
-  const attemptsLeft = Math.max(MAX_ATTEMPTS - attemptsSafe, 0);
-  const progressPct = Math.round((attemptsSafe / MAX_ATTEMPTS) * 100);
+  const attemptsSafe = Math.min(attemptsCount, maxAttempts);
+  const attemptsLeft = Math.max(maxAttempts - attemptsSafe, 0);
+  const progressPct = Math.round((attemptsSafe / maxAttempts) * 100);
   const progressVisualPct = status === "won" ? 100 : Math.max(progressPct, 6);
   const progressCopy =
     status === "won"
       ? `${t("game.progress_goal_completed_prefix")} ${attemptsSafe} ${t("game.progress_goal_completed_suffix")}`
-      : `${t("game.progress_attempts_used")} ${attemptsSafe}/${MAX_ATTEMPTS} · ${attemptsLeft} ${t("game.progress_remaining")}`;
+      : `${t("game.progress_attempts_used")} ${attemptsSafe}/${maxAttempts} · ${attemptsLeft} ${t("game.progress_remaining")}`;
 
   const safeDailyProgress = {
     completed: Number(dailyProgress?.completed) || 0,
@@ -197,7 +198,7 @@ export default function SearchPanel({
               </div>
               <div className="rounded-xl border border-white/15 bg-black/10 px-3 py-2">
                 <p className="text-[10px] uppercase tracking-[0.12em] opacity-80">{t("game.session_summary.attempts")}</p>
-                <p className="text-sm font-extrabold">{attemptsSafe}/{MAX_ATTEMPTS}</p>
+                <p className="text-sm font-extrabold">{attemptsSafe}/{maxAttempts}</p>
               </div>
               <div className="rounded-xl border border-white/15 bg-black/10 px-3 py-2">
                 <p className="text-[10px] uppercase tracking-[0.12em] opacity-80">{t("game.session_summary.daily_progress")}</p>
@@ -315,7 +316,7 @@ export default function SearchPanel({
               {finished ? t("game.win_message") : selected ? t("game.try_ready_hint") : t("game.tip")}
             </div>
             <div className="text-xs text-muted">
-              {t("game.attempts_label")} {attemptsCount}/{MAX_ATTEMPTS}
+              {t("game.attempts_label")} {attemptsCount}/{maxAttempts}
             </div>
             <div className="text-[10px] text-muted-2 hidden md:block">
               {t("game.keyboard_tip")}
