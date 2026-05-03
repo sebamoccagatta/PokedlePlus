@@ -18,12 +18,14 @@ import {
   computeStatusesByMode,
   getRecommendedMode,
 } from "./utils/dailyMission.js";
+import { HOME_GAME_ACTIONS } from "./constants/homeGames.js";
 
 import GameHeader from "./components/GameHeader.jsx";
 import SearchPanel from "./components/SearchPanel.jsx";
 import AttemptsTable from "./components/AttemptsTable.jsx";
 import { ToastContainer } from "./components/Toast.jsx";
 import { Home } from "./components/Home.jsx";
+import { ModeHub } from "./components/ModeHub.jsx";
 import StatsModal from "./components/StatsModal.jsx";
 
 function formatHeight(dm) {
@@ -42,6 +44,7 @@ export default function App() {
   const { clear: clearCache } = useSearchCache();
   const { toasts, addToast, removeToast, clearToasts } = useToast();
   const [showStats, setShowStats] = useState(false);
+  const [homeScreen, setHomeScreen] = useState("catalog");
   const [dailyReferenceDayKey, setDailyReferenceDayKey] = useState("");
   const [lastMode, setLastMode] = useState(
     () => localStorage.getItem("pokedleplus:lastMode") || "classic"
@@ -116,6 +119,20 @@ export default function App() {
     await handleTryWithItem(item);
   };
 
+  const handleHomeGameAction = (action) => {
+    if (!action?.type) return;
+
+    switch (action.type) {
+      case HOME_GAME_ACTIONS.OPEN_GUESS_HUB:
+        setHomeScreen("guess-hub");
+        return;
+      case HOME_GAME_ACTIONS.OPEN_UPCOMING_PLACEHOLDER:
+        return;
+      default:
+        return;
+    }
+  };
+
   const missionDayKey = mode === "infinite" ? dailyReferenceDayKey : dayKey;
 
   const missionStatusByMode = useMemo(
@@ -172,6 +189,7 @@ export default function App() {
       return;
     }
 
+    setHomeScreen("guess-hub");
     changeMode(null);
   };
 
@@ -251,9 +269,20 @@ export default function App() {
   };
 
   if (!mode) {
+    if (homeScreen === "guess-hub") {
+      return (
+        <ModeHub
+          dayKey={dayKey}
+          i18n={i18n}
+          onBackHome={() => setHomeScreen("catalog")}
+          onSelectMode={changeMode}
+        />
+      );
+    }
+
     return (
       <Home
-        onSelect={changeMode}
+        onHomeGameAction={handleHomeGameAction}
         dayKey={dayKey}
         i18n={i18n}
       />
@@ -268,7 +297,10 @@ export default function App() {
         <GameHeader
           mode={mode}
           dayKey={dayKey}
-          onChangeMode={() => changeMode(null)}
+          onChangeMode={() => {
+            setHomeScreen("guess-hub");
+            changeMode(null);
+          }}
           onShowStats={() => setShowStats(true)}
           t={t}
           missionCompleted={missionProgress.completed}
