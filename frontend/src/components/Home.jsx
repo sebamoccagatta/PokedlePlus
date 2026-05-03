@@ -1,200 +1,33 @@
-import React, { useEffect, useState, useMemo } from "react";
-import {
-  CheckCircle2,
-  CircleDashed,
-  ArrowRight,
-  CircleOff,
-  Flame,
-  Trophy,
-  Target,
-} from "lucide-react";
-import {
-  ClassicBall,
-  Pokeball,
-  Greatball,
-  Ultraball,
-  Luxuryball,
-  Premierball,
-  Healball,
-  Nestball,
-  Netball,
-  Quickball,
-  InfiniteBall,
-} from "./Icons.jsx";
+import React, { useMemo } from "react";
+import { CheckCircle2, CircleDashed, ArrowRight, CircleOff, Target } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle.jsx";
 import { LanguageSelector } from "./LanguageSelector.jsx";
+import { HomeDailyHubSection } from "./HomeDailyHubSection.jsx";
 import { getMaxAttempts } from "../constants/game.js";
-import {
-  DAILY_MODE_IDS,
-  computeGlobalStreak,
-  computeMissionProgress,
-  getRecommendedMode,
-  getModeStatus,
-} from "../utils/dailyMission.js";
+import { HOME_MODE_CATALOG } from "../constants/homeCatalog.js";
+import { useHomeDashboard } from "../hooks/useHomeDashboard.js";
 
 export function Home({ onSelect, dayKey, i18n }) {
   const { t, locale, changeLocale, availableLocales } = i18n;
   const modes = useMemo(
-    () => [
-      {
-        id: "classic",
-        title: t("home.modes.classic.title"),
-        desc: t("home.modes.classic.desc"),
-        color: "bg-purple-600",
-        Icon: ClassicBall,
-      },
-      {
-        id: "gen1",
-        title: t("home.modes.gen1.title"),
-        desc: t("home.modes.gen1.desc"),
-        color: "bg-red-500",
-        Icon: Pokeball,
-      },
-      {
-        id: "gen2",
-        title: t("home.modes.gen2.title"),
-        desc: t("home.modes.gen2.desc"),
-        color: "bg-blue-600",
-        Icon: Greatball,
-      },
-      {
-        id: "gen3",
-        title: t("home.modes.gen3.title"),
-        desc: t("home.modes.gen3.desc"),
-        color: "bg-zinc-800",
-        Icon: Ultraball,
-      },
-      {
-        id: "gen4",
-        title: t("home.modes.gen4.title"),
-        desc: t("home.modes.gen4.desc"),
-        color: "bg-gray-900",
-        Icon: Luxuryball,
-      },
-      {
-        id: "gen5",
-        title: t("home.modes.gen5.title"),
-        desc: t("home.modes.gen5.desc"),
-        color: "bg-slate-100",
-        Icon: Premierball,
-      },
-      {
-        id: "gen6",
-        title: t("home.modes.gen6.title"),
-        desc: t("home.modes.gen6.desc"),
-        color: "bg-pink-400",
-        Icon: Healball,
-      },
-      {
-        id: "gen7",
-        title: t("home.modes.gen7.title"),
-        desc: t("home.modes.gen7.desc"),
-        color: "bg-green-500",
-        Icon: Nestball,
-      },
-      {
-        id: "gen8",
-        title: t("home.modes.gen8.title"),
-        desc: t("home.modes.gen8.desc"),
-        color: "bg-blue-800",
-        Icon: Netball,
-      },
-      {
-        id: "gen9",
-        title: t("home.modes.gen9.title"),
-        desc: t("home.modes.gen9.desc"),
-        color: "bg-yellow-500",
-        Icon: Quickball,
-      },
-      {
-        id: "infinite",
-        title: t("home.modes.infinite.title"),
-        desc: t("home.modes.infinite.desc"),
-        color: "bg-amber-600",
-        Icon: InfiniteBall,
-      },
-    ],
-    [t]
+    () =>
+      HOME_MODE_CATALOG.map((mode) => ({
+        ...mode,
+        title: t(mode.titleKey),
+        desc: t(mode.descKey),
+      })),
+    [t],
   );
 
-  const [statusByMode, setStatusByMode] = useState(() => ({}));
-  const [streakSummary, setStreakSummary] = useState({ current: 0, best: 0 });
-  const [lastMode, setLastMode] = useState(
-    () => localStorage.getItem("pokedleplus:lastMode")
-  );
-
-  const missionModes = useMemo(
-    () => modes.filter((m) => m.id !== "infinite"),
-    [modes]
-  );
-
-  function computeStatuses() {
-    const map = {};
-    for (const m of modes) {
-      map[m.id] = getModeStatus(dayKey, m.id);
-    }
-    return map;
-  }
-
-  useEffect(() => {
-    setStatusByMode(computeStatuses());
-    setStreakSummary(computeGlobalStreak(DAILY_MODE_IDS));
-
-    const onStorage = () => {
-      setStatusByMode(computeStatuses());
-      setStreakSummary(computeGlobalStreak(DAILY_MODE_IDS));
-      setLastMode(localStorage.getItem("pokedleplus:lastMode"));
-    };
-
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, [dayKey, modes, missionModes]);
-
-  const missionCompleted = useMemo(
-    () => computeMissionProgress(statusByMode, DAILY_MODE_IDS).completed,
-    [statusByMode]
-  );
-
-  const missionTotal = DAILY_MODE_IDS.length;
-
-  const missionProgressPct = useMemo(
-    () => computeMissionProgress(statusByMode, DAILY_MODE_IDS).pct,
-    [statusByMode]
-  );
-
-  const recommendedMode = useMemo(() => {
-    const recommendation = getRecommendedMode(statusByMode, lastMode, DAILY_MODE_IDS);
-    const mode = modes.find((item) => item.id === recommendation.modeId) || missionModes[0] || modes[0];
-    return { mode, intent: recommendation.intent };
-  }, [lastMode, missionModes, modes, statusByMode]);
-
-  const fallbackMode = recommendedMode?.mode || missionModes[0] || modes[0];
-  const ctaMode = useMemo(() => {
-    if (!lastMode) return fallbackMode;
-    return modes.find((item) => item.id === lastMode) || fallbackMode;
-  }, [fallbackMode, lastMode, modes]);
-
-  const recommendedModeId = ctaMode?.id;
-
-  const heroCtaLabel = useMemo(() => {
-    const modeTitle = ctaMode?.title ?? "";
-    if (lastMode) {
-      return `${t("home.hero.cta_continue")} ${modeTitle}`;
-    }
-    if (recommendedMode?.intent === "continue") {
-      return `${t("home.hero.cta_continue")} ${modeTitle}`;
-    }
-    if (recommendedMode?.intent === "start") {
-      return `${t("home.hero.cta_start")} ${modeTitle} ${t("home.hero.cta_now")}`;
-    }
-    return `${t("home.hero.cta_play")} ${modeTitle} ${t("home.hero.cta_now")}`;
-  }, [ctaMode, lastMode, recommendedMode, t]);
-
-  function handleSelect(id) {
-    localStorage.setItem("pokedleplus:lastMode", id);
-    setLastMode(id);
-    onSelect(id);
-  }
+  const {
+    statusByMode,
+    streakSummary,
+    missionProgress,
+    ctaMode,
+    heroCtaLabel,
+    recommendedModeId,
+    handleSelectMode,
+  } = useHomeDashboard({ dayKey, modeCatalog: modes, t });
 
   return (
     <div className="min-h-screen bg-app text-app">
@@ -231,7 +64,7 @@ export function Home({ onSelect, dayKey, i18n }) {
               </div>
 
               <button
-                onClick={() => handleSelect(ctaMode.id)}
+                onClick={() => handleSelectMode(ctaMode.id, onSelect)}
                 className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/30 transition-all duration-300 hover:-translate-y-0.5 hover:bg-indigo-500 hover:shadow-xl hover:shadow-indigo-500/35 active:translate-y-0 active:scale-[0.99] animate-[pulse_2.8s_ease-in-out_infinite] motion-reduce:animate-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
                 title={t("home.hero.cta_title")}
                 aria-label={`${t("home.hero.cta_aria")} ${ctaMode.title}`}
@@ -241,46 +74,11 @@ export function Home({ onSelect, dayKey, i18n }) {
               </button>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              <div className="rounded-2xl border border-app bg-surface-soft p-4">
-                <div className="flex items-center gap-2 text-sm text-muted mb-1">
-                  <Flame className="h-4 w-4" aria-hidden="true" />
-                  {t("home.hero.current_streak")}
-                </div>
-                <div className="text-3xl font-black text-strong">{streakSummary.current}</div>
-              </div>
-
-              <div className="rounded-2xl border border-app bg-surface-soft p-4">
-                <div className="flex items-center gap-2 text-sm text-muted mb-1">
-                  <Trophy className="h-4 w-4" aria-hidden="true" />
-                  {t("home.hero.best_streak")}
-                </div>
-                <div className="text-3xl font-black text-strong">{streakSummary.best}</div>
-              </div>
-
-              <div className="rounded-2xl border border-app bg-surface-soft p-4 sm:col-span-2 lg:col-span-1 xl:col-span-2">
-                <div className="mb-2 flex items-center justify-between text-sm">
-                  <span className="text-muted">{t("home.hero.daily_progress")}</span>
-                  <span className="font-semibold text-strong">
-                    {missionCompleted}/{missionTotal} · {missionProgressPct}%
-                  </span>
-                </div>
-                <div
-                  className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-200/60 dark:bg-zinc-800/70"
-                  role="progressbar"
-                  aria-label={t("home.hero.daily_progress")}
-                  aria-valuemin={0}
-                  aria-valuemax={missionTotal}
-                  aria-valuenow={missionCompleted}
-                >
-                  <div
-                    className="h-full rounded-full bg-emerald-500 transition-all duration-300"
-                    style={{ width: `${missionProgressPct}%` }}
-                  />
-                </div>
-                <p className="mt-2 text-xs text-muted">{t("home.hero.progress_hint")}</p>
-              </div>
-            </div>
+            <HomeDailyHubSection
+              t={t}
+              streakSummary={streakSummary}
+              missionProgress={missionProgress}
+            />
           </div>
         </div>
 
@@ -302,7 +100,7 @@ export function Home({ onSelect, dayKey, i18n }) {
             return (
               <button
                 key={m.id}
-                onClick={() => handleSelect(m.id)}
+                onClick={() => handleSelectMode(m.id, onSelect)}
                 className={[
                   "group relative rounded-[28px] border text-left transition-all duration-300",
                   "p-5 md:p-7 2xl:p-8 min-h-[160px] md:min-h-[170px] 2xl:min-h-[185px]",
