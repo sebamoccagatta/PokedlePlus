@@ -48,7 +48,7 @@ export default function SearchPanel({
   const attemptsSafe = Math.min(attemptsCount, maxAttempts);
   const attemptsLeft = Math.max(maxAttempts - attemptsSafe, 0);
   const progressPct = Math.round((attemptsSafe / maxAttempts) * 100);
-  const progressVisualPct = status === "won" ? 100 : Math.max(progressPct, 6);
+  const progressVisualPct = status === "won" ? 100 : attemptsSafe === 0 ? 0 : Math.max(progressPct, 6);
   const progressCopy =
     status === "won"
       ? `${t("game.progress_goal_completed_prefix")} ${attemptsSafe} ${t("game.progress_goal_completed_suffix")}`
