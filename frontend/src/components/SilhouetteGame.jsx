@@ -99,7 +99,15 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
             sprite: typeof guess.target.sprite === "string" ? guess.target.sprite : "",
           }
         : null;
-      const nextAttempts = [...state.attempts, { id: selected.id, name: selected.name, isCorrect }];
+      const nextAttempts = [
+        ...state.attempts,
+        {
+          id: selected.id,
+          name: selected.name,
+          isCorrect,
+          sprite: typeof selected?.sprite === "string" ? selected.sprite : "",
+        },
+      ];
       const nextStage = isCorrect ? state.stage : Math.min(MAX_STAGES, state.stage + 1);
       const isLose = !isCorrect && nextStage >= MAX_STAGES;
       const next = {
@@ -228,6 +236,45 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
                 {busy ? t("silhouette.try_busy") : t("silhouette.try")}
               </button>
             </div>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-app bg-surface-soft p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-[0.14em] text-muted">{t("silhouette.attempts_title")}</h3>
+              <span className="text-xs text-muted">{state.attempts.length} / {MAX_STAGES}</span>
+            </div>
+
+            {state.attempts.length === 0 ? (
+              <p className="text-sm text-muted">{t("silhouette.attempts_empty")}</p>
+            ) : (
+              <ul className="space-y-2">
+                {state.attempts.map((attempt, index) => (
+                  <li
+                    key={`${attempt.id}-${index}`}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-app bg-surface px-3 py-2"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      {attempt.sprite ? (
+                        <img
+                          src={attempt.sprite}
+                          alt={attempt.name}
+                          loading="lazy"
+                          className="h-8 w-8 shrink-0 rounded-lg border border-app bg-black/20 object-contain p-0.5"
+                        />
+                      ) : (
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-app bg-black/20 text-sm">❔</div>
+                      )}
+                      <span className="truncate text-sm font-semibold text-strong">{attempt.name}</span>
+                    </div>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${attempt.isCorrect ? "bg-emerald-500/20 text-emerald-300" : "bg-zinc-500/20 text-zinc-300"}`}
+                    >
+                      {attempt.isCorrect ? t("silhouette.attempt_correct") : t("silhouette.attempt_miss")}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {error && <p className="mt-3 text-sm text-rose-400">{error}</p>}
