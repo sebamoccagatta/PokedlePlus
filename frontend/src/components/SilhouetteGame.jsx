@@ -6,6 +6,14 @@ import ComboList from "./ComboList.jsx";
 const SILHOUETTE_MODE_ID = "silhouette";
 const MAX_STAGES = 5;
 
+const STAGE_VISUALS = {
+  1: { filter: "brightness(0) contrast(1.65) blur(14px)", overlayOpacity: 0.78, scale: 1.08 },
+  2: { filter: "brightness(0) contrast(1.45) blur(10px)", overlayOpacity: 0.62, scale: 1.06 },
+  3: { filter: "brightness(0) contrast(1.3) blur(6px)", overlayOpacity: 0.46, scale: 1.04 },
+  4: { filter: "brightness(0.28) contrast(1.2) blur(3px)", overlayOpacity: 0.28, scale: 1.02 },
+  5: { filter: "none", overlayOpacity: 0.06, scale: 1 },
+};
+
 function storageKey(dayKey) {
   return `pokedleplus:v1:${dayKey}:${SILHOUETTE_MODE_ID}`;
 }
@@ -128,15 +136,7 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
     }
   };
 
-  const overlayOpacity = useMemo(() => {
-    const ratio = (state.stage - 1) / (MAX_STAGES - 1);
-    return Math.max(0.08, 0.9 - ratio * 0.82);
-  }, [state.stage]);
-
-  const silhouetteScale = useMemo(() => {
-    const ratio = (state.stage - 1) / (MAX_STAGES - 1);
-    return 1.12 - ratio * 0.1;
-  }, [state.stage]);
+  const stageVisual = useMemo(() => STAGE_VISUALS[state.stage] ?? STAGE_VISUALS[1], [state.stage]);
 
   const stageDescriptors = useMemo(() => [
     t("silhouette.stage_hint_1"),
@@ -173,8 +173,20 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
             </div>
             <p className="mb-3 text-xs text-muted">{stageDescriptors[state.stage - 1]}</p>
             <div className="relative mx-auto h-44 w-full max-w-md overflow-hidden rounded-2xl border border-app bg-gradient-to-br from-zinc-700 via-zinc-800 to-black">
-              <div className="absolute inset-0 flex items-center justify-center text-7xl transition-transform duration-300" style={{ transform: `scale(${silhouetteScale})` }}>👤</div>
-              <div className="absolute inset-0 bg-black transition-opacity duration-300" style={{ opacity: overlayOpacity }} />
+              {state.target?.sprite ? (
+                <img
+                  src={state.target.sprite}
+                  alt={state.target?.name || t("silhouette.reveal_unknown")}
+                  className="absolute inset-0 h-full w-full object-contain p-4 transition-all duration-300"
+                  style={{
+                    filter: stageVisual.filter,
+                    transform: `scale(${stageVisual.scale})`,
+                  }}
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-7xl transition-transform duration-300" style={{ transform: `scale(${stageVisual.scale})` }}>❔</div>
+              )}
+              <div className="absolute inset-0 bg-black transition-opacity duration-300" style={{ opacity: stageVisual.overlayOpacity }} />
             </div>
           </div>
 
