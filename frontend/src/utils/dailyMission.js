@@ -54,6 +54,21 @@ export function getModeStatus(dayKey, modeId) {
   };
 }
 
+export function getSilhouetteStatus(dayKey) {
+  if (!dayKey) return { attempts: 0, won: false, played: false, lost: false };
+  const key = `pokedleplus:v1:${dayKey}:silhouette`;
+  const state = safeParse(localStorage.getItem(key));
+  const attempts = Array.isArray(state?.attempts) ? state.attempts.length : 0;
+  const won = Boolean(state?.won);
+  const finished = Boolean(state?.finished);
+  return {
+    attempts,
+    won,
+    played: attempts > 0,
+    lost: finished && !won,
+  };
+}
+
 export function computeStatusesByMode(dayKey, modeIds) {
   const ids = Array.isArray(modeIds) ? modeIds : DAILY_MODE_IDS;
   return ids.reduce((acc, modeId) => {

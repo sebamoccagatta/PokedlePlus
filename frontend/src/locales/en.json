@@ -37,6 +37,8 @@
       "active_today": "Active today",
       "active_title": "Guess the Pokémon",
       "active_desc": "Currently active game in",
+      "silhouette_title": "Silhouette",
+      "silhouette_desc": "Guess the daily Pokémon with 5 progressive visual reveal levels.",
       "play_now": "Play now",
       "upcoming_title": "New daily game",
       "upcoming_desc": "We're preparing a new mechanic for this section.",
@@ -96,6 +98,30 @@
         "desc": "Play without limits (random)"
       }
     }
+  },
+  "silhouette": {
+    "title": "Silhouette Mode",
+    "subtitle": "Discover today's Pokémon through progressive visual clues.",
+    "back_home": "Back to Home",
+    "stage_label": "Stage",
+    "input_label": "Search Pokémon",
+    "input_placeholder": "E.g. pikachu",
+    "selected": "Selected:",
+    "selected_empty": "none",
+    "try": "Try",
+    "try_busy": "Trying...",
+    "already_tried_title": "Already tried",
+    "already_tried_message": "Pick another Pokémon.",
+    "next_stage_title": "Clue unlocked",
+    "next_stage_message": "Not this one. Reveal level increased.",
+    "win_title": "You won Silhouette!",
+    "win_message": "You guessed before stage 5.",
+    "lose_title": "You lost Silhouette",
+    "lose_message": "You reached stage 5 without guessing. Come back tomorrow.",
+    "result_won": "Status: won",
+    "result_lost": "Status: lost",
+    "error_meta": "Could not load daily metadata.",
+    "error_try": "Could not process the attempt."
   },
   "game": {
     "mode": "Mode:",

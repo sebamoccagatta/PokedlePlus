@@ -7,7 +7,7 @@ import { HOME_MODE_CATALOG } from "../constants/homeCatalog.js";
 import { HOME_DAILY_GAMES, HOME_GAME_ACTIONS } from "../constants/homeGames.js";
 import { useHomeDashboard } from "../hooks/useHomeDashboard.js";
 
-export function Home({ onHomeGameAction, dayKey, i18n }) {
+export function Home({ onHomeGameAction, dayKey, i18n, dailyGameStatuses = {} }) {
   const { t, locale, changeLocale, availableLocales } = i18n;
   const modes = useMemo(
     () =>
@@ -137,6 +137,9 @@ export function Home({ onHomeGameAction, dayKey, i18n }) {
                         <div className="space-y-2">
                           <span className="inline-flex items-center rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300">
                             {t("home.daily_games.active_today")}
+                          </span>
+                          <span className="ml-2 inline-flex items-center rounded-full border border-indigo-500/35 bg-indigo-500/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-indigo-200">
+                            {t(`home.status_${dailyGameStatuses[game.id] || "pending"}`)}
                           </span>
                           <p className="text-base font-bold text-strong">
                             {game.title}
