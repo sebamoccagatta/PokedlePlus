@@ -14,6 +14,8 @@ const STAGE_VISUALS = {
   5: { filter: "none", overlayOpacity: 0.06, scale: 1 },
 };
 
+const FINISHED_VISUAL = { filter: "none", overlayOpacity: 0, scale: 1 };
+
 function storageKey(dayKey) {
   return `pokedleplus:v1:${dayKey}:${SILHOUETTE_MODE_ID}`;
 }
@@ -136,7 +138,10 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
     }
   };
 
-  const stageVisual = useMemo(() => STAGE_VISUALS[state.stage] ?? STAGE_VISUALS[1], [state.stage]);
+  const stageVisual = useMemo(() => {
+    if (state.finished) return FINISHED_VISUAL;
+    return STAGE_VISUALS[state.stage] ?? STAGE_VISUALS[1];
+  }, [state.finished, state.stage]);
 
   const stageDescriptors = useMemo(() => [
     t("silhouette.stage_hint_1"),
