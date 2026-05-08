@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { apiGuess, apiMeta } from "../api.js";
+import { apiGuess, apiMeta, apiSilhouetteTarget } from "../api.js";
 import { usePokemonSearch } from "../hooks/usePokemonSearch.js";
 import ComboList from "./ComboList.jsx";
 
@@ -7,11 +7,11 @@ const SILHOUETTE_MODE_ID = "silhouette";
 const MAX_STAGES = 5;
 
 const STAGE_VISUALS = {
-  1: { filter: "brightness(0) contrast(1.65) blur(14px)", overlayOpacity: 0.78, scale: 1.08 },
-  2: { filter: "brightness(0) contrast(1.45) blur(10px)", overlayOpacity: 0.62, scale: 1.06 },
-  3: { filter: "brightness(0) contrast(1.3) blur(6px)", overlayOpacity: 0.46, scale: 1.04 },
-  4: { filter: "brightness(0.28) contrast(1.2) blur(3px)", overlayOpacity: 0.28, scale: 1.02 },
-  5: { filter: "none", overlayOpacity: 0.06, scale: 1 },
+  1: { filter: "brightness(0.08) contrast(1.55) blur(12px)", overlayOpacity: 0.72, scale: 1.08 },
+  2: { filter: "brightness(0.12) contrast(1.45) blur(9px)", overlayOpacity: 0.62, scale: 1.06 },
+  3: { filter: "brightness(0.2) contrast(1.32) blur(6px)", overlayOpacity: 0.48, scale: 1.04 },
+  4: { filter: "brightness(0.3) contrast(1.2) blur(4px)", overlayOpacity: 0.36, scale: 1.02 },
+  5: { filter: "brightness(0.8) contrast(1.05) blur(1px)", overlayOpacity: 0.08, scale: 1 },
 };
 
 const FINISHED_VISUAL = { filter: "none", overlayOpacity: 0, scale: 1 };
@@ -49,7 +49,16 @@ function writeState(next) {
   localStorage.setItem(storageKey(next.dayKey), JSON.stringify(next));
 }
 
-export default function SilhouetteGame({ t, addToast, onBackHome }) {
+function normalizeTarget(rawTarget) {
+  if (!rawTarget || typeof rawTarget !== "object") return null;
+  return {
+    id: Number(rawTarget.id) || null,
+    name: String(rawTarget.name || ""),
+    sprite: typeof rawTarget.sprite === "string" ? rawTarget.sprite : "",
+  };
+}
+
+export default function SilhouetteGame({ t, addToast, onBackHome, onChooseMode }) {
   const [dayKey, setDayKey] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -64,8 +73,25 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
       .then((meta) => {
         if (!mounted) return;
         const key = meta?.dayKey || "";
+        const persistedState = readState(key);
         setDayKey(key);
-        setState(readState(key));
+        setState(persistedState);
+
+        if (!persistedState?.target?.sprite) {
+          apiSilhouetteTarget(key, "classic")
+            .then((data) => {
+              if (!mounted) return;
+              const hydratedTarget = normalizeTarget(data?.target);
+              if (!hydratedTarget?.sprite) return;
+              setState((prev) => {
+                if (prev.dayKey !== key || prev?.target?.sprite) return prev;
+                const next = { ...prev, target: hydratedTarget };
+                writeState(next);
+                return next;
+              });
+            })
+            .catch(() => {});
+        }
       })
       .catch(() => {
         if (!mounted) return;
@@ -92,13 +118,7 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
     try {
       const guess = await apiGuess(selected.id, dayKey, "classic");
       const isCorrect = Boolean(guess?.comparison?.isCorrect);
-      const target = guess?.target && typeof guess.target === "object"
-        ? {
-            id: Number(guess.target.id) || null,
-            name: String(guess.target.name || ""),
-            sprite: typeof guess.target.sprite === "string" ? guess.target.sprite : "",
-          }
-        : null;
+      const target = normalizeTarget(guess?.target);
       const nextAttempts = [
         ...state.attempts,
         {
@@ -109,7 +129,7 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
         },
       ];
       const nextStage = isCorrect ? state.stage : Math.min(MAX_STAGES, state.stage + 1);
-      const isLose = !isCorrect && nextStage >= MAX_STAGES;
+      const isLose = !isCorrect && nextAttempts.length >= MAX_STAGES;
       const next = {
         dayKey,
         attempts: nextAttempts,
@@ -159,6 +179,14 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
     t("silhouette.stage_hint_5"),
   ], [t]);
 
+  const handleChooseMode = () => {
+    if (typeof onChooseMode === "function") {
+      onChooseMode();
+      return;
+    }
+    onBackHome();
+  };
+
   return (
     <div className="min-h-screen bg-app text-app">
       <div className="mx-auto max-w-5xl px-4 py-10">
@@ -190,16 +218,16 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
                 <img
                   src={state.target.sprite}
                   alt={state.target?.name || t("silhouette.reveal_unknown")}
-                  className="absolute inset-0 h-full w-full object-contain p-4 transition-all duration-300"
+                  className={`absolute inset-0 h-full w-full object-contain p-4 transition-all ${state.finished ? "duration-[420ms] ease-out" : "duration-300"}`}
                   style={{
                     filter: stageVisual.filter,
                     transform: `scale(${stageVisual.scale})`,
                   }}
                 />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-7xl transition-transform duration-300" style={{ transform: `scale(${stageVisual.scale})` }}>❔</div>
+                <div className={`absolute inset-0 flex items-center justify-center text-7xl transition-transform ${state.finished ? "duration-[420ms] ease-out" : "duration-300"}`} style={{ transform: `scale(${stageVisual.scale})` }}>❔</div>
               )}
-              <div className="absolute inset-0 bg-black transition-opacity duration-300" style={{ opacity: stageVisual.overlayOpacity }} />
+              <div className={`absolute inset-0 bg-black transition-opacity ${state.finished ? "duration-[420ms] ease-out" : "duration-300"}`} style={{ opacity: stageVisual.overlayOpacity }} />
             </div>
           </div>
 
@@ -251,9 +279,10 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
                 {state.attempts.map((attempt, index) => (
                   <li
                     key={`${attempt.id}-${index}`}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-app bg-surface px-3 py-2"
+                    className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-2 ${attempt.isCorrect ? "border-emerald-400/50 bg-emerald-500/10" : "border-app bg-surface"}`}
                   >
                     <div className="flex min-w-0 items-center gap-3">
+                      <span className="w-10 shrink-0 text-[11px] font-bold uppercase tracking-wide text-muted">#{index + 1}</span>
                       {attempt.sprite ? (
                         <img
                           src={attempt.sprite}
@@ -264,7 +293,7 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
                       ) : (
                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-app bg-black/20 text-sm">❔</div>
                       )}
-                      <span className="truncate text-sm font-semibold text-strong">{attempt.name}</span>
+                      <span className="truncate text-sm font-semibold text-strong">{attempt.name || t("silhouette.reveal_unknown")}</span>
                     </div>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${attempt.isCorrect ? "bg-emerald-500/20 text-emerald-300" : "bg-zinc-500/20 text-zinc-300"}`}
@@ -309,6 +338,21 @@ export default function SilhouetteGame({ t, addToast, onBackHome }) {
                   </div>
                 </div>
               )}
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={onBackHome}
+                  className="rounded-xl border border-app bg-surface px-3 py-2 text-sm font-semibold text-strong hover:bg-surface-soft"
+                >
+                  {t("silhouette.cta_home")}
+                </button>
+                <button
+                  onClick={handleChooseMode}
+                  className="rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+                >
+                  {t("silhouette.cta_mode")}
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -310,6 +310,7 @@ export default function App() {
           t={t}
           addToast={addToast}
           onBackHome={() => setHomeScreen("catalog")}
+          onChooseMode={() => setHomeScreen("guess-hub")}
         />
       );
     }

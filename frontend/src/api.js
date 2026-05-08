@@ -125,6 +125,23 @@ export async function apiGuess(guessId, dayKey, mode = "classic") {
   return jsonOrText(res, "guess_failed");
 }
 
+export async function apiSilhouetteTarget(dayKey, mode = "classic") {
+  const dayKeyValidation = validators.dayKey(dayKey);
+  if (!dayKeyValidation.valid) {
+    throw new Error(`Invalid day key: ${dayKeyValidation.error}`);
+  }
+
+  const modeValidation = validators.mode(mode);
+  if (!modeValidation.valid) {
+    throw new Error(`Invalid mode: ${modeValidation.error}`);
+  }
+
+  const res = await fetch(
+    `/api/silhouette-target?dayKey=${encodeURIComponent(dayKey)}&mode=${encodeURIComponent(mode)}`,
+  );
+  return jsonOrText(res, "silhouette_target_failed");
+}
+
 export async function prefetchPokemon(id) {
   try {
     fetch(`/api/pokemon/${id}`);
