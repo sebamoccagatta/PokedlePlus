@@ -16,6 +16,7 @@ import {
   computeGlobalStreak,
   computeMissionProgress,
   computeStatusesByMode,
+  getSilhouetteStatus,
   getRecommendedMode,
 } from "./utils/dailyMission.js";
 import { HOME_GAME_ACTIONS } from "./constants/homeGames.js";
@@ -27,6 +28,7 @@ import { ToastContainer } from "./components/Toast.jsx";
 import { Home } from "./components/Home.jsx";
 import { ModeHub } from "./components/ModeHub.jsx";
 import StatsModal from "./components/StatsModal.jsx";
+import SilhouetteGame from "./components/SilhouetteGame.jsx";
 
 function formatHeight(dm) {
   const m = (Number(dm || 0) / 10).toFixed(1);
@@ -126,6 +128,9 @@ export default function App() {
       case HOME_GAME_ACTIONS.OPEN_GUESS_HUB:
         setHomeScreen("guess-hub");
         return;
+      case HOME_GAME_ACTIONS.OPEN_SILHOUETTE:
+        setHomeScreen("silhouette");
+        return;
       case HOME_GAME_ACTIONS.OPEN_UPCOMING_PLACEHOLDER:
         return;
       default:
@@ -178,6 +183,25 @@ export default function App() {
       label: t("game.daily_loop.tomorrow_cta"),
     };
   }, [lastMode, missionStatusByMode, mode, state.finished, t]);
+
+  const silhouetteStatus = useMemo(() => getSilhouetteStatus(missionDayKey), [missionDayKey, state.finished]);
+  const dailyGameStatuses = useMemo(() => {
+    const guessClassic = missionStatusByMode?.classic;
+    return {
+      "guess-pokemon": guessClassic?.won
+        ? "won"
+        : guessClassic?.played
+          ? "inProgress"
+          : "pending",
+      silhouette: silhouetteStatus.won
+        ? "won"
+        : silhouetteStatus.lost
+          ? "lost"
+          : silhouetteStatus.played
+            ? "inProgress"
+            : "pending",
+    };
+  }, [missionStatusByMode, silhouetteStatus]);
 
   const handlePostGameAction = () => {
     if (!postGameAction) return;
@@ -280,11 +304,23 @@ export default function App() {
       );
     }
 
+    if (homeScreen === "silhouette") {
+      return (
+        <SilhouetteGame
+          t={t}
+          addToast={addToast}
+          onBackHome={() => setHomeScreen("catalog")}
+          onChooseMode={() => setHomeScreen("guess-hub")}
+        />
+      );
+    }
+
     return (
       <Home
         onHomeGameAction={handleHomeGameAction}
         dayKey={dayKey}
         i18n={i18n}
+        dailyGameStatuses={dailyGameStatuses}
       />
     );
   }

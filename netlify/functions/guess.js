@@ -178,6 +178,11 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         dayKey,
         mode: cfg.id,
+        target: {
+          id: target.id,
+          name: target.name,
+          sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${target.id}.png`,
+        },
         comparison,
       }),
     };
