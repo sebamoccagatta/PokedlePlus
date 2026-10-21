@@ -5,11 +5,11 @@
 const { Redis } = require("@upstash/redis");
 
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minuto en milisegundos
-const RATE_LIMIT_MAX_REQUESTS = 30; // Máximo 30 requests por minuto
+const DEFAULT_RATE_LIMIT_MAX_REQUESTS = 30; // Máximo por defecto por minuto
 
-// Clave para guardar el contador de requests por IP
-function getRedisKey(ip) {
-  return `ratelimit:${ip}`;
+// Clave para guardar el contador de requests por IP con soporte de namespaces
+function getRedisKey(ip, namespace = "default") {
+  return `ratelimit:${namespace}:${ip}`;
 }
 
 let redisClient;
@@ -44,14 +44,15 @@ function getClientIp(event) {
   );
 }
 
-async function getRateLimitInfo(ip) {
+async function getRateLimitInfo(ip, options = {}) {
+  const { namespace = "default", limit = DEFAULT_RATE_LIMIT_MAX_REQUESTS } = options;
   const redis = getRedisClient();
   if (!redis) {
-    return getFallbackRateLimitInfo(ip);
+    return getFallbackRateLimitInfo(ip, { namespace, limit });
   }
 
   const now = Date.now();
-  const key = getRedisKey(ip);
+  const key = getRedisKey(ip, namespace);
 
   try {
     // Pipeline para operaciones atómicas
@@ -83,7 +84,7 @@ async function getRateLimitInfo(ip) {
       );
     } else {
       // @upstash/redis puede devolver el valor ya parseado o como string
-      const data = typeof currentValue === 'string'
+      const data = typeof currentValue === "string"
         ? JSON.parse(currentValue)
         : currentValue;
 
@@ -102,7 +103,7 @@ async function getRateLimitInfo(ip) {
       } else {
         count = data.count + 1;
 
-        if (count <= RATE_LIMIT_MAX_REQUESTS) {
+        if (count <= limit) {
           await redis.setex(
             key,
             Math.ceil((data.resetTime - now) / 1000),
@@ -117,45 +118,47 @@ async function getRateLimitInfo(ip) {
       }
     }
 
-    const remaining = Math.max(0, RATE_LIMIT_MAX_REQUESTS - count);
+    const remaining = Math.max(0, limit - count);
 
     return {
-      limit: RATE_LIMIT_MAX_REQUESTS,
+      limit,
       remaining,
       reset: resetTime,
-      exceeded: count > RATE_LIMIT_MAX_REQUESTS,
+      exceeded: count > limit,
     };
   } catch (error) {
     console.error("Redis rate limit error, using fallback:", error.message);
     redisClient = null;
-    return getFallbackRateLimitInfo(ip);
+    return getFallbackRateLimitInfo(ip, { namespace, limit });
   }
 }
 
 // Fallback in-memory para cuando Redis no está disponible
 const fallbackStore = new Map();
 
-function getFallbackRateLimitInfo(ip) {
+function getFallbackRateLimitInfo(ip, options = {}) {
+  const { namespace = "default", limit = DEFAULT_RATE_LIMIT_MAX_REQUESTS } = options;
   const now = Date.now();
+  const key = `${namespace}:${ip}`;
 
   // Limpiar entradas expiradas periódicamente
   if (fallbackStore.size > 1000) {
-    for (const [key, data] of fallbackStore.entries()) {
+    for (const [storeKey, data] of fallbackStore.entries()) {
       if (now >= data.resetTime) {
-        fallbackStore.delete(key);
+        fallbackStore.delete(storeKey);
       }
     }
   }
 
-  const existing = fallbackStore.get(ip);
+  const existing = fallbackStore.get(key);
 
   if (!existing || now >= existing.resetTime) {
     // Nueva ventana
     const data = { count: 1, resetTime: now + RATE_LIMIT_WINDOW };
-    fallbackStore.set(ip, data);
+    fallbackStore.set(key, data);
     return {
-      limit: RATE_LIMIT_MAX_REQUESTS,
-      remaining: RATE_LIMIT_MAX_REQUESTS - 1,
+      limit,
+      remaining: limit - 1,
       reset: data.resetTime,
     };
   }
@@ -163,9 +166,9 @@ function getFallbackRateLimitInfo(ip) {
   // Ventana existente
   const newCount = existing.count + 1;
 
-  if (newCount > RATE_LIMIT_MAX_REQUESTS) {
+  if (newCount > limit) {
     return {
-      limit: RATE_LIMIT_MAX_REQUESTS,
+      limit,
       remaining: 0,
       reset: existing.resetTime,
       exceeded: true,
@@ -173,21 +176,22 @@ function getFallbackRateLimitInfo(ip) {
   }
 
   existing.count = newCount;
-  fallbackStore.set(ip, existing);
+  fallbackStore.set(key, existing);
 
   return {
-    limit: RATE_LIMIT_MAX_REQUESTS,
-    remaining: RATE_LIMIT_MAX_REQUESTS - newCount,
+    limit,
+    remaining: limit - newCount,
     reset: existing.resetTime,
   };
 }
 
-async function resetRateLimit(ip) {
+async function resetRateLimit(ip, options = {}) {
+  const { namespace = "default" } = options;
   const redis = getRedisClient();
 
   if (redis) {
     try {
-      await redis.del(getRedisKey(ip));
+      await redis.del(getRedisKey(ip, namespace));
     } catch (error) {
       console.error("Error resetting rate limit in Redis:", error);
       redisClient = null;
@@ -195,7 +199,7 @@ async function resetRateLimit(ip) {
   }
 
   // También limpiar fallback
-  fallbackStore.delete(ip);
+  fallbackStore.delete(`${namespace}:${ip}`);
 }
 
 module.exports = { getClientIp, getRateLimitInfo, resetRateLimit };

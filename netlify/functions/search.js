@@ -1,3 +1,4 @@
+const { getClientIp, getRateLimitInfo } = require("./_lib/rateLimitRedis");
 const { sql } = require("./_lib/db");
 const { modeConfig } = require("./_lib/modes");
 const { validators } = require("../../shared/validation.cjs");
@@ -82,6 +83,27 @@ async function runSafeFallbackSearch(db, { q, cfg, limit, offset }) {
 
 exports.handler = async (event) => {
   try {
+    const ip = getClientIp(event);
+    const rateInfo = await getRateLimitInfo(ip, { namespace: 'search', limit: 120 });
+
+    if (rateInfo.exceeded) {
+      return {
+        statusCode: 429,
+        headers: {
+          'content-type': 'application/json',
+          'retry-after': Math.ceil((rateInfo.reset - Date.now()) / 1000).toString(),
+          'x-ratelimit-limit': rateInfo.limit.toString(),
+          'x-ratelimit-remaining': rateInfo.remaining.toString(),
+          'x-ratelimit-reset': new Date(rateInfo.reset).toISOString(),
+        },
+        body: JSON.stringify({
+          error: 'RATE_LIMIT_EXCEEDED',
+          message: 'Too many requests. Please try again later.',
+          retryAfter: Math.ceil((rateInfo.reset - Date.now()) / 1000),
+        }),
+      };
+    }
+
     const qRaw = event.queryStringParameters?.q || "";
     const q = String(qRaw).trim().toLowerCase();
     const offset = Number(event.queryStringParameters?.offset || 0);

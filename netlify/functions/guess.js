@@ -49,7 +49,7 @@ exports.handler = async (event) => {
     }
 
     const ip = getClientIp(event);
-    const rateInfo = await getRateLimitInfo(ip);
+    const rateInfo = await getRateLimitInfo(ip, { namespace: 'guess', limit: 30 });
 
     if (rateInfo.exceeded) {
       return {
