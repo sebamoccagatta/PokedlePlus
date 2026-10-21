@@ -87,11 +87,6 @@ export default function App() {
   } = usePokemonSearch(mode, t, setError, clearCache);
 
   useEffect(() => {
-    if (!mode) return;
-    fetch(`/api/search?q=a&offset=0&mode=${encodeURIComponent(mode)}`).catch(() => {});
-  }, [mode]);
-
-  useEffect(() => {
     let mounted = true;
     apiMeta("classic")
       .then((meta) => {
