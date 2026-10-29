@@ -21,7 +21,7 @@ Gracias por tu interés en contribuir a Pokedle+! Este documento te guiará para
 
 Asegurate de tener instalado:
 
-- **Node.js 18+** (recomendado 20)
+- **Node.js 22** (misma versión que CI)
 - **npm** (viene con Node.js)
 - **Git**
 - **Netlify CLI** (opcional, para desarrollo local)
@@ -44,11 +44,11 @@ cd PokedlePlus
 
 ```bash
 # Dependencias del backend (raíz)
-npm install
+npm ci
 
 # Dependencias del frontend
 cd frontend
-npm install
+npm ci
 cd ..
 ```
 
@@ -153,7 +153,6 @@ pokedle-plus/
 | `npm run db:seed`   | Inserta los datos de Pokémon (todos los generaciones)  |
 | `npm run dev`       | Ejecuta `netlify dev` (frontend + functions)           |
 | `npm run build`     | Construye el frontend (`cd frontend && npm run build`) |
-| `npm run lint`      | Ejecuta ESLint en todo el proyecto                     |
 
 ### En `frontend/`
 
@@ -189,7 +188,11 @@ import { cn } from "../utils/cn";
 - Antes de commitear, ejecuta:
 
 ```bash
-npm run lint
+npm run test:validation
+npm run test:game-logic
+npm run verify:shared
+node scripts/test-evolution-stages.js
+npm run build
 ```
 
 ### Backend (Netlify Functions)
@@ -212,10 +215,14 @@ npm run lint
 
 ## 🔄 Flujo de trabajo
 
-### 1. Crear una rama
+### 1. Crear un fork y una rama
+
+Para contribuciones externas, creá un fork en tu cuenta y cloná tu fork. `origin` debe apuntar a tu fork. No se necesita acceso de escritura a este repositorio ni acceso a Netlify. Usá bases y credenciales propias de desarrollo; nunca producción.
+
+### Crear la rama
 
 ```bash
-# Desde master/main
+# Desde master
 git checkout -b feature/tu-nueva-feature
 ```
 
@@ -243,7 +250,7 @@ Usa el formato de **Conventional Commits**:
 git push origin feature/tu-nueva-feature
 ```
 
-Luego crea un **Pull Request** en GitHub desde tu rama a `main/master`.
+Luego crea un **Pull Request** en GitHub desde tu rama a `master`.
 
 ### 4. Revisión
 
@@ -253,11 +260,11 @@ Luego crea un **Pull Request** en GitHub desde tu rama a `main/master`.
 
 ### 5. Merge
 
-- Una vez aprobada, la PR se mergea a `main/master`
+- Una vez aprobada, la PR se mergea a `master`
 - Tu rama puede eliminarse:
 
 ```bash
-git checkout main
+git checkout master
 git branch -d feature/tu-nueva-feature
 ```
 
@@ -315,7 +322,7 @@ Otras opciones evaluadas.
 
 ## 📄 Licencia
 
-Al contribuir, aceptas que tus contribuciones se licencian bajo la misma licencia del proyecto (revisar `LICENSE`).
+Todavía no hay un archivo LICENSE aprobado por el mantenedor. El campo ISC del package.json no reemplaza esa decisión ni concede derechos sobre marcas y recursos de terceros. Antes de aportar código sustancial, acordá con el mantenedor los términos de la contribución.
 
 ---
 
@@ -336,3 +343,7 @@ Al contribuir, aceptas que tus contribuciones se licencian bajo la misma licenci
 ---
 
 ¿Tenés dudas? Abre un issue o contacta al equipo del proyecto. ¡Gracias por contribuir! 🎮
+
+## Seguridad y validación
+
+Consultá [SECURITY.md](SECURITY.md). CI ejecuta las pruebas sin servicios externos y el build. Las pruebas de endpoints se ejecutan aparte, únicamente contra un entorno de desarrollo. CI no incluye lint como control obligatorio mientras se revisa la configuración existente. Los cambios requieren revisión de @sebamoccagatta; nuevos commits invalidan la aprobación cuando se activen las reglas.
