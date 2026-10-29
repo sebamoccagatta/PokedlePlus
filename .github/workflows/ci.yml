@@ -1,0 +1,38 @@
+name: CI
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  checks:
+    name: Tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      # No credentials, environments, deployment or production endpoint tests.
+      - name: Install backend dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Validation tests
+        run: npm run test:validation
+      - name: Game logic tests
+        run: npm run test:game-logic
+      - name: Shared logic verification
+        run: npm run verify:shared
+      - name: Evolution stage tests
+        run: node scripts/test-evolution-stages.js
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend --ignore-scripts --no-audit --no-fund
+      - name: Production build
+        run: npm run build
