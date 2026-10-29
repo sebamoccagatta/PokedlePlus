@@ -15,7 +15,7 @@
     "verify:shared": "node scripts/verify-shared-logic.js"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.0",
+    "@neondatabase/serverless": "^1.2.0",
     "@upstash/redis": "^1.36.1",
     "dotenv": "^17.2.3",
     "postgres": "^3.4.7"
